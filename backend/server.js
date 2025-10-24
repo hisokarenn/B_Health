@@ -2,8 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import pool from './db.js'; 
-// REMOVIDO: import bcrypt from 'bcrypt'; 
-// REMOVIDO: import de bibliotecas de segurança
+
 
 // CONFIGURAÇÕES GLOBAIS
 const app = express();

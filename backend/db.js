@@ -2,13 +2,14 @@ import pkg from 'pg';
 
 const { Pool } = pkg;
 
+// **TESTE: Cole a string de conexão COMPLETA aqui, substituindo a senha.**
+const SUPABASE_URI = "postgresql://postgres:senhaSupaBase192@db.kaljaooxbohmxcuzbagm.supabase.co:5432/postgres";
+
 const pool = new Pool({
-  
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT, // Ou apenas o número 5432
+  connectionString: SUPABASE_URI,
+  ssl: {
+      rejectUnauthorized: false
+  }
 });
 
 export default pool;
