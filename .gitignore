@@ -1,0 +1,23 @@
+# Ficheiro .gitignore (Coloque na pasta raiz do seu projeto)
+
+# IGNORAR SEGREDOS
+# Impede que o ficheiro com a sua senha do Supabase seja enviado
+/backend/.env
+/frontend/.env
+
+# IGNORAR DEPENDÊNCIAS
+# (Pastas enormes que são reinstaladas com 'npm install')
+# Ignora o node_modules que está dentro do backend
+/backend/node_modules/
+# Ignora o node_modules que está dentro do frontend
+/frontend/node_modules/
+# Ignora o node_modules que possa estar na raiz
+/node_modules/
+
+# IGNORAR BACKUPS DE DADOS
+# (O seu dump local do PostgreSQL)
+local_dump.dump
+
+# IGNORAR FICHEIROS DO SISTEMA OPERACIONAL
+.DS_Store
+Thumbs.db
