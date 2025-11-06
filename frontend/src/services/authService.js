@@ -2,8 +2,8 @@
 
 import axios from 'axios';
 
-// ATENÇÃO: Use o IP da sua máquina aqui!
-const API_BASE_URL = 'http://192.168.1.5:3000';
+// ATENÇÃO: mudar URL toda vez que ligar e desligar o ngrok
+const API_BASE_URL = 'https://autobiographically-nonplanetary-marlena.ngrok-free.dev';
 
 //Cadastra
 export const cadastrarPaciente = (data) => {

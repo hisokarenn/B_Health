@@ -1,8 +1,8 @@
 {
-  "name": "b_health_app",
+  "name": "b_health_app_backend",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Backend da aplicação B Health",
+  "main": "server.js",
   "type": "module",
   "scripts": {
     "start": "node server.js",
