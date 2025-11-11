@@ -1,0 +1,56 @@
+# ------------------------------------------------------------------
+# 1. DEPENDÊNCIAS DE PROJETO (Grandes e Geradas)
+# ------------------------------------------------------------------
+
+# Pastas de dependências (Backend e Frontend)
+/backend/node_modules
+/frontend/node_modules
+
+# Arquivos de lock do NPM/Yarn
+/backend/package-lock.json
+/frontend/package-lock.json
+yarn.lock
+
+
+# ------------------------------------------------------------------
+# 2. ARQUIVOS DE SEGURANÇA E AMBIENTE (CRÍTICO!)
+# ------------------------------------------------------------------
+
+# O arquivo que contém senhas do Supabase/PostgreSQL.
+.env
+.env.*
+
+# Arquivos de dump, backup ou dados locais
+*.dump
+*.sql-backup
+local_dump.dump
+
+
+# ------------------------------------------------------------------
+# 3. ARQUIVOS DE CACHE E BUILD DO EXPO/REACT NATIVE
+# ------------------------------------------------------------------
+
+# Cache e configuração local do Expo
+/frontend/.expo
+/frontend/.expo-shared/
+
+# Arquivos de build (APK/AAB)
+/build/
+
+# Cache e logs
+npm-debug.log*
+yarn-error.log*
+/dist/
+*.bundle
+
+
+# ------------------------------------------------------------------
+# 4. ARQUIVOS DE SISTEMA E EDITOR
+# ------------------------------------------------------------------
+
+# macOS
+.DS_Store
+
+# VS Code / IDEs
+.vscode/
+```
