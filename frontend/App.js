@@ -55,7 +55,6 @@ export default function App() {
 
     return (
         <View style={styles.rootContainer}>
-            <Text style={styles.header}>B Health - Carteira Digital</Text>
             {renderScreen()}
         </View>
     );
@@ -65,16 +64,9 @@ const styles = StyleSheet.create({
     rootContainer: {
         flex: 1,
         backgroundColor: '#fff',
-        paddingTop: 50,
     },
-    header: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        textAlign: 'center',
-        marginBottom: 20,
-        color: '#007AFF',
-    },
+
     fullScreen: { 
-        flex: 1
+        flex: 1,
     }
 });

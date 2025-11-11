@@ -3,7 +3,7 @@
 import axios from 'axios';
 
 // ATENÇÃO: mudar URL toda vez que ligar e desligar o ngrok
-const API_BASE_URL = 'https://autobiographically-nonplanetary-marlena.ngrok-free.dev';
+const API_BASE_URL='https://b-health-app-api.onrender.com';
 
 //Cadastra
 export const cadastrarPaciente = (data) => {
