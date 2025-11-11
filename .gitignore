@@ -48,9 +48,5 @@ yarn-error.log*
 # 4. ARQUIVOS DE SISTEMA E EDITOR
 # ------------------------------------------------------------------
 
-# macOS
-.DS_Store
-
 # VS Code / IDEs
 .vscode/
-```
