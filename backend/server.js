@@ -23,12 +23,12 @@ const port = process.env.PORT || 3000;
 app.use(cors()); 
 app.use(express.json()); 
 
-// --- ROTAS ---
+// --- ROTAS
 app.get('/', (req, res) => {
     res.send('API B Health (Node.js/PostgreSQL) rodando!');
 });
 
-// --- Rota de Cadastro de Paciente ---
+// --- Rota de Cadastro de Paciente
 app.post('/pacientes', async (req, res) => {
     try {
         const { nome, cpf, cns, email, senha} = req.body;
@@ -60,7 +60,7 @@ app.post('/pacientes', async (req, res) => {
     }
 });
 
-// --- Rota de Login de Paciente ---
+// --- Rota de Login de Pacientes
 app.post('/login', async (req, res) => {
     const { email, senha } = req.body;
 
@@ -95,7 +95,7 @@ app.post('/login', async (req, res) => {
     }
 });
 
-// --- Rota de Visualização do Histórico ---
+// --- Rota de Visualização do Histórico
 app.get('/historico/:pacienteId', async (req, res) => {
     const pacienteId = parseInt(req.params.pacienteId);
 
@@ -131,7 +131,7 @@ app.get('/historico/:pacienteId', async (req, res) => {
     }
 });
 
-// --- Rota de Visualização de Campanhas ---
+// --- Rota de Visualização de Campanhas
 app.get('/campanhas', async (req, res) => {
     try {
         const result = await pool.query(
@@ -165,7 +165,7 @@ app.get('/campanhas', async (req, res) => {
 });
 
 
-// --- FUNÇÃO DE INICIALIZAÇÃO ---
+// --- FUNÇÃO DE INICIALIZAÇÃO
 const startServer = async () => {
     try {
         const client = await pool.connect();
@@ -182,11 +182,11 @@ const startServer = async () => {
     }
 };
 
-// --- INICIA O SERVIDOR ---
+// --- INICIA O SERVIDOR
 startServer();
 
 
-// --- Handlers Globais de Erro ---
+// --- Handlers Globais de Erro
 process.on('uncaughtException', (err) => {
     console.error('[ERRO GRAVE (Exceção Não Capturada)]', err.message, err.stack);
 });
@@ -195,7 +195,7 @@ process.on('unhandledRejection', (reason, promise) => {
     console.error('[ERRO GRAVE (Rejeição Não Capturada)]', 'Uma Promise falhou:', reason);
 });
 
-// --- "KEEP-ALIVE" ---
+// --- "KEEP-ALIVE"
 // Impede que o processo do Node.js encerre sozinho.
 // Isto força o loop de eventos a permanecer ativo.
 setInterval(() => {

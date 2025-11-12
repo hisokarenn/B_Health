@@ -23,7 +23,7 @@ const pool = new Pool({
     }
 });
 
-// --- SOLUÇÃO (Rede de Segurança do Pool) ---
+// --- Rede de Segurança do Pool
 // Captura erros que ocorrem durante a inatividade ou reconexão
 pool.on('error', (err, client) => {
     console.error('[ERRO INESPERADO NO POOL DE CONEXÃO]', 'Cliente ocioso teve um erro:', err.message, err.stack);
