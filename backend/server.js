@@ -1,41 +1,34 @@
 import "./config.js";
-// --- INÍCIO DA CORREÇÃO DOTENV ---
-// Carregamento explícito para Módulos ES ("type": "module")
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-// Recria o '__dirname' que não existe em Módulos ES
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-// Carrega o .env explicitamente do diretório ATUAL (backend)
 const envResult = dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 if (envResult.error) {
     console.error("ERRO GRAVE DO DOTENV:", envResult.error);
 }
-// --- FIM DA CORREÇÃO ---
 
 import express from 'express';
 import cors from 'cors';
-import pool from './db.js'; // Importa o pool (que ainda não conectou)
+import pool from './db.js';
 
 // CONFIGURAÇÕES GLOBAIS
 const app = express();
-// A porta será lida do .env ou usará 3000 como padrão
 const port = process.env.PORT || 3000; 
 
 // MIDDLEWARES
 app.use(cors()); 
 app.use(express.json()); 
 
-// --- ROTAS (Todas as suas rotas /pacientes, /login, etc. vêm aqui) ---
+// --- ROTAS
 app.get('/', (req, res) => {
     res.send('API B Health (Node.js/PostgreSQL) rodando!');
 });
 
-// --- Rota de Cadastro de Paciente (RF01) ---
+// --- Rota de Cadastro de Paciente
 app.post('/pacientes', async (req, res) => {
     try {
         const { nome, cpf, cns, email, senha} = req.body;
@@ -67,7 +60,7 @@ app.post('/pacientes', async (req, res) => {
     }
 });
 
-// --- Rota de Login de Paciente (RF02) ---
+// --- Rota de Login de Pacientes
 app.post('/login', async (req, res) => {
     const { email, senha } = req.body;
 
@@ -102,7 +95,7 @@ app.post('/login', async (req, res) => {
     }
 });
 
-// --- Rota de Visualização do Histórico (RF03) ---
+// --- Rota de Visualização do Histórico
 app.get('/historico/:pacienteId', async (req, res) => {
     const pacienteId = parseInt(req.params.pacienteId);
 
@@ -138,7 +131,7 @@ app.get('/historico/:pacienteId', async (req, res) => {
     }
 });
 
-// --- Rota de Visualização de Campanhas (RF04) ---
+// --- Rota de Visualização de Campanhas
 app.get('/campanhas', async (req, res) => {
     try {
         const result = await pool.query(
@@ -170,33 +163,30 @@ app.get('/campanhas', async (req, res) => {
         res.status(500).json({ error: 'Erro interno ao consultar campanhas de vacinação.' });
     }
 });
-// --- FIM DAS ROTAS ---
 
 
-// --- NOVA FUNÇÃO DE INICIALIZAÇÃO ---
+// --- FUNÇÃO DE INICIALIZAÇÃO
 const startServer = async () => {
     try {
-        // 1. Tenta pegar um cliente do pool (Testa a conexão)
         const client = await pool.connect();
         console.log("Conexão com o Supabase estabelecida com sucesso! O Pool está pronto.");
-        client.release(); // Libera o cliente
+        client.release();
 
-        // 2. SÓ ENTÃO inicia o servidor
         app.listen(port, () => {
             console.log(`Servidor API B Health rodando na porta ${port}`);
         });
 
     } catch (err) {
         console.error("Erro CRÍTICO: Falha ao conectar ao Supabase (DB) na inicialização:", err.message);
-        process.exit(1); // Encerra o processo se não conseguir conectar ao DB
+        process.exit(1);
     }
 };
 
-// --- INICIA O SERVIDOR ---
+// --- INICIA O SERVIDOR
 startServer();
 
 
-// --- Handlers Globais de Erro (Mantém) ---
+// --- Handlers Globais de Erro
 process.on('uncaughtException', (err) => {
     console.error('[ERRO GRAVE (Exceção Não Capturada)]', err.message, err.stack);
 });
@@ -205,12 +195,10 @@ process.on('unhandledRejection', (reason, promise) => {
     console.error('[ERRO GRAVE (Rejeição Não Capturada)]', 'Uma Promise falhou:', reason);
 });
 
-// --- SOLUÇÃO "KEEP-ALIVE" ---
-// Impede que o processo do Node.js encerre sozinho (comum no Git Bash/Windows)
+// --- "KEEP-ALIVE"
+// Impede que o processo do Node.js encerre sozinho.
 // Isto força o loop de eventos a permanecer ativo.
 setInterval(() => {
     // Esta função não faz nada, mas mantém o processo "ocupado".
-}, 1000 * 60 * 60); // Executa a cada hora (o tempo é irrelevante)
-
+}, 1000 * 60 * 60);
 console.log("Processo 'keep-alive' iniciado para manter o servidor ativo.");
-// --- FIM DA SOLUÇÃO ---
