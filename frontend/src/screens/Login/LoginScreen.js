@@ -18,6 +18,7 @@ const LoginScreen = ({ setScreen, onLoginSuccess }) => {
   const handleLogin = async () => {
     if (!email || !senha) {
       Alert.alert('Erro', 'E-mail e senha são obrigatórios.');
+      
       return;
     }
 

@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+
 import { Ionicons } from '@expo/vector-icons';
 import { cadastrarPaciente } from '../../services/authService';
 
@@ -195,7 +196,7 @@ const styles = StyleSheet.create({
     height: 65,
     tintColor: '#fff',
     marginRight: 15,
-    marginLeft: 25,
+    marginLeft: 15,
     shadowColor: '#fff',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.8,
@@ -237,6 +238,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     marginBottom: 15,
     color: '#333',
+    margin: -5,
   },
 
   senhaContainer: {
@@ -245,6 +247,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#e9ecee',
     borderRadius: 20,
     marginBottom: 15,
+    height: 51,
   },
 
   botao: {
