@@ -95,6 +95,28 @@ app.post('/login', async (req, res) => {
     }
 });
 
+// --- Rota de Visualizar/Buscar Perfil do Paciente
+app.get('/pacientes/:id', async (req, res) => {
+    const { id } = req.params; // Pega o ID da URL
+
+    try {
+        const result = await pool.query(
+            'SELECT nome, email, cpf, cns FROM pessoas WHERE id = $1',
+            [id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Paciente não encontrado.' });
+        }
+        
+        res.status(200).json(result.rows[0]);
+
+    } catch (error) {
+        console.error('Erro ao buscar perfil do paciente:', error);
+        res.status(500).json({ error: 'Erro interno do servidor.' });
+    }
+});
+
 // --- Rota de Visualização do Histórico
 app.get('/historico/:pacienteId', async (req, res) => {
     const pacienteId = parseInt(req.params.pacienteId);
