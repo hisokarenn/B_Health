@@ -8,9 +8,9 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-
 import { Ionicons } from '@expo/vector-icons';
 import { cadastrarPaciente } from '../../services/authService';
+import { Dimensions } from 'react-native';
 
 const CadastroScreen = ({ setScreen }) => {
   const [nome, setNome] = useState('');
@@ -54,13 +54,13 @@ const CadastroScreen = ({ setScreen }) => {
     <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : -50}
+        behavior={Platform.OS === 'android' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'android' ? 0 : -50}
       >
         <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
           <View style={styles.container}>
             <LinearGradient
-              colors={['#1a1e52ff', '#2d3387ff', '#c14e1dff']}
+              colors={['#0b4786ff', '#001c42ff']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={styles.cabecalho}
@@ -165,6 +165,8 @@ const CadastroScreen = ({ setScreen }) => {
 
 export default CadastroScreen;
 
+const {width, height} = Dimensions.get('window');
+
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
@@ -173,17 +175,17 @@ const styles = StyleSheet.create({
 
   container: {
     flex: 1,
-    paddingTop: Platform.OS === 'android' ? 1 : 0,
+    paddingTop: Platform.OS === 'android' ? 0 : 0,
     backgroundColor: '#ffffff',
   },
 
   cabecalho: {
-    height: 160,
+    height: height * 0.18,
     justifyContent: 'center',
     alignItems: 'flex-start',
-    borderBottomLeftRadius: 40,
-    borderBottomRightRadius: 40,
-    paddingHorizontal: 25,
+    borderBottomLeftRadius: width * 0.10,
+    borderBottomRightRadius: width * 0.10,
+    paddingHorizontal: width * 0.06,
   },
 
   cabecalho2: {
@@ -192,40 +194,38 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    width: 65,
-    height: 65,
+    width: width * 0.15,
+    height: width * 0.15,
     tintColor: '#fff',
-    marginRight: 15,
-    marginLeft: 15,
-    shadowColor: '#fff',
-    shadowOffset: { width: 0, height: 0 },
+    marginRight: width * 0.04,
+    marginLeft: width * 0.04,
     shadowOpacity: 0.8,
     shadowRadius: 10,
   },
 
   titulo: {
-    fontSize: 28,
+    fontSize: width * 0.07,
     fontWeight: 'bold',
     color: '#fff',
   },
 
   loginTitulo: {
-    marginTop: 20,
-    fontSize: 23,
+    marginTop: height * 0.02,
+    fontSize: width * 0.055,
     fontWeight: 'bold',
-    color: '#57636C',
+    color: '#192f3fff',
     textAlign: 'center',
   },
 
   containerCadastro: {
     backgroundColor: '#ffffff',
-    margin: 30,
-    padding: 20,
-    marginTop: 10,
+    margin: 20,
+    padding: width * 0.05,
+    marginTop: height * 0.01,
   },
 
   label: {
-    fontSize: 14,
+    fontSize: width * 0.035,
     color: '#333',
     marginBottom: 5,
     fontWeight: 'bold',
@@ -233,36 +233,33 @@ const styles = StyleSheet.create({
 
   input: {
     backgroundColor: '#e9ecee',
-    borderRadius: 20,
-    height: 47,
+    borderRadius: width * 0.05,
+    height: height * 0.055,
     paddingHorizontal: 15,
     marginBottom: 15,
     color: '#333',
-    margin: -5,
   },
 
   senhaContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#e9ecee',
-    borderRadius: 20,
+    borderRadius: width * 0.05,
     marginBottom: 15,
-    height: 51,
   },
 
   botao: {
-    backgroundColor: '#3a445d',
+    backgroundColor: '#00245aff',
     borderRadius: 20,
     paddingVertical: 12,
     alignItems: 'center',
     marginVertical: 10,
-    height: 45,
-    margin: 30,
+    height: height * 0.055,
   },
 
   btnTexto: {
     color: '#ffffff',
-    fontSize: 16,
+    fontSize: width * 0.04,
     fontWeight: 'bold',
   },
 
