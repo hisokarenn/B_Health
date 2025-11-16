@@ -8,6 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { realizarLogin } from '../../services/authService';
+import { Dimensions } from 'react-native';
 
 const LoginScreen = ({ setScreen, onLoginSuccess }) => {
   const [email, setEmail] = useState('');
@@ -41,8 +42,8 @@ const LoginScreen = ({ setScreen, onLoginSuccess }) => {
     <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : -50}
+        behavior={Platform.OS === 'android' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'android' ? 0 : -50}
       >
         <ScrollView
           contentContainerStyle={{ flexGrow: 1 }}
@@ -51,7 +52,7 @@ const LoginScreen = ({ setScreen, onLoginSuccess }) => {
 
           <View style={styles.container}>
             <LinearGradient
-              colors={['#1a1e52ff', '#2d3387ff', '#c14e1dff']}
+              colors={['#0b4786ff', '#001c42ff']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={styles.cabecalho}
@@ -124,34 +125,36 @@ const LoginScreen = ({ setScreen, onLoginSuccess }) => {
 
 export default LoginScreen;
 
+const {width, height} = Dimensions.get('window');
+
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#eef1f4',
+    backgroundColor: 'transparent',
   },
 
   container: {
     flex: 1,
-    paddingTop: Platform.OS === 'android' ? 1 : 0,
+    paddingTop: Platform.OS === 'android' ? 0 : 0,
     backgroundColor: '#ffffff',
   },
 
   cabecalho: {
-    height: 320,
-    borderBottomLeftRadius: 50,
-    borderBottomRightRadius: 50,
+    height: height * 0.35,
+    borderBottomLeftRadius: width * 0.12,
+    borderBottomRightRadius: width * 0.12,
     alignItems: 'center',
     justifyContent: 'center',
   },
 
   logo: {
-    width: 150,
-    height: 150,
+    width: width * 0.32,
+    height: width * 0.32,
     tintColor: 'white',
   },
 
   titulo: {
-    fontSize: 35,
+    fontSize: width * 0.085,
     fontWeight: 'bold',
     color: '#ffffff',
     marginTop: 15,
@@ -159,22 +162,22 @@ const styles = StyleSheet.create({
 
   loginTitulo: {
     marginTop: 20,
-    fontSize: 23,
+    fontSize: width * 0.06,
     fontWeight: 'bold',
-    color: '#57636C',
+    color: '#192f3fff',
     textAlign: 'center',
   },
 
   containerLogin: {
-    backgroundColor: '#ffffff',
-    margin: 30,
-    padding: 20,
+    backgroundColor: '#ffff',
+    margin: width * 0.08,
+    padding: width * 0.05,
     marginTop: 10,
   },
 
   emaileSenha: {
-    fontSize: 14,
-    color: '#333',
+    fontSize: width * 0.035,
+    color: '#181818ff',
     marginBottom: 5,
     fontWeight: 'bold',
   },
@@ -182,7 +185,7 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: '#e9ecee',
     borderRadius: 20,
-    height: 47,
+    height: height * 0.055,
     paddingHorizontal: 15,
     marginBottom: 15,
     color: '#333',
@@ -197,18 +200,16 @@ const styles = StyleSheet.create({
   },
 
   botao: {
-    backgroundColor: '#3a445d',
+    backgroundColor: '#00245aff',
     borderRadius: 20,
-    paddingVertical: 12,
+    paddingVertical: height * 0.015,
     alignItems: 'center',
     marginVertical: 10,
-    height: 45,
-    margin: 30,
   },
 
   btnTexto: {
     color: '#ffffff',
-    fontSize: 16,
+    fontSize: width * 0.04,
     fontWeight: 'bold',
   },
 
