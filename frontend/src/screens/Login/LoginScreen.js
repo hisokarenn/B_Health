@@ -1,35 +1,37 @@
-// frontend/src/screens/Login/LoginScreen.js
-
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Alert, TouchableOpacity, StyleSheet } from 'react-native';
-import { realizarLogin } from '../../services/authService';
+import {
+  View, Text, TextInput, TouchableOpacity, StyleSheet, Image, ActivityIndicator, Alert, Platform,
+  KeyboardAvoidingView, ScrollView,
 
-// MODIFICAÇÃO: onLoginSuccess adicionado como prop
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
+import { realizarLogin } from '../../services/authService';
+import { Dimensions } from 'react-native';
+
 const LoginScreen = ({ setScreen, onLoginSuccess }) => {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async () => {
     if (!email || !senha) {
-      Alert.alert('Erro', 'E-mail e Senha são obrigatórios para o Login.');
+      Alert.alert('Erro', 'E-mail e senha são obrigatórios.');
+      
       return;
     }
 
     setLoading(true);
     try {
       const response = await realizarLogin({ email, senha });
-
-      // CÓDIGO ANTERIOR: Alert.alert('Sucesso!', `Bem-vindo(a), ${response.data.usuario.nome}!`);
-      
-      // MODIFICAÇÃO: Chamada para a função de sucesso que está no App.js
-      onLoginSuccess(response.data.usuario); 
-      
+      onLoginSuccess(response.data.usuario);
       setEmail('');
       setSenha('');
-      
     } catch (error) {
-      const errorMessage = error.response?.data?.error || 'Erro de rede ou servidor.';
+      const errorMessage =
+        error.response?.data?.error || 'Erro de rede ou servidor.';
       Alert.alert('Erro no Login', errorMessage);
     } finally {
       setLoading(false);
@@ -37,30 +39,189 @@ const LoginScreen = ({ setScreen, onLoginSuccess }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Acessar Conta (RF02)</Text>
-      
-      <TextInput style={styles.input} placeholder="E-mail" keyboardType="email-address" value={email} onChangeText={setEmail} autoCapitalize="none" />
-      <TextInput style={styles.input} placeholder="Senha" secureTextEntry={true} value={senha} onChangeText={setSenha} />
-      
-      <Button title={loading ? "Entrando..." : "Acessar"} onPress={handleLogin} disabled={loading} />
+    <SafeAreaView style={styles.safeArea}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'android' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'android' ? 0 : -50}
+      >
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1 }}
+          showsVerticalScrollIndicator={false}
+        >
 
-      <TouchableOpacity style={styles.switchButton} onPress={() => setScreen('cadastro')}>
-        <Text style={styles.switchButtonText}>Não tem conta? Cadastre-se</Text>
-      </TouchableOpacity>
-    </View>
+          <View style={styles.container}>
+            <LinearGradient
+              colors={['#0b4786ff', '#001c42ff']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.cabecalho}
+            >
+              <Image
+                source={require('../../../assets/bhealth.png')}
+                style={styles.logo}
+              />
+              <Text style={styles.titulo}>B Health</Text>
+            </LinearGradient>
+
+            <Text style={styles.loginTitulo}>Login</Text>
+
+            <View style={styles.containerLogin}>
+              <Text style={styles.emaileSenha}>E-mail*</Text>
+              <TextInput
+                placeholder="Digite o seu usuário"
+                placeholderTextColor="#999"
+                style={styles.input}
+                value={email}
+                onChangeText={setEmail}
+                autoCapitalize="none"
+                keyboardType="email-address"
+              />
+
+              <Text style={styles.emaileSenha}>Senha*</Text>
+              <View style={styles.senhaContainer}>
+                <TextInput
+                  placeholder="Digite a sua senha"
+                  placeholderTextColor="#999"
+                  secureTextEntry={!showPassword}
+                  value={senha}
+                  onChangeText={setSenha}
+                  style={[styles.input, { flex: 1, marginBottom: 0 }]}
+                />
+                <TouchableOpacity
+                  onPress={() => setShowPassword(!showPassword)}
+                  style={{ marginHorizontal: 8 }}
+                >
+                  <Ionicons
+                    name={showPassword ? 'eye-off' : 'eye'}
+                    size={22}
+                    color="#666"
+                  />
+                </TouchableOpacity>
+              </View>
+
+              <TouchableOpacity
+                style={[styles.botao, loading && styles.btnDesativado]}
+                onPress={handleLogin}
+                disabled={loading}
+              >
+                {loading ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <Text style={styles.btnTexto}>Entrar</Text>
+                )}
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={() => setScreen('cadastro')}>
+                <Text style={styles.cadastroDois}>É novo aqui? Cadastre-se</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
-
-
-// ... (Estilos) ...
-const styles = StyleSheet.create({
-    container: { flex: 1, justifyContent: 'center', padding: 30, },
-    title: { fontSize: 22, fontWeight: 'bold', marginBottom: 30, textAlign: 'center', color: '#007AFF', },
-    input: { height: 50, borderColor: '#ccc', borderWidth: 1, marginBottom: 15, paddingHorizontal: 15, borderRadius: 8, backgroundColor: '#f9f9f9', },
-    switchButton: { marginTop: 20, alignItems: 'center', },
-    switchButtonText: { color: '#007AFF', fontSize: 14, }
-});
-
 export default LoginScreen;
+
+const {width, height} = Dimensions.get('window');
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: 'transparent',
+  },
+
+  container: {
+    flex: 1,
+    paddingTop: Platform.OS === 'android' ? 0 : 0,
+    backgroundColor: '#ffffff',
+  },
+
+  cabecalho: {
+    height: height * 0.35,
+    borderBottomLeftRadius: width * 0.12,
+    borderBottomRightRadius: width * 0.12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  logo: {
+    width: width * 0.32,
+    height: width * 0.32,
+    tintColor: 'white',
+  },
+
+  titulo: {
+    fontSize: width * 0.085,
+    fontWeight: 'bold',
+    color: '#ffffff',
+    marginTop: 15,
+  },
+
+  loginTitulo: {
+    marginTop: 20,
+    fontSize: width * 0.06,
+    fontWeight: 'bold',
+    color: '#192f3fff',
+    textAlign: 'center',
+  },
+
+  containerLogin: {
+    backgroundColor: '#ffff',
+    margin: width * 0.08,
+    padding: width * 0.05,
+    marginTop: 10,
+  },
+
+  emaileSenha: {
+    fontSize: width * 0.035,
+    color: '#181818ff',
+    marginBottom: 5,
+    fontWeight: 'bold',
+  },
+
+  input: {
+    backgroundColor: '#e9ecee',
+    borderRadius: 20,
+    height: height * 0.055,
+    paddingHorizontal: 15,
+    marginBottom: 15,
+    color: '#333',
+  },
+
+  senhaContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#e9ecee',
+    borderRadius: 20,
+    marginBottom: 15,
+  },
+
+  botao: {
+    backgroundColor: '#00245aff',
+    borderRadius: 20,
+    paddingVertical: height * 0.015,
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+
+  btnTexto: {
+    color: '#ffffff',
+    fontSize: width * 0.04,
+    fontWeight: 'bold',
+  },
+
+  btnDesativado: {
+    backgroundColor: '#9aa0b1',
+  },
+
+  cadastroDois: {
+    color: '#777',
+    textAlign: 'center',
+    marginTop: 10,
+    textDecorationLine: 'underline',
+    fontWeight: 'bold',
+  },
+});
