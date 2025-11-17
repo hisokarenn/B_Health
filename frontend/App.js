@@ -84,4 +84,6 @@ const styles = StyleSheet.create({
   fullScreen: {
     flex: 1,
   }
-});
+
+}
+);
