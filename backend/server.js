@@ -1,7 +1,7 @@
 import "./config.js";
 import express from 'express';
 import cors from 'cors';
-import db from './firebase.js'; // Importa a conexão do Firebase
+import db from './firebase.js';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -102,7 +102,7 @@ app.get('/pacientes/:id', async (req, res) => {
         }
 
         const dados = doc.data();
-        // Remove a senha antes de enviar para o frontend
+        
         delete dados.senha;
 
         res.status(200).json(dados);
