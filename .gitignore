@@ -19,6 +19,7 @@ yarn.lock
 # O arquivo que contém senhas do Supabase/PostgreSQL.
 .env
 .env.*
+serviceAccountKey.json
 
 # Arquivos de dump, backup ou dados locais
 *.dump
