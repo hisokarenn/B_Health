@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Button } from 'react-native';
+import { View, Text, StyleSheet, Button, TouchableOpacity } from 'react-native';
 
 // Importa todas as telas
 import LoginScreen from './src/screens/Login/LoginScreen';
@@ -8,6 +8,7 @@ import MenuScreen from './src/screens/Menu/MenuScreen';
 import HistoricoScreen from './src/screens/Historico/HistoricoScreen';
 import CampanhasScreen from './src/screens/Campanhas/CampanhasScreen'; 
 import ScreenTransition from "./src/components/ScreenTransition";
+import PerfilScreen from "./src/screens/Perfil/PerfilScreen";
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState('login'); 
@@ -60,6 +61,16 @@ export default function App() {
           </ScreenTransition>
         );
 
+      case 'perfil':
+        return(
+          <ScreenTransition>
+            <TouchableOpacity style={styles.btn} onPress={() => setCurrentScreen("menu")}>
+              <Text>Voltar</Text>
+            </TouchableOpacity>
+            <PerfilScreen/> 
+          </ScreenTransition>
+        );
+
       default:
         return (
           <ScreenTransition>
@@ -81,9 +92,20 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
+
   fullScreen: {
     flex: 1,
-  }
+  },
 
-}
-);
+  btn: {
+    backgroundColor: "#cdcefcff",
+    marginTop: 80,
+    padding: 10,
+    borderRadius: 15,
+    alignItems: "center",
+    width: 90,
+    alignSelf: "flex-start",
+    marginLeft: 20
+  },
+
+});
