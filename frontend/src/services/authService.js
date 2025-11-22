@@ -1,5 +1,10 @@
 import axios from 'axios';
 
+//para testes locais use 'http://ip do computador:3000';
+// substituir "ip do computador" pelo ip da sua maquina
+
+// link do render para ter acesso ao server hospedado na nuvem 'https://b-health-app-api.onrender.com'
+
 const API_BASE_URL='https://b-health-app-api.onrender.com';
 
 // Cadastra usuário
@@ -25,4 +30,8 @@ export const getCampanhas = () => {
 // Função para visualizar/acessar perfil do usuário
 export const getPerfil = (pacienteId) => {
     return axios.get(`${API_BASE_URL}/pacientes/${pacienteId}`);
+};
+
+export const getCampanhaDetalhe = (id) => {
+    return axios.get(`${API_BASE_URL}/campanhas/${id}`);
 };

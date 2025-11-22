@@ -1,226 +1,198 @@
 import "./config.js";
-import dotenv from 'dotenv';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const envResult = dotenv.config({ path: path.resolve(__dirname, '.env') });
-
-if (envResult.error) {
-    console.error("ERRO GRAVE DO DOTENV:", envResult.error);
-}
-
 import express from 'express';
 import cors from 'cors';
-import pool from './db.js';
+import db from './firebase.js';
 
-// CONFIGURAÇÕES GLOBAIS
 const app = express();
-const port = process.env.PORT || 3000; 
+const port = process.env.PORT || 3000;
 
-// MIDDLEWARES
 app.use(cors()); 
 app.use(express.json()); 
 
-// --- ROTAS
+// Rota de Teste
 app.get('/', (req, res) => {
-    res.send('API B Health (Node.js/PostgreSQL) rodando!');
+    res.send('API B Health (Node.js + Firebase Firestore) rodando!');
 });
 
-// --- Rota de Cadastro de Paciente
+// --- Rota de Cadastro de Paciente ---
 app.post('/pacientes', async (req, res) => {
     try {
-        const { nome, cpf, cns, email, senha} = req.body;
+        const { nome, cpf, cns, email, senha } = req.body;
         
         if (!nome || !cpf || !cns || !email || !senha) {
-            return res.status(400).json({ error: 'Nome, CPF, CNS, E-mail e Senha são campos obrigatórios.' });
+            return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
         }
-        
-        const senhaPura = senha; 
 
-        const result = await pool.query(
-            `INSERT INTO pessoas (nome, cpf, cns, email, senha) 
-             VALUES ($1, $2, $3, $4, $5) 
-             RETURNING id, nome, email`,
-            [nome, cpf, cns, email, senhaPura]
-        );
+        // 1. Verifica se já existe usuário com este email
+        const userQuery = await db.collection('pacientes').where('email', '==', email).get();
+        if (!userQuery.empty) {
+            return res.status(409).json({ error: 'E-mail já cadastrado.' });
+        }
+
+        // 2. Cria o objeto do paciente
+        const novoPaciente = {
+            nome,
+            cpf,
+            cns,
+            email,
+            senha, // Nota: Em produção, use bcrypt aqui!
+            createdAt: new Date().toISOString()
+        };
+
+        // 3. Salva na coleção 'pacientes'
+        const docRef = await db.collection('pacientes').add(novoPaciente);
 
         res.status(201).json({ 
             message: 'Paciente cadastrado com sucesso!', 
-            paciente: result.rows[0] 
+            paciente: { id: docRef.id, ...novoPaciente } 
         });
 
     } catch (error) {
-        if (error.code === '23505') { 
-            return res.status(409).json({ error: 'Erro de Duplicidade: CPF, CNS ou E-mail informado já está em uso.' });
-        }
-        console.error('Erro ao cadastrar paciente:', error);
-        res.status(500).json({ error: 'Erro interno do servidor. Verifique o log da API.' });
+        console.error('Erro ao cadastrar:', error);
+        res.status(500).json({ error: 'Erro interno do servidor.' });
     }
 });
 
-// --- Rota de Login de Pacientes
+// --- Rota de Login de Paciente ---
 app.post('/login', async (req, res) => {
     const { email, senha } = req.body;
 
     if (!email || !senha) {
-        return res.status(400).json({ error: 'E-mail e Senha são obrigatórios para realizar o login.' });
+        return res.status(400).json({ error: 'E-mail e senha obrigatórios.' });
     }
 
     try {
-        const result = await pool.query(
-            'SELECT id, nome, email, senha FROM pessoas WHERE email = $1',
-            [email]
-        );
+        // Busca usuário pelo email na coleção
+        const snapshot = await db.collection('pacientes').where('email', '==', email).get();
 
-        const paciente = result.rows[0];
-
-        if (!paciente) {
+        if (snapshot.empty) {
             return res.status(401).json({ error: 'E-mail ou senha incorretos.' });
         }
 
+        // Pega o primeiro documento encontrado
+        const doc = snapshot.docs[0];
+        const paciente = doc.data();
+
+        // Verifica senha (texto puro conforme seu pedido anterior)
         if (paciente.senha !== senha) {
             return res.status(401).json({ error: 'E-mail ou senha incorretos.' });
         }
 
         res.status(200).json({ 
             message: 'Login bem-sucedido!', 
-            usuario: { id: paciente.id, nome: paciente.nome, email: paciente.email } 
+            usuario: { id: doc.id, nome: paciente.nome, email: paciente.email } 
         });
 
     } catch (error) {
         console.error('Erro no login:', error);
-        res.status(500).json({ error: 'Erro interno no servidor ao tentar realizar o login.' });
+        res.status(500).json({ error: 'Erro interno.' });
     }
 });
 
-// --- Rota de Visualizar/Buscar Perfil do Paciente
+// --- Rota: Buscar Perfil do Paciente ---
 app.get('/pacientes/:id', async (req, res) => {
-    const { id } = req.params; // Pega o ID da URL
+    const { id } = req.params;
 
     try {
-        const result = await pool.query(
-            'SELECT nome, email, cpf, cns FROM pessoas WHERE id = $1',
-            [id]
-        );
+        // Busca o documento pelo ID gerado pelo Firebase
+        const doc = await db.collection('pacientes').doc(id).get();
 
-        if (result.rows.length === 0) {
+        if (!doc.exists) {
             return res.status(404).json({ error: 'Paciente não encontrado.' });
         }
+
+        const dados = doc.data();
         
-        res.status(200).json(result.rows[0]);
+        delete dados.senha;
+
+        res.status(200).json(dados);
 
     } catch (error) {
-        console.error('Erro ao buscar perfil do paciente:', error);
-        res.status(500).json({ error: 'Erro interno do servidor.' });
+        console.error('Erro ao buscar perfil:', error);
+        res.status(500).json({ error: 'Erro interno.' });
     }
 });
 
-// --- Rota de Visualização do Histórico
+// --- Rota de Visualização do Histórico ---
 app.get('/historico/:pacienteId', async (req, res) => {
-    const pacienteId = parseInt(req.params.pacienteId);
+    const { pacienteId } = req.params;
 
     try {
-        const result = await pool.query(
-            `SELECT
-                d.dose_numero AS dose, 
-                TO_CHAR(d.data_aplicacao, 'DD/MM/YYYY') AS data_aplicacao, 
-                v.nome AS nome_vacina, 
-                u.nome AS unidade_saude 
-            FROM doses_aplicadas d
-            JOIN vacinas v ON d.vacina_id = v.id
-            JOIN unidades_saude u ON d.unidade_saude_id = u.id
-            WHERE d.paciente_id = $1
-            ORDER BY d.data_aplicacao DESC`,
-            [pacienteId]
-        );
+        // Busca na coleção 'historico' onde o campo pacienteId é igual ao solicitado
+        const snapshot = await db.collection('historico')
+            .where('pacienteId', '==', pacienteId)
+            .get();
 
-        const historico = result.rows;
-
-        if (historico.length === 0) {
+        if (snapshot.empty) {
             return res.status(200).json({ 
-                message: 'Nenhum registro de vacina encontrado para este paciente.',
+                message: 'Nenhum registro encontrado.',
                 historico: []
             });
         }
+
+        // Mapeia os documentos para um array
+        const historico = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
         
         res.status(200).json({ historico: historico });
 
     } catch (error) {
         console.error('Erro ao buscar histórico:', error);
-        res.status(500).json({ error: 'Erro interno ao consultar o histórico de vacinas.' });
+        res.status(500).json({ error: 'Erro interno.' });
     }
 });
 
-// --- Rota de Visualização de Campanhas
+// --- Rota de Visualização de Campanhas ---
 app.get('/campanhas', async (req, res) => {
     try {
-        const result = await pool.query(
-            `SELECT
-                titulo,
-                tipo_vacina,
-                publico_alvo,
-                TO_CHAR(data_inicio, 'DD/MM/YYYY') AS data_inicio,
-                TO_CHAR(data_fim, 'DD/MM/YYYY') AS data_fim,
-                locais_aplicacao
-            FROM campanhas
-            WHERE data_fim >= CURRENT_DATE
-            ORDER BY data_inicio ASC`
-        );
+        const snapshot = await db.collection('campanhas').get();
 
-        const campanhas = result.rows;
-
-        if (campanhas.length === 0) {
+        if (snapshot.empty) {
             return res.status(200).json({ 
-                message: 'Nenhuma campanha ativa encontrada no momento.',
+                message: 'Nenhuma campanha ativa.',
                 campanhas: []
             });
         }
+
+        const campanhas = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
         
         res.status(200).json({ campanhas: campanhas });
 
     } catch (error) {
         console.error('Erro ao buscar campanhas:', error);
-        res.status(500).json({ error: 'Erro interno ao consultar campanhas de vacinação.' });
+        res.status(500).json({ error: 'Erro interno.' });
     }
 });
 
-
-// --- FUNÇÃO DE INICIALIZAÇÃO
-const startServer = async () => {
+// --- Rota Detalhe da Campanha ---
+app.get('/campanhas/:id', async (req, res) => {
+    const { id } = req.params;
     try {
-        const client = await pool.connect();
-        console.log("Conexão com o Supabase estabelecida com sucesso! O Pool está pronto.");
-        client.release();
+        const doc = await db.collection('campanhas').doc(id).get();
+        
+        if (!doc.exists) {
+            return res.status(404).json({ error: 'Campanha não encontrada.' });
+        }
 
-        app.listen(port, () => {
-            console.log(`Servidor API B Health rodando na porta ${port}`);
-        });
-
-    } catch (err) {
-        console.error("Erro CRÍTICO: Falha ao conectar ao Supabase (DB) na inicialização:", err.message);
-        process.exit(1);
+        res.status(200).json({ id: doc.id, ...doc.data() });
+    } catch (error) {
+        res.status(500).json({ error: 'Erro interno.' });
     }
-};
-
-// --- INICIA O SERVIDOR
-startServer();
-
-
-// --- Handlers Globais de Erro
-process.on('uncaughtException', (err) => {
-    console.error('[ERRO GRAVE (Exceção Não Capturada)]', err.message, err.stack);
 });
 
-process.on('unhandledRejection', (reason, promise) => {
-    console.error('[ERRO GRAVE (Rejeição Não Capturada)]', 'Uma Promise falhou:', reason);
-});
-
-// --- "KEEP-ALIVE"
-// Impede que o processo do Node.js encerre sozinho.
-// Isto força o loop de eventos a permanecer ativo.
+// --- "KEEP-ALIVE" ---
+// Impede que o processo do Node.js encerre sozinho em alguns ambientes.
 setInterval(() => {
     // Esta função não faz nada, mas mantém o processo "ocupado".
-}, 1000 * 60 * 60);
+}, 1000 * 60 * 60); // Roda a cada 1 hora
 console.log("Processo 'keep-alive' iniciado para manter o servidor ativo.");
+
+// Inicialização do servidor
+app.listen(port, () => {
+  console.log(`API B Health rodando na porta ${port} com Firebase!`);
+});
