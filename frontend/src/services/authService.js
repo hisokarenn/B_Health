@@ -5,7 +5,7 @@ import axios from 'axios';
 
 // link do render para ter acesso ao server hospedado na nuvem 'https://b-health-app-api.onrender.com'
 
-const API_BASE_URL='http://192.168.1.4:3000';
+const API_BASE_URL='https://b-health-app-api.onrender.com';
 
 // Cadastra usuário
 export const cadastrarPaciente = (data) => {

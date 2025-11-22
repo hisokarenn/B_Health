@@ -185,6 +185,13 @@ app.get('/campanhas/:id', async (req, res) => {
     }
 });
 
+// --- "KEEP-ALIVE" ---
+// Impede que o processo do Node.js encerre sozinho em alguns ambientes.
+setInterval(() => {
+    // Esta função não faz nada, mas mantém o processo "ocupado".
+}, 1000 * 60 * 60); // Roda a cada 1 hora
+console.log("Processo 'keep-alive' iniciado para manter o servidor ativo.");
+
 // Inicialização do servidor
 app.listen(port, () => {
   console.log(`API B Health rodando na porta ${port} com Firebase!`);
