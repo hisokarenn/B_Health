@@ -1,61 +1,425 @@
-// frontend/src/screens/Menu/MenuScreen.js
+import React, { useState } from "react";
+import {
+    View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView, Alert, Platform, Image, Dimensions
+} from "react-native";
 
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Button } from 'react-native';
+import { SafeAreaView } from "react-native-safe-area-context"; 
+import { LinearGradient } from "expo-linear-gradient";
+import { Ionicons } from "@expo/vector-icons";
+import BottomNav from "../../components/BarraNavegacao";          
 
-const MenuItem = ({ title, onPress }) => (
-    <TouchableOpacity style={styles.menuItem} onPress={onPress}>
-        <Text style={styles.menuText}>{title}</Text>
-    </TouchableOpacity>
-);
+const { width, height } = Dimensions.get("window");
 
 const MenuScreen = ({ setScreen, pacienteInfo }) => {
+    const [modalVisibleImp, setModalVisibleImp] = useState(false);
+    const [modalVisibleFale, setModalVisibleFale] = useState(false);
+    const [modalVisibleNos, setModalVisibleNos] = useState(false);
+
+    const handleLogout = () => {
+        Alert.alert(
+            "Deseja realmente sair?",
+            "Você será desconectado do aplicativo.",
+            [
+                { text: "Não", style: "cancel" },
+                { text: "Sair", style: "destructive", onPress: () => setScreen("login") }
+            ]
+        );
+    };
+
     return (
-        <View style={styles.container}>
-            <Text style={styles.welcomeText}>Olá, {pacienteInfo.nome}!</Text>
-            <Text style={styles.subtitle}>Selecione uma opção:</Text>
+        <SafeAreaView style={styles.safe}>
+            <View style={styles.container}>
 
-            <MenuItem 
-                title="Histórico de Vacinas (RF03)" 
-                onPress={() => setScreen('historico')} 
-            />
-            
-            <MenuItem 
-                title="Visualizar Campanhas (RF04)" 
-                onPress={() => setScreen('campanhas')} 
-            />
+                {/*cabecalhor*/}
+                <LinearGradient
+                    colors={["#0b4786ff", "#001c42ff"]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.header}
+                >
+                    <View>
+                        <Image
+                            source={require('../../../assets/bhealth.png')}
+                            style={styles.logo}
+                        />
 
-            <TouchableOpacity style={styles.logoutButton} onPress={() => setScreen('login')}>
-                <Text style={styles.logoutText}>Sair (Logout)</Text>
-            </TouchableOpacity>
-        </View>
+                        <Text style={styles.cabecalhoTitulo}>
+                            Seja bem-vindo(a) ao{"\n"}B Health
+                        </Text>
+
+                        {pacienteInfo?.nome ? (
+                            <Text style={styles.cabSubtitulo}>Olá, {pacienteInfo.nome}!</Text>
+                        ) : null}
+                    </View>
+
+                    <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+                        <Ionicons name="log-out-outline" size={width * 0.065} color="white" />
+                    </TouchableOpacity>
+                </LinearGradient>
+
+                {/*scroll bar*/}
+                <ScrollView
+                    style={{ flex: 1 }}
+                    contentContainerStyle={{ paddingBottom: height * 0.15 }}
+                    showsVerticalScrollIndicator
+                >
+                    <Text style={styles.secaoTitulo}>Minha Carteira</Text>
+
+                    <TouchableOpacity
+                        style={styles.bigBtn}
+                        onPress={() => setScreen("historico")}
+                    >
+                        <Text style={styles.bigBtnTexto}>Carteira de {"\n"}Vacina</Text>
+                        <Ionicons style={styles.iconeBigBtn} name="document-text-outline" size={width * 0.14} color="white"/>
+                    </TouchableOpacity>
+
+                    <Text style={styles.secaoTitulo}>Ações de Vacinação</Text>
+                    
+                    {/*scroll bar horizontal*/}
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator
+                        contentContainerStyle={styles.horizontalScrollContent} 
+                    >
+                        <TouchableOpacity style={styles.miniBtn} onPress={() => setScreen("menu")}>
+                            <Text style={styles.miniBtnTexto}>Mapa de{"\n"}Vacinação</Text>
+                            <Ionicons style={styles.miniIcones} name="map-outline" size={width * 0.09} color="white"/>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={styles.miniBtn} onPress={() => setScreen("campanhas")}>
+                            <Text style={styles.miniBtnTexto}>Campanhas</Text>
+                            <Ionicons style={styles.miniIcones} name="megaphone-outline" size={width * 0.09} color="white" />
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={styles.miniBtn} onPress={() => setScreen("menu")}>
+                            <Text style={styles.miniBtnTexto}>Informações Vacinas</Text>
+                            <Ionicons style={styles.miniIcones} name="information-circle-outline" size={width * 0.09} color="white" />
+                        </TouchableOpacity>
+                    </ScrollView>
+
+                    {/*ajuda e informações*/}
+                    <Text style={styles.secaoTitulo}>Ajuda e Informações</Text>
+
+                    <TouchableOpacity style={styles.infoBtn} onPress={() => setModalVisibleImp(true)}>
+                        <Ionicons name="alert-circle-outline" size={width * 0.07} color="#313B8D" />
+                        <Text style={styles.infoBtnText}>Importância da Vacina</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={styles.infoBtn} onPress={() => setModalVisibleFale(true)}>
+                        <Ionicons name="call-outline" size={width * 0.07} color="#313B8D" />
+                        <Text style={styles.infoBtnText}>Fale conosco</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={styles.infoBtn} onPress={() => setModalVisibleNos(true)}>
+                        <Ionicons name="people-circle-outline" size={width * 0.07} color="#313B8D" />
+                        <Text style={styles.infoBtnText}>Sobre nós</Text>
+                    </TouchableOpacity>
+                </ScrollView>
+
+                {/*chamando o componente barraNavegação*/}
+                <BottomNav active="home" setScreen={setScreen} />
+
+                {/*modal - importancia*/}
+                <Modal visible={modalVisibleImp} transparent animationType="fade">
+                    <View style={styles.ModalImportancia}>
+                        <View style={styles.ImpModal}>
+                            <Text style={styles.ImpModalTitulo}>Importância</Text>
+
+                            <Text style={styles.ImpModalTexto}>
+                                Conforme a Sociedade Brasileira de Imunizações (SBIm),
+                                a vacina gera imunidade e contribui para o controle e
+                                eliminação de doenças causadas por vírus e bactérias.
+                            </Text>
+
+                            <TouchableOpacity
+                                style={styles.FecharModal}
+                                onPress={() => setModalVisibleImp(false)}
+                            >
+                                <Text style={{ color: "white" }}>Fechar</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </Modal>
+
+                {/*modal - contato*/}
+                <Modal visible={modalVisibleFale} transparent animationType="fade">
+                    <View style={styles.ModalFale}>
+                        <View style={styles.FaleModal}>
+                            <Text style={styles.FaleModalTitulo}>Fale Conosco</Text>
+
+                            <Text style={styles.FaleModalTexto}>
+                                Contato: (92) 99121-9076{"\n"}
+                                Email: bhealth@org.com.br{"\n"}
+                                2089, R. Nossa Sra. do Rosário,{"\n"}
+                                1951, Itacoatiara - AM{"\n"}
+                                69100-000
+                            </Text>
+
+                            <TouchableOpacity
+                                style={styles.FecharModal}
+                                onPress={() => setModalVisibleFale(false)}
+                            >
+                                <Text style={{ color: "white" }}>Fechar</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </Modal>
+
+                {/*modal - sobreNos*/}
+                <Modal visible={modalVisibleNos} transparent animationType="fade">
+                    <View style={styles.ModalSobreNos}>
+                        <View style={styles.SobreNosModal}>
+                            <Text style={styles.NosModalTitulo}>Sobre Nós</Text>
+
+                            <Text style={styles.NosModalTexto}>
+                                Nós somos uma equipe de estudantes
+                                de Engenharia de Software da Universidade
+                                Federal do Amazonas (UFAM).
+                            </Text>
+
+                            <TouchableOpacity
+                                style={styles.FecharModal}
+                                onPress={() => setModalVisibleNos(false)}
+                            >
+                                <Text style={{ color: "white" }}>Fechar</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </Modal>
+            </View>
+        </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, padding: 30, paddingTop: 50 },
-    welcomeText: { fontSize: 22, fontWeight: 'bold', color: '#333', marginBottom: 5 },
-    subtitle: { fontSize: 16, color: '#666', marginBottom: 40 },
-    menuItem: {
-        backgroundColor: '#007AFF',
-        padding: 20,
+    safe: { flex: 1, backgroundColor: "#fff" },
+    container: { flex: 1, backgroundColor: "#fff" },
+
+    //cabeçalho
+    header: {
+        paddingTop: Platform.OS === "android" ? height * 0.04 : height * 0.03,
+        paddingBottom: height * 0.040,
+        paddingHorizontal: width * 0.05,
+        borderBottomLeftRadius: 25,
+        borderBottomRightRadius: 25,
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center"
+    },
+
+    logo: {
+        width: width * 0.15,
+        height: width * 0.15,
+        tintColor: '#fff',
+        marginRight: width * 0.02,
+        marginLeft: width * 0.02,
+        shadowOpacity: 0.8,
+        shadowRadius: 10,
+    },
+
+    cabecalhoTitulo: {
+        color: "white",
+        fontSize: width * 0.045,
+        fontWeight: "bold",
+        lineHeight: width * 0.065,
+        marginLeft: width * 0.20,
+        marginTop: height * -0.067,
+    },
+
+    cabSubtitulo: {
+        color: "rgba(255,255,255,0.9)",
+        marginTop: 4,
+        fontSize: width * 0.035,
+        marginLeft: width * 0.20,
+    },
+
+    logoutBtn: {
+        padding: width * 0.01,
         borderRadius: 10,
-        marginBottom: 20,
-        alignItems: 'center',
     },
-    menuText: {
-        color: '#FFFFFF',
-        fontSize: 18,
-        fontWeight: 'bold',
+
+    //seção de titluos
+    secaoTitulo: {
+        marginTop: height * 0.020,
+        marginLeft: width * 0.05,
+        fontSize: width * 0.040,
+        color: "#444",
+        fontWeight: "bold",
     },
-    logoutButton: {
-        marginTop: 50,
-        alignItems: 'center',
+
+    //carteira
+    bigBtn: {
+        backgroundColor: "#6c9fd9ff",
+        margin: width * 0.07,
+        padding: width * 0.06,
+        borderRadius: 30,
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 15,
+        height: height * 0.16,
+        marginTop: height * 0.020,
+        shadowColor: "#000000ff",
+        elevation: 2,
     },
-    logoutText: {
-        color: 'red',
-        fontSize: 16,
-    }
+
+    bigBtnTexto: {
+        color: "white",
+        fontSize: width * 0.075,
+        fontWeight: "bold",
+        marginRight: width * 0.03,
+        marginLeft: width * 0.05,
+    },
+
+    iconeBigBtn: {
+        marginLeft: width * 0.10,
+    },
+
+    //scrollBar horizontal
+    horizontalScrollContent: {
+        marginTop: height * 0.020,
+        paddingLeft: width * 0.05,
+        paddingRight: width * 0.03,
+        gap: 8,
+    },
+
+    miniBtn: {
+        backgroundColor: "#2b61b7ff",
+        width: width * 0.35,
+        height: width * 0.35,
+        borderRadius: 30,
+        justifyContent: "center",
+        alignItems: "flex-start",
+        padding: 10,
+        marginRight: 2,
+        marginLeft: 6,
+        shadowColor: "#000000d5",
+        elevation: 5,
+    },
+
+    miniBtnTexto: {
+        color: "white",
+        fontWeight: "bold",
+        textAlign: "left",
+        marginTop: -2,
+        fontSize: width * 0.045,
+        marginLeft: width * 0.02,
+    },
+
+    miniIcones: {
+        marginTop: width * 0.03,
+        marginLeft: width * 0.2,
+    },
+
+    //Informações Btn
+    infoBtn: {
+        backgroundColor: "#dfeef5ff",
+        padding: width * 0.045,
+        marginHorizontal: width * 0.08,
+        marginTop: 15,
+        borderRadius: 20,
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 15,
+        shadowColor: "#000000d5",
+        elevation: 5,
+        marginLeft: width * 0.08,
+    },
+
+    infoBtnText: {
+        fontSize: width * 0.04,
+        color: "#333",
+    },
+
+    //Modal Importancia
+    ModalImportancia: {
+        flex: 1,
+        backgroundColor: "rgba(0,0,0,0.4)",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+
+    ImpModal: {
+        backgroundColor: "white",
+        width: "80%",
+        padding: width * 0.06,
+        borderRadius: 20,
+    },
+
+    ImpModalTitulo: {
+        fontSize: width * 0.055,
+        fontWeight: "bold",
+        marginBottom: 15,
+    },
+
+    ImpModalTexto: {
+        fontSize: width * 0.04,
+        lineHeight: width * 0.055,
+        color: "#555",
+    },
+
+    //Modal fale conosco
+    ModalFale: {
+        flex: 1,
+        backgroundColor: "rgba(0,0,0,0.4)",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+
+    FaleModal: {
+        backgroundColor: "white",
+        width: "80%",
+        padding: width * 0.06,
+        borderRadius: 20,
+    },
+
+    FaleModalTitulo: {
+        fontSize: width * 0.055,
+        fontWeight: "bold",
+        marginBottom: 15,
+    },
+
+    FaleModalTexto: {
+        fontSize: width * 0.04,
+        lineHeight: width * 0.055,
+        color: "#555",
+    },
+
+    //Modal Sobre nos
+    ModalSobreNos: {
+        flex: 1,
+        backgroundColor: "rgba(0,0,0,0.4)",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+
+    SobreNosModal: {
+        backgroundColor: "white",
+        width: "80%",
+        padding: width * 0.06,
+        borderRadius: 20,
+    },
+
+    NosModalTitulo: {
+        fontSize: width * 0.055,
+        fontWeight: "bold",
+        marginBottom: 15,
+    },
+
+    NosModalTexto: {
+        fontSize: width * 0.04,
+        lineHeight: width * 0.055,
+        color: "#555",
+    },
+
+
+    //fehcar modal
+    FecharModal: {
+        backgroundColor: "#5758b9ff",
+        marginTop: 20,
+        padding: 10,
+        borderRadius: 15,
+        alignItems: "center",
+    },
 });
 
 export default MenuScreen;
