@@ -29,14 +29,11 @@ app.post('/pacientes', async (req, res) => {
             return res.status(409).json({ error: 'CPF já cadastrado.' });
         }
 
-        // SALVA NO FIRESTORE USANDO O UID COMO ID DO DOCUMENTO
-        // Isso é crucial: o ID do documento será igual ao ID do Login
         await db.collection('pacientes').doc(uid).set({
             nome,
             cpf,
             cns,
             email,
-            // Não salvamos senha aqui, o Firebase Auth cuida disso
             createdAt: new Date().toISOString()
         });
 
@@ -51,42 +48,6 @@ app.post('/pacientes', async (req, res) => {
     }
 });
 
-
-// --- Rota de Login de Paciente ---
-/*app.post('/login', async (req, res) => {
-    const { email, senha } = req.body;
-
-    if (!email || !senha) {
-        return res.status(400).json({ error: 'E-mail e senha obrigatórios.' });
-    }
-
-    try {
-        // Busca usuário pelo email na coleção
-        const snapshot = await db.collection('pacientes').where('email', '==', email).get();
-
-        if (snapshot.empty) {
-            return res.status(401).json({ error: 'E-mail ou senha incorretos.' });
-        }
-
-        // Pega o primeiro documento encontrado
-        const doc = snapshot.docs[0];
-        const paciente = doc.data();
-
-        // Verifica senha (texto puro conforme seu pedido anterior)
-        if (paciente.senha !== senha) {
-            return res.status(401).json({ error: 'E-mail ou senha incorretos.' });
-        }
-
-        res.status(200).json({ 
-            message: 'Login bem-sucedido!', 
-            usuario: { id: doc.id, nome: paciente.nome, email: paciente.email } 
-        });
-
-    } catch (error) {
-        console.error('Erro no login:', error);
-        res.status(500).json({ error: 'Erro interno.' });
-    }
-});*/
 
 // --- Rota: Buscar Perfil do Paciente ---
 app.get('/pacientes/:id', async (req, res) => {

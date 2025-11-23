@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { auth } from './firebaseConfig'; // Certifique-se de ter criado este arquivo
+import { auth } from './firebaseConfig';
 import { 
     sendPasswordResetEmail, 
     createUserWithEmailAndPassword, 
