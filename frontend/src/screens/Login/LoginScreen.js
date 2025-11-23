@@ -2,12 +2,11 @@ import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet, Image, ActivityIndicator, Alert, Platform,
   KeyboardAvoidingView, ScrollView,
-
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { realizarLogin } from '../../services/authService';
+import { realizarLogin } from '../../services/authService'; // Certifique-se de que o caminho está correto
 import { Dimensions } from 'react-native';
 
 const LoginScreen = ({ setScreen, onLoginSuccess }) => {
@@ -19,20 +18,29 @@ const LoginScreen = ({ setScreen, onLoginSuccess }) => {
   const handleLogin = async () => {
     if (!email || !senha) {
       Alert.alert('Erro', 'E-mail e senha são obrigatórios.');
-      
       return;
     }
 
     setLoading(true);
     try {
-      const response = await realizarLogin({ email, senha });
-      onLoginSuccess(response.data.usuario);
+      // Chama a função de login do authService
+      const response = await realizarLogin(email, senha);
+      
+      // Verifica se o login foi bem-sucedido e chama onLoginSuccess com os dados do usuário
+      if (response && response.user) {
+          onLoginSuccess(response.user);
+      } else {
+          // Fallback caso a estrutura da resposta seja diferente (ex: apenas user)
+           onLoginSuccess(response);
+      }
+
       setEmail('');
       setSenha('');
     } catch (error) {
       const errorMessage =
-        error.response?.data?.error || 'Erro de rede ou servidor.';
+        error.message || 'Erro de rede ou servidor.'; // Usa a mensagem de erro direta se disponível
       Alert.alert('Erro no Login', errorMessage);
+      console.error("Erro de login:", error);
     } finally {
       setLoading(false);
     }

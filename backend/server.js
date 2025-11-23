@@ -9,52 +9,51 @@ const port = process.env.PORT || 3000;
 app.use(cors()); 
 app.use(express.json()); 
 
-// Rota de Teste
 app.get('/', (req, res) => {
     res.send('API B Health (Node.js + Firebase Firestore) rodando!');
 });
 
-// --- Rota de Cadastro de Paciente ---
+// --- Rota de Cadastro de Paciente (Híbrida - Auth + Firestore) ---
+// Agora recebe o UID gerado pelo frontend/Firebase Auth
 app.post('/pacientes', async (req, res) => {
+    const { uid, nome, cpf, cns, email } = req.body;
+    
+    if (!uid || !nome || !cpf || !cns) {
+        return res.status(400).json({ error: 'Dados incompletos para o cadastro.' });
+    }
+
     try {
-        const { nome, cpf, cns, email, senha } = req.body;
-        
-        if (!nome || !cpf || !cns || !email || !senha) {
-            return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
+        // Verifica se CPF já existe (Regra de Negócio)
+        const cpfQuery = await db.collection('pacientes').where('cpf', '==', cpf).get();
+        if (!cpfQuery.empty) {
+            return res.status(409).json({ error: 'CPF já cadastrado.' });
         }
 
-        // 1. Verifica se já existe usuário com este email
-        const userQuery = await db.collection('pacientes').where('email', '==', email).get();
-        if (!userQuery.empty) {
-            return res.status(409).json({ error: 'E-mail já cadastrado.' });
-        }
-
-        // 2. Cria o objeto do paciente
-        const novoPaciente = {
+        // SALVA NO FIRESTORE USANDO O UID COMO ID DO DOCUMENTO
+        // Isso é crucial: o ID do documento será igual ao ID do Login
+        await db.collection('pacientes').doc(uid).set({
             nome,
             cpf,
             cns,
             email,
-            senha, // Nota: Em produção, use bcrypt aqui!
+            // Não salvamos senha aqui, o Firebase Auth cuida disso
             createdAt: new Date().toISOString()
-        };
-
-        // 3. Salva na coleção 'pacientes'
-        const docRef = await db.collection('pacientes').add(novoPaciente);
+        });
 
         res.status(201).json({ 
             message: 'Paciente cadastrado com sucesso!', 
-            paciente: { id: docRef.id, ...novoPaciente } 
+            id: uid 
         });
 
     } catch (error) {
-        console.error('Erro ao cadastrar:', error);
-        res.status(500).json({ error: 'Erro interno do servidor.' });
+        console.error('Erro ao cadastrar no Firestore:', error);
+        res.status(500).json({ error: 'Erro interno do servidor ao salvar dados.' });
     }
 });
 
+
 // --- Rota de Login de Paciente ---
-app.post('/login', async (req, res) => {
+/*app.post('/login', async (req, res) => {
     const { email, senha } = req.body;
 
     if (!email || !senha) {
@@ -87,7 +86,7 @@ app.post('/login', async (req, res) => {
         console.error('Erro no login:', error);
         res.status(500).json({ error: 'Erro interno.' });
     }
-});
+});*/
 
 // --- Rota: Buscar Perfil do Paciente ---
 app.get('/pacientes/:id', async (req, res) => {
