@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet, Image, ActivityIndicator, Alert, Platform,
   KeyboardAvoidingView, ScrollView,
-
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { realizarLogin } from '../../services/authService';
+// 1. Adicionamos a importação de solicitarRecuperacaoSenha
+import { realizarLogin, solicitarRecuperacaoSenha } from '../../services/authService'; 
 import { Dimensions } from 'react-native';
 
 const LoginScreen = ({ setScreen, onLoginSuccess }) => {
@@ -19,22 +19,46 @@ const LoginScreen = ({ setScreen, onLoginSuccess }) => {
   const handleLogin = async () => {
     if (!email || !senha) {
       Alert.alert('Erro', 'E-mail e senha são obrigatórios.');
-      
       return;
     }
 
     setLoading(true);
     try {
-      const response = await realizarLogin({ email, senha });
-      onLoginSuccess(response.data.usuario);
+      const response = await realizarLogin(email, senha);
+      
+      if (response && response.user) {
+          onLoginSuccess(response.user);
+      } else {
+           onLoginSuccess(response);
+      }
+
       setEmail('');
       setSenha('');
     } catch (error) {
       const errorMessage =
-        error.response?.data?.error || 'Erro de rede ou servidor.';
+        error.message || 'Erro de rede ou servidor.';
       Alert.alert('Erro no Login', errorMessage);
+      console.error("Erro de login:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // 2. Nova função para lidar com o "Esqueci minha senha"
+  const handleEsqueciSenha = async () => {
+    if (!email) {
+      Alert.alert('Atenção', 'Por favor, digite seu e-mail no campo acima para recuperar a senha.');
+      return;
+    }
+
+    try {
+      await solicitarRecuperacaoSenha(email);
+      Alert.alert(
+        'E-mail Enviado', 
+        'Verifique sua caixa de entrada (e spam). O link para criar uma nova senha foi enviado!'
+      );
+    } catch (error) {
+      Alert.alert('Erro', error.message);
     }
   };
 
@@ -99,6 +123,11 @@ const LoginScreen = ({ setScreen, onLoginSuccess }) => {
                   />
                 </TouchableOpacity>
               </View>
+
+              {/* 3. Botão de Esqueci Minha Senha adicionado aqui */}
+              <TouchableOpacity style={styles.esqueciSenhaButton} onPress={handleEsqueciSenha}>
+                <Text style={styles.esqueciSenhaTexto}>Esqueci minha senha</Text>
+              </TouchableOpacity>
 
               <TouchableOpacity
                 style={[styles.botao, loading && styles.btnDesativado]}
@@ -197,6 +226,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#e9ecee',
     borderRadius: 20,
     marginBottom: 15,
+  },
+
+  // 4. Estilos novos para o botão de esqueci senha
+  esqueciSenhaButton: {
+    alignSelf: 'flex-end', // Alinha à direita
+    marginBottom: 15,
+    marginRight: 5,
+  },
+
+  esqueciSenhaTexto: {
+    color: '#00245aff', // Mesma cor azul do tema
+    fontSize: width * 0.035,
+    fontWeight: 'bold',
   },
 
   botao: {

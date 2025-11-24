@@ -1,10 +1,7 @@
-// frontend/src/screens/Cadastro/CadastroScreen.js
-
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet, Image, ActivityIndicator,
   Alert, Platform, KeyboardAvoidingView, ScrollView,
-
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -26,14 +23,24 @@ const CadastroScreen = ({ setScreen }) => {
       Alert.alert('Erro', 'Todos os campos são obrigatórios para o cadastro.');
       return;
     }
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+
+    if (!emailRegex.test(email)) {
+        Alert.alert('Erro', 'Por favor, insira um endereço de e-mail Gmail válido (ex: usuario@gmail.com).');
+        return;
+    }
 
     setLoading(true);
     try {
-      const response = await cadastrarPaciente({ nome, cpf, cns, email, senha });
+      // A função cadastrarPaciente agora retorna o objeto 'user' do Firebase Auth
+      const user = await cadastrarPaciente({ nome, cpf, cns, email, senha });
+      
+      // CORREÇÃO AQUI: Usamos o nome do estado local, pois o user do Firebase pode não ter o displayName atualizado instantaneamente
       Alert.alert(
         'Sucesso B Health!',
-        `Cadastro de ${response.data.paciente.nome} realizado com sucesso!`
+        `Cadastro de ${nome} realizado com sucesso!`
       );
+      
       setNome('');
       setCpf('');
       setCns('');
@@ -41,10 +48,10 @@ const CadastroScreen = ({ setScreen }) => {
       setSenha('');
       setScreen('login');
     } catch (error) {
-      const errorMessage =
-        error.response?.data?.error ||
-        'Não foi possível se conectar';
+      // Tratamento de erro robusto para capturar mensagens do Firebase ou da API
+      const errorMessage = error.message || 'Não foi possível se conectar';
       Alert.alert('Erro no Cadastro', errorMessage);
+      console.error("Erro detalhado no cadastro:", error);
     } finally {
       setLoading(false);
     }
@@ -66,6 +73,7 @@ const CadastroScreen = ({ setScreen }) => {
               style={styles.cabecalho}
             >
                 <View style={styles.cabecalho2}>
+                    {/* Certifique-se de que o caminho da imagem está correto */}
                     <Image
                     source={require('../../../assets/bhealth.png')}
                     style={styles.logo}
@@ -162,8 +170,6 @@ const CadastroScreen = ({ setScreen }) => {
     </SafeAreaView>
   );
 };
-
-export default CadastroScreen;
 
 const {width, height} = Dimensions.get('window');
 
@@ -275,3 +281,5 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+
+export default CadastroScreen;
