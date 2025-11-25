@@ -57,6 +57,43 @@ const CadastroScreen = ({ setScreen }) => {
     }
   };
 
+
+  //CPF
+  const formatarCPF = (value) => {
+    let raw = value.replace(/\D/g, "");
+
+    if (raw.length > 11) raw = raw.substring(0, 11);
+    if (raw.length <= 3) return raw;
+    if (raw.length <= 6) return raw.replace(/(\d{3})(\d+)/, "$1.$2");
+    if (raw.length <= 9) return raw.replace(/(\d{3})(\d{3})(\d+)/, "$1.$2.$3");
+
+    return raw.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+  };
+
+  const validarCPF = (cpf) => {
+    const somenteNumeros = cpf.replace(/\D/g, ""); //isso faz q tenha a contagem somente dos números
+    return somenteNumeros.length === 11;
+  };
+
+
+  //CNS
+  const formatarCNS = (value) => {
+    let raw = value.replace(/\D/g, "");
+
+    if (raw.length > 15) raw = raw.substring(0, 15);
+    if (raw.length <= 3) return raw;
+    if (raw.length <= 7) return raw.replace(/(\d{3})(\d+)/, "$1 $2");
+    if (raw.length <= 11) return raw.replace(/(\d{3})(\d{4})(\d+)/, "$1 $2 $3");
+
+    return raw.replace(/(\d{3})(\d{4})(\d{4})(\d{4})/, "$1 $2 $3 $4");
+  };
+
+  const validarCNS = (cns) => {
+    const somenteNumeros = cns.replace(/\D/g, "");
+    return somenteNumeros.length === 15;
+  };
+
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView
@@ -73,7 +110,6 @@ const CadastroScreen = ({ setScreen }) => {
               style={styles.cabecalho}
             >
                 <View style={styles.cabecalho2}>
-                    {/* Certifique-se de que o caminho da imagem está correto */}
                     <Image
                     source={require('../../../assets/bhealth.png')}
                     style={styles.logo}
@@ -97,12 +133,19 @@ const CadastroScreen = ({ setScreen }) => {
               <Text style={styles.label}>CPF*</Text>
               <TextInput
                 placeholder="Digite seu CPF"
-                placeholderTextColor="#999"
+                placeholderTextColor= "#999"
                 keyboardType="numeric"
                 maxLength={14}
                 style={styles.input}
                 value={cpf}
-                onChangeText={setCpf}
+                onChangeText={(text) => setCpf(formatarCPF(text))}
+
+                onBlur={() => {
+                  if (!validarCPF(cpf)) {
+                    Alert.alert("Erro", "O CPF deve conter 11 dígitos.");
+                    return;
+                  }
+                }}
               />
 
               <Text style={styles.label}>CNS*</Text>
@@ -110,9 +153,17 @@ const CadastroScreen = ({ setScreen }) => {
                 placeholder="Digite seu CNS"
                 placeholderTextColor="#999"
                 keyboardType="numeric"
+                maxLength={19} //isso dos espaços
                 style={styles.input}
                 value={cns}
-                onChangeText={setCns}
+                onChangeText={(text) => setCns(formatarCNS(text))}
+
+                onBlur={() => {
+                  if (!validarCNS(cns)) {
+                    Alert.alert("Erro", "O CNS deve conter 15 dígitos.");
+                    setCns(""); 
+                  }
+                }}
               />
 
               <Text style={styles.label}>E-mail*</Text>
