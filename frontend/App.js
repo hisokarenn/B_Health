@@ -7,12 +7,18 @@ import CadastroScreen from './src/screens/Cadastro/CadastroScreen';
 import MenuScreen from './src/screens/Menu/MenuScreen'; 
 import HistoricoScreen from './src/screens/Historico/HistoricoScreen';
 import CampanhasScreen from './src/screens/Campanhas/CampanhasScreen'; 
-import ScreenTransition from "./src/components/ScreenTransition";
 import PerfilScreen from "./src/screens/Perfil/PerfilScreen";
+import CampanhaDetalheScreen from './src/screens/CampanhaDetalhe/CampanhaDetalheScreen'; // NOVO IMPORT
+
+// Importa componente de transição (se você estiver usando)
+import ScreenTransition from "./src/components/ScreenTransition";
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState('login'); 
   const [pacienteInfo, setPacienteInfo] = useState(null); 
+  
+  // NOVO ESTADO: Para guardar os dados da campanha clicada
+  const [campanhaSelecionada, setCampanhaSelecionada] = useState(null);
 
   const handleSuccessfulLogin = (userInfo) => {
     setPacienteInfo(userInfo);
@@ -55,19 +61,34 @@ export default function App() {
         return (
           <ScreenTransition>
             <View style={styles.fullScreen}>
-              <CampanhasScreen />
+              <CampanhasScreen 
+                // Passamos a função que captura o clique na campanha
+                onSelectCampanha={(item) => {
+                    setCampanhaSelecionada(item); // Salva os dados
+                    setCurrentScreen('campanhaDetalhe'); // Muda a tela
+                }}
+              />
               <Button title="Voltar ao Menu" onPress={() => setCurrentScreen('menu')} />
             </View>
+          </ScreenTransition>
+        );
+
+      // NOVO CASE: Tela de Detalhes da Campanha
+      case 'campanhaDetalhe':
+        return (
+          <ScreenTransition>
+            <CampanhaDetalheScreen 
+                campanhaDados={campanhaSelecionada} // Passa os dados salvos
+                setScreen={setCurrentScreen} 
+            />
           </ScreenTransition>
         );
 
       case 'perfil':
         return(
           <ScreenTransition>
-            <TouchableOpacity style={styles.btn} onPress={() => setCurrentScreen("menu")}>
-              <Text>Voltar</Text>
-            </TouchableOpacity>
-            <PerfilScreen/> 
+            {/* O PerfilScreen já tem botão de voltar interno, mas mantivemos sua estrutura */}
+            <PerfilScreen pacienteId={pacienteInfo.uid} setScreen={setCurrentScreen}/> 
           </ScreenTransition>
         );
 
@@ -92,11 +113,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
-
   fullScreen: {
     flex: 1,
   },
-
   btn: {
     backgroundColor: "#cdcefcff",
     marginTop: 80,
@@ -105,7 +124,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: 90,
     alignSelf: "flex-start",
-    marginLeft: 20,
-},
-
+    marginLeft: 20
+  },
 });
