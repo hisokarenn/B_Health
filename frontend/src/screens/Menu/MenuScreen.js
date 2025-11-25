@@ -29,6 +29,12 @@ const MenuScreen = ({ setScreen, pacienteInfo }) => {
     return (
         <SafeAreaView style={styles.safe}>
             <View style={styles.container}>
+                {/*scroll bar*/}
+                <ScrollView
+                    style={{ flex: 1 }}
+                    contentContainerStyle={{ paddingBottom: height * 0.15 }}
+                    showsVerticalScrollIndicator
+                >
 
                 {/*cabecalhor*/}
                 <LinearGradient
@@ -46,10 +52,9 @@ const MenuScreen = ({ setScreen, pacienteInfo }) => {
                         <Text style={styles.cabecalhoTitulo}>
                             Seja bem-vindo(a) ao{"\n"}B Health
                         </Text>
-
-                        {pacienteInfo?.nome ? (
-                            <Text style={styles.cabSubtitulo}>Olá, {pacienteInfo.nome}!</Text>
-                        ) : null}
+                        
+                        <Text style={styles.cabSubtitulo}>Olá, {pacienteInfo.displayName}!</Text>
+                    
                     </View>
 
                     <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
@@ -57,12 +62,6 @@ const MenuScreen = ({ setScreen, pacienteInfo }) => {
                     </TouchableOpacity>
                 </LinearGradient>
 
-                {/*scroll bar*/}
-                <ScrollView
-                    style={{ flex: 1 }}
-                    contentContainerStyle={{ paddingBottom: height * 0.15 }}
-                    showsVerticalScrollIndicator
-                >
                     <Text style={styles.secaoTitulo}>Minha Carteira</Text>
 
                     <TouchableOpacity
@@ -83,17 +82,17 @@ const MenuScreen = ({ setScreen, pacienteInfo }) => {
                     >
                         <TouchableOpacity style={styles.miniBtn} onPress={() => setScreen("menu")}>
                             <Text style={styles.miniBtnTexto}>Mapa de{"\n"}Vacinação</Text>
-                            <Ionicons style={styles.miniIcones} name="map-outline" size={width * 0.09} color="white"/>
+                            <Ionicons style={styles.miniIcones} name="map-outline" size={width * 0.07} color="white"/>
                         </TouchableOpacity>
 
                         <TouchableOpacity style={styles.miniBtn} onPress={() => setScreen("campanhas")}>
                             <Text style={styles.miniBtnTexto}>Campanhas</Text>
-                            <Ionicons style={styles.miniIcones} name="megaphone-outline" size={width * 0.09} color="white" />
+                            <Ionicons style={styles.miniIcones} name="megaphone-outline" size={width * 0.07} color="white" />
                         </TouchableOpacity>
 
                         <TouchableOpacity style={styles.miniBtn} onPress={() => setScreen("menu")}>
                             <Text style={styles.miniBtnTexto}>Informações Vacinas</Text>
-                            <Ionicons style={styles.miniIcones} name="information-circle-outline" size={width * 0.09} color="white" />
+                            <Ionicons style={styles.miniIcones} name="information-circle-outline" size={width * 0.07} color="white" />
                         </TouchableOpacity>
                     </ScrollView>
 
@@ -264,7 +263,7 @@ const styles = StyleSheet.create({
 
     bigBtnTexto: {
         color: "white",
-        fontSize: width * 0.075,
+        fontSize: width * 0.07,
         fontWeight: "bold",
         marginRight: width * 0.03,
         marginLeft: width * 0.05,
@@ -284,8 +283,8 @@ const styles = StyleSheet.create({
 
     miniBtn: {
         backgroundColor: "#2b61b7ff",
-        width: width * 0.35,
-        height: width * 0.35,
+        width: width * 0.32,
+        height: width * 0.32,
         borderRadius: 30,
         justifyContent: "center",
         alignItems: "flex-start",
@@ -301,19 +300,19 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         textAlign: "left",
         marginTop: -2,
-        fontSize: width * 0.045,
+        fontSize: width * 0.040,
         marginLeft: width * 0.02,
     },
 
     miniIcones: {
         marginTop: width * 0.03,
-        marginLeft: width * 0.2,
+        marginLeft: width * 0.17,
     },
 
     //Informações Btn
     infoBtn: {
         backgroundColor: "#dfeef5ff",
-        padding: width * 0.045,
+        padding: width * 0.040,
         marginHorizontal: width * 0.08,
         marginTop: 15,
         borderRadius: 20,
