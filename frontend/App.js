@@ -47,7 +47,7 @@ export default function App() {
         if (!pacienteInfo) return <Text>Erro: Usuário não autenticado.</Text>;
         return (
           <ScreenTransition>
-            <HistoricoScreen pacienteId={pacienteInfo.id} setScreen={setCurrentScreen} />
+            <HistoricoScreen pacienteId={pacienteInfo.uid} setScreen={setCurrentScreen} />
           </ScreenTransition>
         );
 
@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: 90,
     alignSelf: "flex-start",
-    marginLeft: 20
-  },
+    marginLeft: 20,
+},
 
 });

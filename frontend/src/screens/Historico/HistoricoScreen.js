@@ -1,45 +1,68 @@
-// frontend/src/screens/Historico/HistoricoScreen.js (Atualizado)
-
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, Alert, Button } from 'react-native'; 
+import React, { useEffect, useState, useCallback } from 'react';
+import { 
+    View, Text, StyleSheet, FlatList, ActivityIndicator, Button, 
+    RefreshControl // Importante: Importar RefreshControl
+} from 'react-native';
 import { getHistorico } from '../../services/authService';
 
-// Item renderizado na lista
 const HistoricoItem = ({ item }) => (
     <View style={styles.itemContainer}>
-        <Text style={styles.vacinaNome}>{item.nome_vacina}</Text>
-        <Text style={styles.itemDetalhe}>
-            Dose: {item.dose} • Aplicado em: {item.data_aplicacao}
-        </Text>
-        <Text style={styles.unidade}>Unidade: {item.unidade_saude}</Text>
+        <View style={styles.headerItem}>
+            <Text style={styles.vacinaNome}>{item.nome_vacina}</Text>
+            <Text style={styles.doseBadge}>{item.dose}ª Dose</Text>
+        </View>
+        
+        <Text style={styles.dataText}>Aplicado em: {item.data_aplicacao}</Text>
+        
+        <View style={styles.detalhesContainer}>
+            <Text style={styles.detalheText}>Local: {item.nome_unidade || item.unidade_saude}</Text>
+            {item.profissional_responsavel && (
+                <Text style={styles.detalheText}>Prof: {item.profissional_responsavel}</Text>
+            )}
+            {item.lote && (
+                <Text style={styles.detalheText}>Lote: {item.lote}</Text>
+            )}
+        </View>
     </View>
 );
 
 const HistoricoScreen = ({ pacienteId, setScreen }) => {
-    const [historico, setHistorico] = useState(null);
+    const [historico, setHistorico] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false); // Estado para o "Puxar para atualizar"
     const [message, setMessage] = useState('Buscando histórico...');
 
-    useEffect(() => {
-        const fetchHistorico = async () => {
-            try {
-                const response = await getHistorico(pacienteId);
+    // Função de busca extraída para ser reutilizável
+    const fetchHistorico = useCallback(async () => {
+        try {
+            const response = await getHistorico(pacienteId);
 
-                if (response.data.historico && response.data.historico.length > 0) {
-                    setHistorico(response.data.historico);
-                } else {
-                    setMessage(response.data.message || 'Não há registros de vacina disponíveis.');
-                }
-            } catch (error) {
-                setMessage('Erro ao carregar o histórico. Tente novamente.');
-                console.error(error);
-            } finally {
-                setLoading(false);
+            if (response.data.historico && response.data.historico.length > 0) {
+                setHistorico(response.data.historico);
+                setMessage('');
+            } else {
+                setHistorico([]); // Limpa se não tiver nada
+                setMessage('Não há registros de vacina disponíveis.');
             }
-        };
-
-        fetchHistorico();
+        } catch (error) {
+            setMessage('Erro ao carregar o histórico.');
+            console.error(error);
+        } finally {
+            setLoading(false);
+            setRefreshing(false); // Para o ícone de refresh
+        }
     }, [pacienteId]);
+
+    // Carrega na montagem do componente
+    useEffect(() => {
+        fetchHistorico();
+    }, [fetchHistorico]);
+
+    // Função chamada ao puxar a lista
+    const onRefresh = () => {
+        setRefreshing(true);
+        fetchHistorico();
+    };
 
     if (loading) {
         return (
@@ -50,45 +73,110 @@ const HistoricoScreen = ({ pacienteId, setScreen }) => {
         );
     }
 
-    if (!historico || historico.length === 0) {
-        return (
-            <View style={styles.loadingContainer}>
-                <Text style={styles.messageText}>{message}</Text>
-                {/* BOTÃO PARA VOLTAR AO MENU - Caso não haja histórico */}
-                <Button title="Voltar" onPress={() => setScreen('menu')} /> 
-            </View>
-        );
-    }
-
     return (
         <View style={styles.historicoContainer}>
-            <Text style={styles.historicoTitle}>Seu Histórico de Vacinação (RF03)</Text>
-            <FlatList
-                data={historico}
-                keyExtractor={(item, index) => index.toString()}
-                renderItem={({ item }) => <HistoricoItem item={item} />}
-            />
-            {/* CÓDIGO ALTERADO: Botão "Voltar ao Menu Principal" em vez de Logout */}
-            <View style={styles.buttonSpacing}>
-                <Button 
-                    title="Voltar ao Menu Principal" 
-                    onPress={() => setScreen('menu')} 
+            <Text style={styles.historicoTitle}>Minha Caderneta (RF03)</Text>
+            
+            {/* Se a lista estiver vazia, mostramos a mensagem dentro de um ScrollView 
+                para permitir o "Pull to Refresh" mesmo na tela vazia.
+            */}
+            {historico.length === 0 ? (
+                <FlatList
+                    data={[]} 
+                    renderItem={null}
+                    ListEmptyComponent={
+                        <View style={styles.emptyContainer}>
+                            <Text style={styles.messageText}>{message}</Text>
+                            <Button title="Voltar ao Menu" onPress={() => setScreen('menu')} />
+                            <Text style={styles.hintText}>(Puxe para baixo para atualizar)</Text>
+                        </View>
+                    }
+                    refreshControl={
+                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                    }
                 />
-            </View>
+            ) : (
+                <FlatList
+                    data={historico}
+                    keyExtractor={(item, index) => index.toString()}
+                    renderItem={({ item }) => <HistoricoItem item={item} />}
+                    contentContainerStyle={{ paddingBottom: 20 }}
+                    // Adiciona o controle de atualização
+                    refreshControl={
+                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                    }
+                />
+            )}
+
+            {historico.length > 0 && (
+                <View style={styles.buttonSpacing}>
+                    <Button title="Voltar ao Menu Principal" onPress={() => setScreen('menu')} />
+                </View>
+            )}
         </View>
     );
 };
 
 const styles = StyleSheet.create({
-    loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-    historicoContainer: { flex: 1, padding: 20 },
-    historicoTitle: { fontSize: 20, fontWeight: 'bold', marginBottom: 15, color: '#007AFF' },
-    itemContainer: { padding: 15, borderBottomWidth: 1, borderBottomColor: '#eee' },
-    vacinaNome: { fontSize: 18, fontWeight: 'bold', color: '#333' },
-    itemDetalhe: { fontSize: 14, color: '#555', marginTop: 5 },
-    unidade: { fontSize: 12, color: '#777', marginTop: 2 },
-    messageText: { fontSize: 16, marginBottom: 20, textAlign: 'center' },
-    buttonSpacing: { marginTop: 20 }, // Estilo para espaçamento
+    loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
+    emptyContainer: { alignItems: 'center', marginTop: 50 },
+    historicoContainer: { flex: 1, padding: 20, backgroundColor: '#fff' },
+    historicoTitle: { fontSize: 22, fontWeight: 'bold', marginBottom: 20, color: '#007AFF', textAlign: 'center' },
+    
+    itemContainer: { 
+        padding: 15, 
+        marginBottom: 15, 
+        borderRadius: 10, 
+        backgroundColor: '#f8f9fa',
+        borderWidth: 1,
+        borderColor: '#e9ecef',
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+    },
+    headerItem: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 8,
+    },
+    vacinaNome: { 
+        fontSize: 18, 
+        fontWeight: 'bold', 
+        color: '#333',
+        flex: 1, 
+    },
+    doseBadge: {
+        backgroundColor: '#e3f2fd',
+        color: '#007AFF',
+        paddingHorizontal: 8,
+        paddingVertical: 2,
+        borderRadius: 12,
+        fontSize: 12,
+        fontWeight: 'bold',
+        overflow: 'hidden',
+    },
+    dataText: {
+        fontSize: 14,
+        color: '#555',
+        marginBottom: 8,
+        fontWeight: '500',
+    },
+    detalhesContainer: {
+        borderTopWidth: 1,
+        borderTopColor: '#eee',
+        paddingTop: 8,
+    },
+    detalheText: { 
+        fontSize: 12, 
+        color: '#777', 
+        marginBottom: 2 
+    },
+    messageText: { fontSize: 16, marginBottom: 20, textAlign: 'center', color: '#666' },
+    hintText: { fontSize: 12, marginTop: 20, color: '#999', fontStyle: 'italic' },
+    buttonSpacing: { marginTop: 10 },
 });
 
 export default HistoricoScreen;

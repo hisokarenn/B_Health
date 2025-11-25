@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet, Image, ActivityIndicator, Alert, Platform,
   KeyboardAvoidingView, ScrollView,
@@ -6,15 +6,27 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-// 1. Adicionamos a importação de solicitarRecuperacaoSenha
 import { realizarLogin, solicitarRecuperacaoSenha } from '../../services/authService'; 
 import { Dimensions } from 'react-native';
+import { salvarCredenciais, obterCredenciais, limparCredenciais } from "../../utilitarios/Seguranca";
 
 const LoginScreen = ({ setScreen, onLoginSuccess }) => {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [lembrarMe, setLembrarMe] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const creds = await obterCredenciais();
+      if (creds) {
+        setEmail(creds.email);
+        setSenha(creds.senha);
+        setLembrarMe(true);
+      }
+    })();
+  }, []);
 
   const handleLogin = async () => {
     if (!email || !senha) {
@@ -25,20 +37,18 @@ const LoginScreen = ({ setScreen, onLoginSuccess }) => {
     setLoading(true);
     try {
       const response = await realizarLogin(email, senha);
-      
-      if (response && response.user) {
-          onLoginSuccess(response.user);
+
+      if (lembrarMe) {
+        await salvarCredenciais(email, senha);
       } else {
-           onLoginSuccess(response);
+        await limparCredenciais();
       }
 
-      setEmail('');
-      setSenha('');
+      if (response?.user) onLoginSuccess(response.user);
+      else onLoginSuccess(response);
+
     } catch (error) {
-      const errorMessage =
-        error.message || 'Erro de rede ou servidor.';
-      Alert.alert('Erro no Login', errorMessage);
-      console.error("Erro de login:", error);
+      Alert.alert('Erro no Login', error.message || 'Erro de rede.');
     } finally {
       setLoading(false);
     }
@@ -124,9 +134,16 @@ const LoginScreen = ({ setScreen, onLoginSuccess }) => {
                 </TouchableOpacity>
               </View>
 
-              {/* 3. Botão de Esqueci Minha Senha adicionado aqui */}
-              <TouchableOpacity style={styles.esqueciSenhaButton} onPress={handleEsqueciSenha}>
-                <Text style={styles.esqueciSenhaTexto}>Esqueci minha senha</Text>
+              <TouchableOpacity
+                style={styles.checkboxContainer}
+                onPress={() => setLembrarMe(!lembrarMe)}
+              >
+                <Ionicons
+                  name={lembrarMe ? "checkbox" : "square-outline"}
+                  size={15}
+                  color="#00245a"
+                />
+                <Text style={styles.checkboxTexto}>Lembrar-me</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -139,6 +156,11 @@ const LoginScreen = ({ setScreen, onLoginSuccess }) => {
                 ) : (
                   <Text style={styles.btnTexto}>Entrar</Text>
                 )}
+              </TouchableOpacity>
+
+              {/* 3. Botão de Esqueci Minha Senha adicionado aqui */}
+              <TouchableOpacity style={styles.esqueciSenhaButton} onPress={handleEsqueciSenha}>
+                <Text style={styles.esqueciSenhaTexto}>Esqueceu a sua senha? Clique aqui</Text>
               </TouchableOpacity>
 
               <TouchableOpacity onPress={() => setScreen('cadastro')}>
@@ -169,7 +191,7 @@ const styles = StyleSheet.create({
   },
 
   cabecalho: {
-    height: height * 0.35,
+    height: height * 0.30,
     borderBottomLeftRadius: width * 0.12,
     borderBottomRightRadius: width * 0.12,
     alignItems: 'center',
@@ -177,13 +199,13 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    width: width * 0.32,
-    height: width * 0.32,
+    width: width * 0.28,
+    height: width * 0.28,
     tintColor: 'white',
   },
 
   titulo: {
-    fontSize: width * 0.085,
+    fontSize: width * 0.08,
     fontWeight: 'bold',
     color: '#ffffff',
     marginTop: 15,
@@ -228,17 +250,18 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
 
-  // 4. Estilos novos para o botão de esqueci senha
   esqueciSenhaButton: {
-    alignSelf: 'flex-end', // Alinha à direita
-    marginBottom: 15,
-    marginRight: 5,
+    alignSelf: 'center', 
+    marginTop: 10,
+    textAlign: 'center',
   },
 
   esqueciSenhaTexto: {
-    color: '#00245aff', // Mesma cor azul do tema
+    color: '#c53939', 
     fontSize: width * 0.035,
     fontWeight: 'bold',
+    textDecorationLine: 'underline',
+    textAlign: 'center',
   },
 
   botao: {
@@ -247,6 +270,7 @@ const styles = StyleSheet.create({
     paddingVertical: height * 0.015,
     alignItems: 'center',
     marginVertical: 10,
+    marginTop: 30,
   },
 
   btnTexto: {
@@ -266,4 +290,18 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
     fontWeight: 'bold',
   },
+
+  checkboxContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginLeft: 5,
+  },
+
+  checkboxTexto: {
+    marginLeft: 8,
+    color: "#868383ff",
+    fontSize: 12,
+    fontWeight: "bold",
+  },
+
 });
