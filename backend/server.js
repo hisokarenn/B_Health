@@ -1,8 +1,7 @@
 import "./config.js";
 import express from 'express';
 import cors from 'cors';
-import db from './firebase.js';
-mport { db, bucket } from './firebase.js'; // Importa db e bucket
+import { db, bucket } from './firebase.js'; // Importa db e bucket
 import multer from 'multer'; // Importa multer para upload
 
 const app = express();
@@ -113,9 +112,9 @@ app.get('/campanhas', async (req, res) => {
         if(snapshot.empty) return res.status(200).json({message: 'Nenhuma campanha ativa.', camapnhas: []});
         const camapnhas = snapshot.docs.map(doc =>({id: doc.id, ...doc.data()}));
         res.status(200).json({campanhas:camapnhas})
-    }cath(error){
+    }catch(error){
         console.error('Erro ao buscar campanhas:', error);
-        res.status(500).json({error:'Erro interno.'};)
+        res.status(500).json({error:'Erro interno.'});
     }
 });
 
