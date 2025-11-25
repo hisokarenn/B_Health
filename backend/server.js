@@ -2,6 +2,8 @@ import "./config.js";
 import express from 'express';
 import cors from 'cors';
 import db from './firebase.js';
+mport { db, bucket } from './firebase.js'; // Importa db e bucket
+import multer from 'multer'; // Importa multer para upload
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -108,24 +110,12 @@ app.get('/historico/:pacienteId', async (req, res) => {
 app.get('/campanhas', async (req, res) => {
     try {
         const snapshot = await db.collection('campanhas').get();
-
-        if (snapshot.empty) {
-            return res.status(200).json({ 
-                message: 'Nenhuma campanha ativa.',
-                campanhas: []
-            });
-        }
-
-        const campanhas = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-        }));
-        
-        res.status(200).json({ campanhas: campanhas });
-
-    } catch (error) {
+        if(snapshot.empty) return res.status(200).json({message: 'Nenhuma campanha ativa.', camapnhas: []});
+        const camapnhas = snapshot.docs.map(doc =>({id: doc.id, ...doc.data()}));
+        res.status(200).json({campanhas:camapnhas})
+    }cath(error){
         console.error('Erro ao buscar campanhas:', error);
-        res.status(500).json({ error: 'Erro interno.' });
+        res.status(500).json({error:'Erro interno.'};)
     }
 });
 
@@ -134,23 +124,16 @@ app.get('/campanhas/:id', async (req, res) => {
     const { id } = req.params;
     try {
         const doc = await db.collection('campanhas').doc(id).get();
-        
-        if (!doc.exists) {
-            return res.status(404).json({ error: 'Campanha não encontrada.' });
-        }
-
+        if (!doc.exists) return res.status(404).json({ error: 'Campanha não encontrada.' });
         res.status(200).json({ id: doc.id, ...doc.data() });
     } catch (error) {
         res.status(500).json({ error: 'Erro interno.' });
     }
 });
 
-// --- "KEEP-ALIVE" ---
-// Impede que o processo do Node.js encerre sozinho em alguns ambientes.
-setInterval(() => {
-    // Esta função não faz nada, mas mantém o processo "ocupado".
-}, 1000 * 60 * 60); // Roda a cada 1 hora
-console.log("Processo 'keep-alive' iniciado para manter o servidor ativo.");
+// Keep alive
+setInterval(() => {}, 1000 * 60 * 60); 
+console.log("Processo 'keep-alive' iniciado.");
 
 // Inicialização do servidor
 app.listen(port, () => {
