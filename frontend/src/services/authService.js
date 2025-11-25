@@ -6,6 +6,8 @@ import {
     signInWithEmailAndPassword 
 } from "firebase/auth";
 
+import { updateProfile } from "firebase/auth"; //salvaer o nome do user
+
 // 🚨 URL da sua API (Backend)
 // Se estiver testando no celular físico, use o IP da sua máquina (ex: http://192.168.1.15:3000)
 // Se já estiver com o backend no Render, use a URL do Render 'https://b-health-app-api.onrender.com'
@@ -37,6 +39,8 @@ export const cadastrarPaciente = async (dados) => {
         const userCredential = await createUserWithEmailAndPassword(auth, dados.email, dados.senha);
         const user = userCredential.user;
 
+        await updateProfile(user, { displayName: dados.nome }); //aqui q tá o nome do user sendo salvo
+
         // B. Salvar dados no Banco de Dados (Via API)
         // Enviamos o UID gerado pelo Firebase para ser a chave do documento no banco
         await axios.post(`${API_BASE_URL}/pacientes`, {
@@ -64,6 +68,8 @@ export const realizarLogin = async (email, senha) => {
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email, senha);
         const user = userCredential.user;
+
+        //await user.reload();
         
         // Retorna o objeto usuário (que contém o UID necessário para as próximas telas)
         return { user }; 
