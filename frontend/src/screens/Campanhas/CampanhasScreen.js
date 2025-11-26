@@ -5,8 +5,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { collection, getDocs } from 'firebase/firestore'; 
-import { db } from '../../services/firebaseConfig';
+import { getCampanhas } from '../../services/authService'; // <--- Voltamos para o AuthService
 
 // Cores do Tema
 const COLORS = {
@@ -25,13 +24,12 @@ const CampanhaItem = ({ item, onPress }) => (
         activeOpacity={0.9}
     >
         <View style={styles.imageContainer}>
-            {/* Tenta buscar imagemUrl (padrão novo) ou imagem_url (legado) */}
+            {/* Tenta buscar imagem_url (padrão do seu backend) */}
             <Image 
-                source={{ uri: item.imagemUrl || item.imagem_url || 'https://via.placeholder.com/600x300' }} 
+                source={{ uri: item.imagem_url || 'https://via.placeholder.com/600x300' }} 
                 style={styles.cardImage} 
                 resizeMode="cover"
             />
-            {/* Badge de Data Flutuante */}
             <View style={styles.dateBadge}>
                 <Text style={styles.dateBadgeText}>{item.data_inicio || "HOJE"}</Text>
                 <Text style={styles.dateBadgeSub}>INÍCIO</Text>
@@ -47,7 +45,6 @@ const CampanhaItem = ({ item, onPress }) => (
                 <View style={styles.tag}>
                     <Text style={styles.tagText}>{item.tipo_vacina || "Vacinação"}</Text>
                 </View>
-                {/* Exibe o horário se existir */}
                 {item.unidade_horario && (
                     <View style={[styles.tag, { backgroundColor: '#E3F2FD' }]}>
                         <Ionicons name="time-outline" size={12} color={COLORS.primary} style={{marginRight:4}}/>
@@ -59,7 +56,7 @@ const CampanhaItem = ({ item, onPress }) => (
             </View>
 
             <Text style={styles.campanhaTitulo} numberOfLines={2}>
-                {item.titulo || item.nome || "Campanha de Vacinação"}
+                {item.titulo || "Campanha de Vacinação"}
             </Text>
             
             <View style={styles.cardFooter}>
@@ -76,27 +73,26 @@ const CampanhaItem = ({ item, onPress }) => (
 const CampanhasScreen = ({ onSelectCampanha }) => { 
     const [campanhas, setCampanhas] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [message, setMessage] = useState('Atualizando campanhas...');
+    const [message, setMessage] = useState('Conectando ao servidor...');
 
     useEffect(() => {
         const fetchCampanhas = async () => {
             try {
-                // BUSCA DIRETA DO FIREBASE
-                const querySnapshot = await getDocs(collection(db, "campanhas"));
-                const listaCampanhas = [];
+                // CHAMADA VIA AXIOS (AuthService)
+                const response = await getCampanhas();
                 
-                querySnapshot.forEach((doc) => {
-                    listaCampanhas.push({ id: doc.id, ...doc.data() });
-                });
+                // O Axios retorna os dados dentro de 'data'
+                // Ajuste aqui conforme o retorno exato do seu backend (ex: response.data.campanhas ou response.data)
+                const lista = response.data.campanhas || response.data || [];
 
-                if (listaCampanhas.length > 0) {
-                    setCampanhas(listaCampanhas);
+                if (lista.length > 0) {
+                    setCampanhas(lista);
                 } else {
                     setMessage('Nenhuma campanha ativa no momento.');
                 }
             } catch (error) {
-                console.error("Erro Firebase:", error);
-                setMessage('Não foi possível carregar as campanhas.');
+                console.error("Erro Axios:", error);
+                setMessage('Erro de conexão. Verifique se o backend está rodando.');
             } finally {
                 setLoading(false);
             }
@@ -124,13 +120,13 @@ const CampanhasScreen = ({ onSelectCampanha }) => {
 
             {campanhas.length === 0 ? (
                 <View style={styles.centerContainer}>
-                    <Ionicons name="folder-open-outline" size={60} color="#CBD5E0" />
+                    <Ionicons name="server-outline" size={60} color="#CBD5E0" />
                     <Text style={styles.messageText}>{message}</Text>
                 </View>
             ) : (
                 <FlatList
                     data={campanhas}
-                    keyExtractor={(item) => item.id}
+                    keyExtractor={(item, index) => (item.id || index).toString()}
                     renderItem={({ item }) => <CampanhaItem item={item} onPress={onSelectCampanha} />}
                     contentContainerStyle={{ padding: 20, paddingBottom: 100 }}
                     showsVerticalScrollIndicator={false}

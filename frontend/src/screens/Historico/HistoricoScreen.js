@@ -3,9 +3,7 @@ import {
     View, Text, StyleSheet, FlatList, ActivityIndicator, Button, 
     RefreshControl
 } from 'react-native';
-// ADICIONADO: importamos 'query' e 'where' para filtrar
-import { collection, getDocs, query, where } from 'firebase/firestore'; 
-import { db, auth } from '../../services/firebaseConfig';
+import { getHistorico } from '../../services/authService'; // <--- Usando o AuthService com Axios
 
 const HistoricoItem = ({ item }) => (
     <View style={styles.itemContainer}>
@@ -42,35 +40,24 @@ const HistoricoScreen = ({ pacienteId, setScreen }) => {
         }
 
         try {
-            console.log(`Buscando histórico na coleção RAIZ para pacienteId: ${pacienteId}`);
+            console.log(`Buscando histórico via Axios para: ${pacienteId}`);
             
-            // --- CORREÇÃO AQUI ---
-            // Como 'historico' é uma coleção raiz (separada de pacientes), 
-            // buscamos nela filtrando onde o campo 'pacienteId' é igual ao ID do usuário.
-            const historicoRef = collection(db, "historico");
-            const q = query(historicoRef, where("pacienteId", "==", pacienteId));
+            // CHAMADA VIA AXIOS (AuthService)
+            const response = await getHistorico(pacienteId);
             
-            const querySnapshot = await getDocs(q);
-            
-            const listaHistorico = [];
-            querySnapshot.forEach((doc) => {
-                listaHistorico.push({ id: doc.id, ...doc.data() });
-            });
+            // Ajuste conforme o retorno do seu backend (ex: response.data.historico ou response.data)
+            const lista = response.data.historico || response.data || [];
 
-            if (listaHistorico.length > 0) {
-                setHistorico(listaHistorico);
+            if (lista.length > 0) {
+                setHistorico(lista);
                 setMessage('');
             } else {
                 setHistorico([]); 
                 setMessage('Sua caderneta de vacinação está vazia no momento.');
             }
         } catch (error) {
-            console.error("Erro Firebase (Histórico):", error);
-            if (error.code === 'permission-denied') {
-                setMessage('Acesso negado. Verifique as Regras do Firebase.');
-            } else {
-                setMessage('Não foi possível carregar o histórico.');
-            }
+            console.error("Erro Axios (Histórico):", error);
+            setMessage('Não foi possível conectar ao servidor de histórico.');
         } finally {
             setLoading(false);
             setRefreshing(false);
@@ -117,7 +104,7 @@ const HistoricoScreen = ({ pacienteId, setScreen }) => {
             ) : (
                 <FlatList
                     data={historico}
-                    keyExtractor={(item) => item.id}
+                    keyExtractor={(item, index) => (item.id || index).toString()}
                     renderItem={({ item }) => <HistoricoItem item={item} />}
                     contentContainerStyle={{ paddingBottom: 20 }}
                     refreshControl={
