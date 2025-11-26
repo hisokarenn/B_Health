@@ -5,7 +5,6 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Carrega o .env explicitamente do diretório ATUAL (backend)
 const envResult = dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 if (envResult.error) {
