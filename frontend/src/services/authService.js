@@ -11,7 +11,7 @@ import { updateProfile } from "firebase/auth"; //salvaer o nome do user
 // 🚨 URL da sua API (Backend)
 // Se estiver testando no celular físico, use o IP da sua máquina (ex: http://192.168.1.15:3000)
 // Se já estiver com o backend no Render, use a URL do Render 'https://b-health-app-api.onrender.com'
-const API_BASE_URL = 'http://192.168.0.112:3000'; 
+const API_BASE_URL = 'https://b-health-app-api.onrender.com'; 
 
 // --- FUNÇÃO 1: Recuperar Senha (Nativa do Firebase) ---
 // Envia o e-mail de redefinição diretamente pelo Google
