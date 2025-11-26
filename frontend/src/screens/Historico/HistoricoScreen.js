@@ -1,21 +1,23 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { 
     View, Text, StyleSheet, FlatList, ActivityIndicator, Button, 
-    RefreshControl // Importante: Importar RefreshControl
+    RefreshControl
 } from 'react-native';
-import { getHistorico } from '../../services/authService';
+// ADICIONADO: importamos 'query' e 'where' para filtrar
+import { collection, getDocs, query, where } from 'firebase/firestore'; 
+import { db, auth } from '../../services/firebaseConfig';
 
 const HistoricoItem = ({ item }) => (
     <View style={styles.itemContainer}>
         <View style={styles.headerItem}>
-            <Text style={styles.vacinaNome}>{item.nome_vacina}</Text>
-            <Text style={styles.doseBadge}>{item.dose}ª Dose</Text>
+            <Text style={styles.vacinaNome}>{item.nome_vacina || item.vacina || "Vacina"}</Text>
+            <Text style={styles.doseBadge}>{item.dose || "1"}ª Dose</Text>
         </View>
         
-        <Text style={styles.dataText}>Aplicado em: {item.data_aplicacao}</Text>
+        <Text style={styles.dataText}>Aplicado em: {item.data_aplicacao || "Data não informada"}</Text>
         
         <View style={styles.detalhesContainer}>
-            <Text style={styles.detalheText}>Local: {item.nome_unidade || item.unidade_saude}</Text>
+            <Text style={styles.detalheText}>Local: {item.nome_unidade || item.unidade_saude || "Unidade de Saúde"}</Text>
             {item.profissional_responsavel && (
                 <Text style={styles.detalheText}>Prof: {item.profissional_responsavel}</Text>
             )}
@@ -29,36 +31,56 @@ const HistoricoItem = ({ item }) => (
 const HistoricoScreen = ({ pacienteId, setScreen }) => {
     const [historico, setHistorico] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [refreshing, setRefreshing] = useState(false); // Estado para o "Puxar para atualizar"
+    const [refreshing, setRefreshing] = useState(false); 
     const [message, setMessage] = useState('Buscando histórico...');
 
-    // Função de busca extraída para ser reutilizável
     const fetchHistorico = useCallback(async () => {
-        try {
-            const response = await getHistorico(pacienteId);
+        if (!pacienteId) {
+            setMessage('Erro: ID do paciente não identificado.');
+            setLoading(false);
+            return;
+        }
 
-            if (response.data.historico && response.data.historico.length > 0) {
-                setHistorico(response.data.historico);
+        try {
+            console.log(`Buscando histórico na coleção RAIZ para pacienteId: ${pacienteId}`);
+            
+            // --- CORREÇÃO AQUI ---
+            // Como 'historico' é uma coleção raiz (separada de pacientes), 
+            // buscamos nela filtrando onde o campo 'pacienteId' é igual ao ID do usuário.
+            const historicoRef = collection(db, "historico");
+            const q = query(historicoRef, where("pacienteId", "==", pacienteId));
+            
+            const querySnapshot = await getDocs(q);
+            
+            const listaHistorico = [];
+            querySnapshot.forEach((doc) => {
+                listaHistorico.push({ id: doc.id, ...doc.data() });
+            });
+
+            if (listaHistorico.length > 0) {
+                setHistorico(listaHistorico);
                 setMessage('');
             } else {
-                setHistorico([]); // Limpa se não tiver nada
-                setMessage('Não há registros de vacina disponíveis.');
+                setHistorico([]); 
+                setMessage('Sua caderneta de vacinação está vazia no momento.');
             }
         } catch (error) {
-            setMessage('Erro ao carregar o histórico.');
-            console.error(error);
+            console.error("Erro Firebase (Histórico):", error);
+            if (error.code === 'permission-denied') {
+                setMessage('Acesso negado. Verifique as Regras do Firebase.');
+            } else {
+                setMessage('Não foi possível carregar o histórico.');
+            }
         } finally {
             setLoading(false);
-            setRefreshing(false); // Para o ícone de refresh
+            setRefreshing(false);
         }
     }, [pacienteId]);
 
-    // Carrega na montagem do componente
     useEffect(() => {
         fetchHistorico();
     }, [fetchHistorico]);
 
-    // Função chamada ao puxar a lista
     const onRefresh = () => {
         setRefreshing(true);
         fetchHistorico();
@@ -77,9 +99,6 @@ const HistoricoScreen = ({ pacienteId, setScreen }) => {
         <View style={styles.historicoContainer}>
             <Text style={styles.historicoTitle}>Minha Caderneta (RF03)</Text>
             
-            {/* Se a lista estiver vazia, mostramos a mensagem dentro de um ScrollView 
-                para permitir o "Pull to Refresh" mesmo na tela vazia.
-            */}
             {historico.length === 0 ? (
                 <FlatList
                     data={[]} 
@@ -98,10 +117,9 @@ const HistoricoScreen = ({ pacienteId, setScreen }) => {
             ) : (
                 <FlatList
                     data={historico}
-                    keyExtractor={(item, index) => index.toString()}
+                    keyExtractor={(item) => item.id}
                     renderItem={({ item }) => <HistoricoItem item={item} />}
                     contentContainerStyle={{ paddingBottom: 20 }}
-                    // Adiciona o controle de atualização
                     refreshControl={
                         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
                     }
@@ -119,7 +137,7 @@ const HistoricoScreen = ({ pacienteId, setScreen }) => {
 
 const styles = StyleSheet.create({
     loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
-    emptyContainer: { alignItems: 'center', marginTop: 50 },
+    emptyContainer: { alignItems: 'center', marginTop: 50, paddingHorizontal: 20 },
     historicoContainer: { flex: 1, padding: 20, backgroundColor: '#fff' },
     historicoTitle: { fontSize: 22, fontWeight: 'bold', marginBottom: 20, color: '#007AFF', textAlign: 'center' },
     
@@ -147,6 +165,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold', 
         color: '#333',
         flex: 1, 
+        marginRight: 10
     },
     doseBadge: {
         backgroundColor: '#e3f2fd',

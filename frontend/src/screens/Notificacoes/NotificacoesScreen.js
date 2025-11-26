@@ -1,141 +1,226 @@
-import React, { useEffect, useState } from 'react';
-import { 
-    View, Text, StyleSheet, FlatList, TouchableOpacity, Image, ActivityIndicator 
-} from 'react-native';
-import { getCampanhas } from '../../services/authService';
+import React, { useState, useEffect } from 'react';
+import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, ActivityIndicator, Dimensions } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Ionicons } from '@expo/vector-icons';
+import { collection, getDocs } from 'firebase/firestore'; 
+import { db } from '../../services/firebaseConfig';
+import BottomNav from '../../components/BarraNavegacao';
+import { SafeAreaView } from "react-native-safe-area-context"; 
+import { Ionicons } from "@expo/vector-icons";
 
-const NotificacaoItem = ({ item, onPress }) => (
-    <TouchableOpacity style={styles.card} onPress={() => onPress(item)}>
-        <View style={styles.row}>
-            {/* Miniatura da imagem */}
-            <Image 
-                source={{ uri: item.imagem_url || 'https://via.placeholder.com/100' }} 
-                style={styles.thumb} 
-            />
-            <View style={styles.content}>
-                <View style={styles.headerRow}>
-                    <Text style={styles.newBadge}>NOVA</Text>
-                    <Text style={styles.dateText}>Publicado recentemente</Text>
-                </View>
-                <Text style={styles.title}>Nova campanha publicada!</Text>
-                <Text style={styles.subtitle}>{item.titulo}</Text>
-                <Text style={styles.cta}>Toque para ver detalhes</Text>
-            </View>
-        </View>
-    </TouchableOpacity>
-);
+const { width } = Dimensions.get("window");
 
-const NotificacoesScreen = ({ setScreen, onSelectCampanha }) => {
-    const [notificacoes, setNotificacoes] = useState([]);
-    const [loading, setLoading] = useState(true);
+const NotificacoesScreen = ({ setScreen }) => {
+  const [notificacoes, setNotificacoes] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const fetchNotificacoes = async () => {
-            try {
-                // 1. Busca todas as campanhas
-                const response = await getCampanhas();
-                const todasCampanhas = response.data.campanhas || [];
+  // Função para buscar e filtrar campanhas
+  const carregarNotificacoes = async () => {
+    try {
+      setLoading(true);
+      
+      // 1. Busca todas as campanhas do Firebase
+      const querySnapshot = await getDocs(collection(db, "campanhas"));
+      const campanhasDoBanco = [];
+      querySnapshot.forEach((doc) => {
+        campanhasDoBanco.push({ id: doc.id, ...doc.data() });
+      });
 
-                // 2. Lógica de Filtro (Simulação de "Novas")
-                // Na vida real, você filtraria por data > lastViewDate.
-                // Para este protótipo, vamos mostrar as últimas 3 como "novas".
-                // Se quiser lógica real de data, precisaríamos do campo 'createdAt' no banco.
-                
-                // Vamos pegar as campanhas que começam no futuro ou recentemente
-                const novas = todasCampanhas.slice(0, 5); // Pega as 5 primeiras (assumindo que backend manda as mais recentes)
+      // 2. Busca IDs já lidos do armazenamento local
+      const lidasStorage = await AsyncStorage.getItem('@notificacoes_lidas');
+      const idsLidas = lidasStorage ? JSON.parse(lidasStorage) : [];
 
-                setNotificacoes(novas);
-
-                // 3. Marca como "Lidas" (Atualiza o storage local)
-                await AsyncStorage.setItem('lastNotificationView', new Date().toISOString());
-
-            } catch (error) {
-                console.error(error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchNotificacoes();
-    }, []);
-
-    const handlePress = (campanha) => {
-        // Navega para a tela de detalhes (via App.js)
-        if (onSelectCampanha) {
-            onSelectCampanha(campanha);
-        }
-    };
-
-    if (loading) {
-        return (
-            <View style={styles.center}>
-                <ActivityIndicator size="large" color="#007AFF" />
-            </View>
-        );
+      // 3. Filtra apenas as que NÃO estão salvas como lidas
+      const naoLidas = campanhasDoBanco.filter(c => !idsLidas.includes(c.id));
+      
+      setNotificacoes(naoLidas);
+    } catch (error) {
+      console.error("Erro ao carregar notificações", error);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    return (
-        <View style={styles.container}>
-            <View style={styles.header}>
-                <Text style={styles.headerTitle}>Notificações</Text>
-                <TouchableOpacity onPress={() => setScreen('menu')}>
-                    <Ionicons name="close" size={24} color="#333" />
-                </TouchableOpacity>
-            </View>
+  // Como sua navegação desmonta a tela ao sair, o useEffect funciona como o "onFocus"
+  useEffect(() => {
+    carregarNotificacoes();
+  }, []);
 
-            {notificacoes.length === 0 ? (
-                <View style={styles.emptyState}>
-                    <Ionicons name="notifications-off-outline" size={60} color="#ccc" />
-                    <Text style={styles.emptyText}>Nenhuma campanha publicada recentemente.</Text>
-                    <TouchableOpacity style={styles.btnVoltar} onPress={() => setScreen('menu')}>
-                        <Text style={styles.btnText}>Voltar ao Início</Text>
-                    </TouchableOpacity>
-                </View>
-            ) : (
-                <FlatList
-                    data={notificacoes}
-                    keyExtractor={(item, index) => index.toString()}
-                    renderItem={({ item }) => <NotificacaoItem item={item} onPress={handlePress} />}
-                    contentContainerStyle={styles.list}
-                />
-            )}
+  const handleAbrirCampanha = async (campanha) => {
+    try {
+      // 1. Salva o ID da campanha como "lido" no AsyncStorage
+      const lidasStorage = await AsyncStorage.getItem('@notificacoes_lidas');
+      const idsLidas = lidasStorage ? JSON.parse(lidasStorage) : [];
+      
+      if (!idsLidas.includes(campanha.id)) {
+        const novosIds = [...idsLidas, campanha.id];
+        await AsyncStorage.setItem('@notificacoes_lidas', JSON.stringify(novosIds));
+      }
+
+      // 2. Atualiza a lista da tela (remove o item clicado instantaneamente)
+      setNotificacoes(prev => prev.filter(item => item.id !== campanha.id));
+
+      // 3. Redireciona para a tela de Campanhas
+      // OBS: Aqui seria ideal passar a campanha específica se sua tela de Campanhas suportar,
+      // mas como estamos usando setScreen simples, vamos apenas para a lista geral.
+      setScreen("campanhas");
+
+    } catch (error) {
+      console.log("Erro ao salvar leitura da notificação", error);
+    }
+  };
+
+  return (
+    <SafeAreaView style={styles.safe}>
+      <View style={styles.container}>
+        
+        {/* Cabeçalho Simples */}
+        <View style={styles.header}>
+            <Text style={styles.headerTitle}>Notificações</Text>
         </View>
-    );
+
+        {loading ? (
+            <View style={styles.center}>
+                <ActivityIndicator size="large" color="#143582ff" />
+            </View>
+        ) : notificacoes.length === 0 ? (
+            // Tela Vazia
+            <View style={styles.emptyContainer}>
+                <Ionicons name="notifications-off-outline" size={60} color="#ccc" />
+                <Text style={styles.emptyText}>Nenhuma campanha nova</Text>
+            </View>
+        ) : (
+            // Lista de Notificações
+            <FlatList
+                data={notificacoes}
+                keyExtractor={(item) => item.id}
+                contentContainerStyle={styles.listContent}
+                renderItem={({ item }) => (
+                    <TouchableOpacity 
+                        style={styles.card} 
+                        onPress={() => handleAbrirCampanha(item)}
+                        activeOpacity={0.9}
+                    >
+                        <View style={styles.badgeNew}>
+                            <Ionicons name="sparkles" size={14} color="#143582ff" style={{marginRight: 5}}/>
+                            <Text style={styles.badgeText}>Nova campanha publicada!</Text>
+                        </View>
+
+                        {/* Tenta renderizar imagem se existir */}
+                        {item.imagemUrl ? (
+                            <Image source={{ uri: item.imagemUrl }} style={styles.cardImage} />
+                        ) : null}
+
+                        <Text style={styles.cardTitle}>{item.nome || item.titulo || "Nova Campanha de Vacinação"}</Text>
+                        
+                        <View style={styles.footerCard}>
+                            <Text style={styles.clickHint}>Toque para ver</Text>
+                            <Ionicons name="chevron-forward" size={16} color="#28a745" />
+                        </View>
+                    </TouchableOpacity>
+                )}
+            />
+        )}
+
+        {/* Barra de Navegação - Ativa em 'notificacoes' */}
+        {/* Passamos temNotificacao={notificacoes.length > 0} para a bolinha continuar acesa se ainda houver itens na lista */}
+        <BottomNav 
+            active="notificacoes" 
+            setScreen={setScreen} 
+            temNotificacao={notificacoes.length > 0} 
+        />
+      </View>
+    </SafeAreaView>
+  );
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#f5f7fa', paddingTop: 20 },
-    center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-    header: { 
-        flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', 
-        paddingHorizontal: 20, marginBottom: 10 
-    },
-    headerTitle: { fontSize: 24, fontWeight: 'bold', color: '#00245aff' },
-    
-    list: { padding: 15 },
-    card: {
-        backgroundColor: '#fff', borderRadius: 12, padding: 15, marginBottom: 15,
-        elevation: 3, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1,
-    },
-    row: { flexDirection: 'row', alignItems: 'center' },
-    thumb: { width: 60, height: 60, borderRadius: 30, marginRight: 15, backgroundColor: '#eee' },
-    content: { flex: 1 },
-    headerRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 5 },
-    newBadge: { 
-        fontSize: 10, fontWeight: 'bold', color: '#fff', backgroundColor: '#28a745', 
-        paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, marginRight: 8 
-    },
-    dateText: { fontSize: 12, color: '#999' },
-    title: { fontSize: 16, fontWeight: 'bold', color: '#333' },
-    subtitle: { fontSize: 14, color: '#007AFF', marginTop: 2 },
-    cta: { fontSize: 12, color: '#666', marginTop: 5, fontStyle: 'italic' },
+  safe: { flex: 1, backgroundColor: "#fff" },
+  container: { flex: 1, backgroundColor: "#f8f9fa" },
+  
+  header: {
+    padding: 20,
+    backgroundColor: "#fff",
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
+    alignItems: 'center'
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#143582ff"
+  },
 
-    emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40 },
-    emptyText: { fontSize: 16, color: '#666', textAlign: 'center', marginTop: 20, marginBottom: 30 },
-    btnVoltar: { backgroundColor: '#007AFF', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 20 },
-    btnText: { color: '#fff', fontWeight: 'bold' }
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  
+  emptyContainer: { 
+    flex: 1, 
+    justifyContent: 'center', 
+    alignItems: 'center',
+    paddingBottom: 100 // espaço para nav
+  },
+  emptyText: { 
+    marginTop: 15,
+    fontSize: 16, 
+    color: '#888', 
+    fontWeight: '500' 
+  },
+
+  listContent: {
+    padding: 20,
+    paddingBottom: 120 // Espaço extra para não ficar atrás da BottomNav
+  },
+  
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 20,
+    elevation: 4, // Android shadow
+    shadowColor: '#000', // iOS shadow
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+  },
+  badgeNew: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#e3f2fd',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+    marginBottom: 12,
+  },
+  badgeText: {
+    color: '#143582ff',
+    fontWeight: 'bold',
+    fontSize: 12,
+  },
+  cardImage: {
+    width: '100%',
+    height: 160,
+    borderRadius: 12,
+    marginBottom: 12,
+    resizeMode: 'cover',
+    backgroundColor: '#eee'
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 8,
+  },
+  footerCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 5
+  },
+  clickHint: {
+    fontSize: 14,
+    color: '#28a745',
+    fontWeight: '600',
+    marginRight: 2
+  }
 });
 
 export default NotificacoesScreen;
