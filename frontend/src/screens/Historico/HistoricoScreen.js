@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { 
     View, Text, StyleSheet, FlatList, ActivityIndicator, Button, 
-    RefreshControl // Importante: Importar RefreshControl
+    RefreshControl, Platform, // Importante: Importar RefreshControl
+    Dimensions
 } from 'react-native';
 import { getHistorico } from '../../services/authService';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const HistoricoItem = ({ item }) => (
     <View style={styles.itemContainer}>
@@ -25,6 +27,8 @@ const HistoricoItem = ({ item }) => (
         </View>
     </View>
 );
+
+const {width, height} = Dimensions.get("window");
 
 const HistoricoScreen = ({ pacienteId, setScreen }) => {
     const [historico, setHistorico] = useState([]);
@@ -74,6 +78,7 @@ const HistoricoScreen = ({ pacienteId, setScreen }) => {
     }
 
     return (
+        <SafeAreaView styles={style.safe}>
         <View style={styles.historicoContainer}>
             <Text style={styles.historicoTitle}>Minha Caderneta (RF03)</Text>
             
@@ -114,19 +119,72 @@ const HistoricoScreen = ({ pacienteId, setScreen }) => {
                 </View>
             )}
         </View>
+    </SafeAreaView>
+
     );
 };
 
 const styles = StyleSheet.create({
-    loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
-    emptyContainer: { alignItems: 'center', marginTop: 50 },
-    historicoContainer: { flex: 1, padding: 20, backgroundColor: '#fff' },
-    historicoTitle: { fontSize: 22, fontWeight: 'bold', marginBottom: 20, color: '#007AFF', textAlign: 'center' },
-    
-    itemContainer: { 
-        padding: 15, 
-        marginBottom: 15, 
-        borderRadius: 10, 
+    safe: { 
+        flex: 1, 
+        backgroundColor: "#fff" 
+    },
+
+    header: {
+        paddingTop: Platform.OS === "android" ? height * 0.04 : height * 0.03,
+        paddingBottom: height * 0.03,
+        paddingHorizontal: width * 0.05,
+        flexDirection: "row",
+        justifyContent: 'flex-start',
+        alignItems: "center",
+    },
+
+    headerTitle: {
+        color: "#fff",
+        fontSize: width * 0.055,
+        fontWeight: "bold",
+        marginLeft: width * 0.07,
+    },
+
+    historicoContainer: {
+        flex: 1,
+        padding: width * 0.05,
+        backgroundColor: '#fff',
+    },
+
+    historicoTitle: {
+        fontSize: width * 0.06,
+        fontWeight: 'bold',
+        color: '#333',
+        marginBottom: height * 0.02,
+    },
+
+    cardAviso: {
+        display: 'flex',
+        backgroundColor: "#fde7c8",
+        borderRadius: width * 0.07,
+        flexDirection: 'row',
+        padding: width * 0.05,
+        marginBottom: height * 0.03,
+        alignContent: 'space-between',
+    },
+
+    avisoTitulo: {
+        fontWeight: 'bold',
+        fontSize: width * 0.033,
+        marginBottom: height * 0.003,
+        color: "#333",
+    },
+
+    avisoTexto: {
+        fontSize: width * 0.033,
+        color: "#555",
+    },
+
+    itemContainer: {
+        padding: width * 0.05,
+        marginBottom: height * 0.02,
+        borderRadius: width * 0.09,
         backgroundColor: '#f8f9fa',
         borderWidth: 1,
         borderColor: '#e9ecef',
