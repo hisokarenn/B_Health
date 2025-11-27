@@ -9,6 +9,7 @@ import HistoricoScreen from './src/screens/Historico/HistoricoScreen';
 import CampanhasScreen from './src/screens/Campanhas/CampanhasScreen'; 
 import PerfilScreen from "./src/screens/Perfil/PerfilScreen";
 import CampanhaDetalheScreen from './src/screens/CampanhaDetalhe/CampanhaDetalheScreen'; // NOVO IMPORT
+import NotificacoesScreen from './src/screens/Notificacoes/NotificacoesScreen'; // <--- ADICIONADO AQUI
 
 // Importa componente de transição (se você estiver usando)
 import ScreenTransition from "./src/components/ScreenTransition";
@@ -16,7 +17,7 @@ import ScreenTransition from "./src/components/ScreenTransition";
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState('login'); 
   const [pacienteInfo, setPacienteInfo] = useState(null); 
-  
+   
   // NOVO ESTADO: Para guardar os dados da campanha clicada
   const [campanhaSelecionada, setCampanhaSelecionada] = useState(null);
 
@@ -81,6 +82,14 @@ export default function App() {
                 campanhaDados={campanhaSelecionada} // Passa os dados salvos
                 setScreen={setCurrentScreen} 
             />
+          </ScreenTransition>
+        );
+
+      // <--- ADICIONADO AQUI: Tela de Notificações
+      case 'notificacoes':
+        return (
+          <ScreenTransition>
+            <NotificacoesScreen setScreen={setCurrentScreen} />
           </ScreenTransition>
         );
 

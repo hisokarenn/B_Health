@@ -1,21 +1,21 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { 
     View, Text, StyleSheet, FlatList, ActivityIndicator, Button, 
-    RefreshControl // Importante: Importar RefreshControl
+    RefreshControl
 } from 'react-native';
-import { getHistorico } from '../../services/authService';
+import { getHistorico } from '../../services/authService'; // <--- Usando o AuthService com Axios
 
 const HistoricoItem = ({ item }) => (
     <View style={styles.itemContainer}>
         <View style={styles.headerItem}>
-            <Text style={styles.vacinaNome}>{item.nome_vacina}</Text>
-            <Text style={styles.doseBadge}>{item.dose}ª Dose</Text>
+            <Text style={styles.vacinaNome}>{item.nome_vacina || item.vacina || "Vacina"}</Text>
+            <Text style={styles.doseBadge}>{item.dose || "1"}ª Dose</Text>
         </View>
         
-        <Text style={styles.dataText}>Aplicado em: {item.data_aplicacao}</Text>
+        <Text style={styles.dataText}>Aplicado em: {item.data_aplicacao || "Data não informada"}</Text>
         
         <View style={styles.detalhesContainer}>
-            <Text style={styles.detalheText}>Local: {item.nome_unidade || item.unidade_saude}</Text>
+            <Text style={styles.detalheText}>Local: {item.nome_unidade || item.unidade_saude || "Unidade de Saúde"}</Text>
             {item.profissional_responsavel && (
                 <Text style={styles.detalheText}>Prof: {item.profissional_responsavel}</Text>
             )}
@@ -29,36 +29,45 @@ const HistoricoItem = ({ item }) => (
 const HistoricoScreen = ({ pacienteId, setScreen }) => {
     const [historico, setHistorico] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [refreshing, setRefreshing] = useState(false); // Estado para o "Puxar para atualizar"
+    const [refreshing, setRefreshing] = useState(false); 
     const [message, setMessage] = useState('Buscando histórico...');
 
-    // Função de busca extraída para ser reutilizável
     const fetchHistorico = useCallback(async () => {
-        try {
-            const response = await getHistorico(pacienteId);
+        if (!pacienteId) {
+            setMessage('Erro: ID do paciente não identificado.');
+            setLoading(false);
+            return;
+        }
 
-            if (response.data.historico && response.data.historico.length > 0) {
-                setHistorico(response.data.historico);
+        try {
+            console.log(`Buscando histórico via Axios para: ${pacienteId}`);
+            
+            // CHAMADA VIA AXIOS (AuthService)
+            const response = await getHistorico(pacienteId);
+            
+            // Ajuste conforme o retorno do seu backend (ex: response.data.historico ou response.data)
+            const lista = response.data.historico || response.data || [];
+
+            if (lista.length > 0) {
+                setHistorico(lista);
                 setMessage('');
             } else {
-                setHistorico([]); // Limpa se não tiver nada
-                setMessage('Não há registros de vacina disponíveis.');
+                setHistorico([]); 
+                setMessage('Sua caderneta de vacinação está vazia no momento.');
             }
         } catch (error) {
-            setMessage('Erro ao carregar o histórico.');
-            console.error(error);
+            console.error("Erro Axios (Histórico):", error);
+            setMessage('Não foi possível conectar ao servidor de histórico.');
         } finally {
             setLoading(false);
-            setRefreshing(false); // Para o ícone de refresh
+            setRefreshing(false);
         }
     }, [pacienteId]);
 
-    // Carrega na montagem do componente
     useEffect(() => {
         fetchHistorico();
     }, [fetchHistorico]);
 
-    // Função chamada ao puxar a lista
     const onRefresh = () => {
         setRefreshing(true);
         fetchHistorico();
@@ -77,9 +86,6 @@ const HistoricoScreen = ({ pacienteId, setScreen }) => {
         <View style={styles.historicoContainer}>
             <Text style={styles.historicoTitle}>Minha Caderneta (RF03)</Text>
             
-            {/* Se a lista estiver vazia, mostramos a mensagem dentro de um ScrollView 
-                para permitir o "Pull to Refresh" mesmo na tela vazia.
-            */}
             {historico.length === 0 ? (
                 <FlatList
                     data={[]} 
@@ -98,10 +104,9 @@ const HistoricoScreen = ({ pacienteId, setScreen }) => {
             ) : (
                 <FlatList
                     data={historico}
-                    keyExtractor={(item, index) => index.toString()}
+                    keyExtractor={(item, index) => (item.id || index).toString()}
                     renderItem={({ item }) => <HistoricoItem item={item} />}
                     contentContainerStyle={{ paddingBottom: 20 }}
-                    // Adiciona o controle de atualização
                     refreshControl={
                         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
                     }
@@ -119,7 +124,7 @@ const HistoricoScreen = ({ pacienteId, setScreen }) => {
 
 const styles = StyleSheet.create({
     loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
-    emptyContainer: { alignItems: 'center', marginTop: 50 },
+    emptyContainer: { alignItems: 'center', marginTop: 50, paddingHorizontal: 20 },
     historicoContainer: { flex: 1, padding: 20, backgroundColor: '#fff' },
     historicoTitle: { fontSize: 22, fontWeight: 'bold', marginBottom: 20, color: '#007AFF', textAlign: 'center' },
     
@@ -147,6 +152,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold', 
         color: '#333',
         flex: 1, 
+        marginRight: 10
     },
     doseBadge: {
         backgroundColor: '#e3f2fd',
