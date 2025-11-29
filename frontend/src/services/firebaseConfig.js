@@ -1,5 +1,6 @@
-import { initializeApp } from "firebase/app";
-import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
+import { initializeApp, getApps, getApp } from "firebase/app";
+import { initializeAuth, getAuth, getReactNativePersistence } from 'firebase/auth';
+import { getFirestore } from "firebase/firestore"; 
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 
 // Substitua pelos dados reais do seu Console Firebase
@@ -12,13 +13,27 @@ const firebaseConfig = {
   appId: "1:920367679286:web:704f40a29c6a23c5971597",
 };
 
-// Inicializa o app do Firebase
-const app = initializeApp(firebaseConfig);
+// Padrão Singleton para evitar reinicialização do App no reload
+let app;
+if (getApps().length === 0) {
+  app = initializeApp(firebaseConfig);
+} else {
+  app = getApp();
+}
 
-// Inicializa o Auth com persistência no AsyncStorage
-// Isso corrige o aviso e mantém o login entre sessões
-const auth = initializeAuth(app, {
-  persistence: getReactNativePersistence(ReactNativeAsyncStorage)
-});
+// Inicializa o Auth com persistência
+// Usa try/catch para contornar o erro 'auth/already-initialized' no reload
+let auth;
+try {
+  auth = initializeAuth(app, {
+    persistence: getReactNativePersistence(ReactNativeAsyncStorage)
+  });
+} catch (error) {
+  // Se já estiver inicializado, apenas recupera a instância existente
+  auth = getAuth(app);
+}
 
-export { auth };
+// Inicializa o Banco de Dados (Firestore)
+const db = getFirestore(app); 
+
+export { auth, db };

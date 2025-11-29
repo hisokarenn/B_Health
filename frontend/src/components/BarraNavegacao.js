@@ -5,7 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 const { width } = Dimensions.get("window");
 const ICONE_TAM = width * 0.05;
 
-export default function BottomNav({ active, setScreen }) {
+export default function BottomNav({ active, setScreen, temNotificacao }) { 
     return (
         <View style={styles.wrapper}>
             <View style={styles.navContainer}>
@@ -23,12 +23,16 @@ export default function BottomNav({ active, setScreen }) {
                 </TouchableOpacity>
 
                 {/*notificações*/}
-                <TouchableOpacity style={styles.navItem} onPress={() => setScreen("menu")}>
-                    <Ionicons
-                        name="notifications-outline"
-                        size={ICONE_TAM}
-                        color={active === "notificacoes" ? "#ffffff" : "rgba(255,255,255,0.5)"}
-                    />
+                <TouchableOpacity style={styles.navItem} onPress={() => setScreen("notificacoes")}> 
+                    <View>
+                        <Ionicons
+                            name="notifications-outline"
+                            size={ICONE_TAM}
+                            color={active === "notificacoes" ? "#ffffff" : "rgba(255,255,255,0.5)"}
+                        />
+                        {/* Exibe a bolinha se temNotificacao for true */}
+                        {temNotificacao && <View style={styles.badge} />} 
+                    </View>
                     <Text style={[styles.navTexto, active === "notificacoes" && styles.textoAtivo]}>
                         Notificações
                     </Text>
@@ -41,7 +45,7 @@ export default function BottomNav({ active, setScreen }) {
                         size={ICONE_TAM}
                         color={active === "perfil" ? "#ffffff" : "rgba(255,255,255,0.5)"}
                     />
-                    <Text style={[styles.navTexto, active === "perfil" && styles.activeText]}>
+                    <Text style={[styles.navTexto, active === "perfil" && styles.textoAtivo]}>
                         Perfil
                     </Text>
                 </TouchableOpacity>
@@ -90,4 +94,18 @@ const styles = StyleSheet.create({
         color: "#fff",
         fontWeight: "700",
     },
+
+    // Estilo da bolinha verde
+    badge: {
+        position: 'absolute',
+        right: -2,
+        top: -2,
+        width: 10,
+        height: 10,
+        borderRadius: 5,
+        backgroundColor: '#28a745', // Verde vibrante
+        borderWidth: 1.5,
+        borderColor: '#143582ff', // Borda da cor do fundo para destacar
+        zIndex: 10,
+    }
 });
