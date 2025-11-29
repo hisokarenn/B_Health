@@ -34,6 +34,8 @@ const HistoricoItem = ({ item }) => (
     </View>
 );
 
+
+
 const {width, height} = Dimensions.get("window");
 
 const HistoricoScreen = ({ pacienteId, setScreen }) => {
@@ -41,6 +43,23 @@ const HistoricoScreen = ({ pacienteId, setScreen }) => {
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [message, setMessage] = useState('Buscando histórico...');
+
+    const avisoCard = (
+    <View style={styles.cardAviso}>
+        <Ionicons
+        name="information-circle-outline"
+        size={17}
+        color="#302569ff"
+        style={{ marginRight: width * 0.03 }}
+        />
+        <View>
+        <Text style={styles.avisoTitulo}>Mantenha sua carteira sempre atualizada</Text>
+        <Text style={styles.avisoTexto}>
+            Mantenha seu histórico de vacinação completo!{"\n"}Visite a UBS e atualize suas vacinas.
+        </Text>
+        </View>
+    </View>
+    );
 
     const fetchHistorico = useCallback(async () => {
         try {
@@ -99,28 +118,16 @@ const HistoricoScreen = ({ pacienteId, setScreen }) => {
                 <View style={styles.historicoContainer}>
 
                     <Text style={styles.historicoTitle}>Minhas Vacinas</Text>
-
-                    {/*lembrete*/}
-                    <View style={styles.cardAviso}>
-                        <Ionicons name="information-circle-outline" size={20} color="#302569ff" style={{ marginRight: 10 }} />
-                        <View>
-                            <Text style={styles.avisoTitulo}>Mantenha sua carteira sempre atualizada</Text>
-                            <Text style={styles.avisoTexto}>
-                                Mantenha seu histórico de vacinação completo!{"\n"}Visite a UBS e atualize suas vacinas.
-                            </Text>
-                        </View>
-                    </View>
-
+                    
                     {/*lista*/}
                     {historico.length === 0 ? (
                         <FlatList
                             data={[]}
                             renderItem={null}
+                            ListHeaderComponent={avisoCard}
                             ListEmptyComponent={
                                 <View style={styles.emptyContainer}>
                                     <Text style={styles.messageText}>{message}</Text>
-                                    <Button title="Voltar ao Menu" onPress={() => setScreen('menu')} />
-                                    <Text style={styles.hintText}>(Puxe para baixo para atualizar)</Text>
                                 </View>
                             }
                             refreshControl={
@@ -132,7 +139,8 @@ const HistoricoScreen = ({ pacienteId, setScreen }) => {
                             data={historico}
                             keyExtractor={(item, index) => index.toString()}
                             renderItem={({ item }) => <HistoricoItem item={item} />}
-                            contentContainerStyle={{ paddingBottom: 20 }}
+                            ListHeaderComponent={avisoCard}
+                            contentContainerStyle={{ paddingBottom: 75 }}
                             refreshControl={
                                 <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
                             }
@@ -270,16 +278,9 @@ const styles = StyleSheet.create({
     messageText: {
         textAlign: 'center',
         color: '#666',
-        marginBottom: height * 0.02,
         fontSize: width * 0.04,
+        marginTop: height * 0.065,
     },
-
-    hintText: {
-        fontSize: width * 0.032,
-        color: '#999',
-        fontStyle: 'italic',
-        marginTop: height * 0.02,
-    }
 });
 
 export default HistoricoScreen;
