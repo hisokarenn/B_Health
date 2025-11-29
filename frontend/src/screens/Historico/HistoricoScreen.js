@@ -1,24 +1,32 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { 
-    View, Text, StyleSheet, FlatList, ActivityIndicator, Button, 
-    RefreshControl
+import {
+    View, Text, StyleSheet, FlatList, ActivityIndicator, Button,
+    RefreshControl, TouchableOpacity, Platform, Dimensions
 } from 'react-native';
-import { getHistorico } from '../../services/authService'; // <--- Usando o AuthService com Axios
+
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
+import { getHistorico } from '../../services/authService';
+import BottomNav from '../../components/BarraNavegacao';
 
 const HistoricoItem = ({ item }) => (
     <View style={styles.itemContainer}>
         <View style={styles.headerItem}>
-            <Text style={styles.vacinaNome}>{item.nome_vacina || item.vacina || "Vacina"}</Text>
-            <Text style={styles.doseBadge}>{item.dose || "1"}ª Dose</Text>
+            <Text style={styles.vacinaNome}>{item.nome_vacina}</Text>
+            <Text style={styles.doseBadge}>{item.dose}ª Dose</Text>
         </View>
-        
-        <Text style={styles.dataText}>Aplicado em: {item.data_aplicacao || "Data não informada"}</Text>
-        
+
+        <Text style={styles.dataText}>Aplicado em: {item.data_aplicacao}</Text>
+
         <View style={styles.detalhesContainer}>
-            <Text style={styles.detalheText}>Local: {item.nome_unidade || item.unidade_saude || "Unidade de Saúde"}</Text>
+            <Text style={styles.detalheText}>Local: {item.nome_unidade || item.unidade_saude}</Text>
+
             {item.profissional_responsavel && (
                 <Text style={styles.detalheText}>Prof: {item.profissional_responsavel}</Text>
             )}
+
             {item.lote && (
                 <Text style={styles.detalheText}>Lote: {item.lote}</Text>
             )}
@@ -26,38 +34,46 @@ const HistoricoItem = ({ item }) => (
     </View>
 );
 
+
+
+const {width, height} = Dimensions.get("window");
+
 const HistoricoScreen = ({ pacienteId, setScreen }) => {
     const [historico, setHistorico] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [refreshing, setRefreshing] = useState(false); 
+    const [refreshing, setRefreshing] = useState(false);
     const [message, setMessage] = useState('Buscando histórico...');
 
+    const avisoCard = (
+    <View style={styles.cardAviso}>
+        <Ionicons
+        name="information-circle-outline"
+        size={17}
+        color="#302569ff"
+        style={{ marginRight: width * 0.03 }}
+        />
+        <View>
+        <Text style={styles.avisoTitulo}>Mantenha sua carteira sempre atualizada</Text>
+        <Text style={styles.avisoTexto}>
+            Mantenha seu histórico de vacinação completo!{"\n"}Visite a UBS e atualize suas vacinas.
+        </Text>
+        </View>
+    </View>
+    );
+
     const fetchHistorico = useCallback(async () => {
-        if (!pacienteId) {
-            setMessage('Erro: ID do paciente não identificado.');
-            setLoading(false);
-            return;
-        }
-
         try {
-            console.log(`Buscando histórico via Axios para: ${pacienteId}`);
-            
-            // CHAMADA VIA AXIOS (AuthService)
             const response = await getHistorico(pacienteId);
-            
-            // Ajuste conforme o retorno do seu backend (ex: response.data.historico ou response.data)
-            const lista = response.data.historico || response.data || [];
 
-            if (lista.length > 0) {
-                setHistorico(lista);
+            if (response.data.historico?.length > 0) {
+                setHistorico(response.data.historico);
                 setMessage('');
             } else {
-                setHistorico([]); 
-                setMessage('Sua caderneta de vacinação está vazia no momento.');
+                setHistorico([]);
+                setMessage('Não há registros de vacina disponíveis.');
             }
         } catch (error) {
-            console.error("Erro Axios (Histórico):", error);
-            setMessage('Não foi possível conectar ao servidor de histórico.');
+            setMessage('Erro ao carregar o histórico.');
         } finally {
             setLoading(false);
             setRefreshing(false);
@@ -83,106 +99,188 @@ const HistoricoScreen = ({ pacienteId, setScreen }) => {
     }
 
     return (
-        <View style={styles.historicoContainer}>
-            <Text style={styles.historicoTitle}>Minha Caderneta (RF03)</Text>
-            
-            {historico.length === 0 ? (
-                <FlatList
-                    data={[]} 
-                    renderItem={null}
-                    ListEmptyComponent={
-                        <View style={styles.emptyContainer}>
-                            <Text style={styles.messageText}>{message}</Text>
-                            <Button title="Voltar ao Menu" onPress={() => setScreen('menu')} />
-                            <Text style={styles.hintText}>(Puxe para baixo para atualizar)</Text>
-                        </View>
-                    }
-                    refreshControl={
-                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-                    }
-                />
-            ) : (
-                <FlatList
-                    data={historico}
-                    keyExtractor={(item, index) => (item.id || index).toString()}
-                    renderItem={({ item }) => <HistoricoItem item={item} />}
-                    contentContainerStyle={{ paddingBottom: 20 }}
-                    refreshControl={
-                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-                    }
-                />
-            )}
+        <SafeAreaView style={styles.safe}>
+            <View style={{ flex: 1, backgroundColor: "#fff" }}>
+                
+                {/*cabeçalho*/}
+                <LinearGradient 
+                    colors={["#0b4786ff", "#001c42ff"]}
+                    style={styles.header}>
 
-            {historico.length > 0 && (
-                <View style={styles.buttonSpacing}>
-                    <Button title="Voltar ao Menu Principal" onPress={() => setScreen('menu')} />
+                    <TouchableOpacity onPress={() => setScreen('menu')}>
+                        <Ionicons name="arrow-back" size={26} color="#fff" />
+                    </TouchableOpacity>
+
+                    <Text style={styles.headerTitle}>B Health</Text>
+                    <View style={{ width: 20 }} />
+                </LinearGradient>
+
+                <View style={styles.historicoContainer}>
+
+                    <Text style={styles.historicoTitle}>Minhas Vacinas</Text>
+                    
+                    {/*lista*/}
+                    {historico.length === 0 ? (
+                        <FlatList
+                            data={[]}
+                            renderItem={null}
+                            ListHeaderComponent={avisoCard}
+                            ListEmptyComponent={
+                                <View style={styles.emptyContainer}>
+                                    <Text style={styles.messageText}>{message}</Text>
+                                </View>
+                            }
+                            refreshControl={
+                                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                            }
+                        />
+                    ) : (
+                        <FlatList
+                            data={historico}
+                            keyExtractor={(item, index) => index.toString()}
+                            renderItem={({ item }) => <HistoricoItem item={item} />}
+                            ListHeaderComponent={avisoCard}
+                            contentContainerStyle={{ paddingBottom: 75 }}
+                            refreshControl={
+                                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                            }
+                        />
+                    )}
                 </View>
-            )}
-        </View>
+                {/*chamando o componente barraNavegação*/}
+                <BottomNav active="home" setScreen={setScreen} />
+
+            </View>
+        </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
-    loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
-    emptyContainer: { alignItems: 'center', marginTop: 50, paddingHorizontal: 20 },
-    historicoContainer: { flex: 1, padding: 20, backgroundColor: '#fff' },
-    historicoTitle: { fontSize: 22, fontWeight: 'bold', marginBottom: 20, color: '#007AFF', textAlign: 'center' },
-    
-    itemContainer: { 
-        padding: 15, 
-        marginBottom: 15, 
-        borderRadius: 10, 
+    safe: { 
+        flex: 1, 
+        backgroundColor: "#fff" 
+    },
+
+    header: {
+        paddingTop: Platform.OS === "android" ? height * 0.04 : height * 0.03,
+        paddingBottom: height * 0.03,
+        paddingHorizontal: width * 0.05,
+        flexDirection: "row",
+        justifyContent: 'flex-start',
+        alignItems: "center",
+    },
+
+    headerTitle: {
+        color: "#fff",
+        fontSize: width * 0.055,
+        fontWeight: "bold",
+        marginLeft: width * 0.07,
+    },
+
+    historicoContainer: {
+        flex: 1,
+        padding: width * 0.05,
+        backgroundColor: '#fff',
+    },
+
+    historicoTitle: {
+        fontSize: width * 0.06,
+        fontWeight: 'bold',
+        color: '#333',
+        marginBottom: height * 0.02,
+    },
+
+    cardAviso: {
+        backgroundColor: "#fde7c8",
+        borderRadius: width * 0.07,
+        flexDirection: 'row',
+        padding: width * 0.05,
+        marginBottom: height * 0.03,
+    },
+
+    avisoTitulo: {
+        fontWeight: 'bold',
+        fontSize: width * 0.04,
+        marginBottom: height * 0.003,
+        color: "#333",
+    },
+
+    avisoTexto: {
+        fontSize: width * 0.035,
+        color: "#555",
+    },
+
+    itemContainer: {
+        padding: width * 0.05,
+        marginBottom: height * 0.02,
+        borderRadius: width * 0.09,
         backgroundColor: '#f8f9fa',
         borderWidth: 1,
         borderColor: '#e9ecef',
-        elevation: 2,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
-        shadowRadius: 2,
+        elevation: 1,
     },
+
     headerItem: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 8,
     },
-    vacinaNome: { 
-        fontSize: 18, 
-        fontWeight: 'bold', 
+
+    vacinaNome: {
+        fontSize: width * 0.045,
+        fontWeight: 'bold',
         color: '#333',
-        flex: 1, 
-        marginRight: 10
+        marginLeft: width * 0.03,
     },
+
     doseBadge: {
         backgroundColor: '#e3f2fd',
-        color: '#007AFF',
-        paddingHorizontal: 8,
-        paddingVertical: 2,
-        borderRadius: 12,
-        fontSize: 12,
+        color: '#034a95ff',
+        paddingHorizontal: width * 0.02,
+        paddingVertical: height * 0.004,
+        borderRadius: width * 0.03,
+        fontSize: width * 0.03,
         fontWeight: 'bold',
-        overflow: 'hidden',
     },
+
     dataText: {
-        fontSize: 14,
+        fontSize: width * 0.035,
+        marginTop: height * 0.008,
         color: '#555',
-        marginBottom: 8,
-        fontWeight: '500',
+        marginLeft: width * 0.03,
     },
+
     detalhesContainer: {
         borderTopWidth: 1,
         borderTopColor: '#eee',
-        paddingTop: 8,
+        marginTop: height * 0.015,
+        paddingTop: height * 0.01,
     },
-    detalheText: { 
-        fontSize: 12, 
-        color: '#777', 
-        marginBottom: 2 
+
+    detalheText: {
+        fontSize: width * 0.032,
+        color: '#777',
+        marginLeft: width * 0.03,
     },
-    messageText: { fontSize: 16, marginBottom: 20, textAlign: 'center', color: '#666' },
-    hintText: { fontSize: 12, marginTop: 20, color: '#999', fontStyle: 'italic' },
-    buttonSpacing: { marginTop: 10 },
+
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: width * 0.05,
+    },
+
+    emptyContainer: {
+        alignItems: 'center',
+        marginTop: height * 0.12,
+    },
+
+    messageText: {
+        textAlign: 'center',
+        color: '#666',
+        fontSize: width * 0.04,
+        marginTop: height * 0.065,
+    },
 });
 
 export default HistoricoScreen;
