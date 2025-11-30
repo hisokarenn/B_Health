@@ -6,30 +6,17 @@ import {
 import { WebView } from 'react-native-webview'; 
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-
-// Cores do Tema (Repetidas para funcionar standalone)
-const COLORS = {
-    primary: "#0056D2",
-    primaryDark: "#003580",
-    secondary: "#00A3FF",
-    background: "#F8F9FA",
-    card: "#FFFFFF",
-    textDark: "#1A202C",
-    textGrey: "#718096",
-    success: "#38A169",
-    white: "#FFFFFF",
-};
+import BottomNav from '../../components/BarraNavegacao';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const CampanhaDetalheScreen = ({ campanhaDados, setScreen }) => {
     const item = campanhaDados;
 
     if (!item) return null;
 
-    // --- LÓGICA DE COORDENADAS ---
-    let lat = -3.10719; // Default (Manaus)
+    let lat = -3.10719; //Manaus
     let lng = -60.0261;
 
-    // Prioriza campos específicos de unidade, depois genéricos, depois objeto GeoPoint
     if (item.unidade_latitude && item.unidade_longitude) {
         lat = parseFloat(item.unidade_latitude);
         lng = parseFloat(item.unidade_longitude);
@@ -40,7 +27,6 @@ const CampanhaDetalheScreen = ({ campanhaDados, setScreen }) => {
 
     const openGPS = () => {
         const label = item.unidade_saude_nome || item.locais_aplicacao || 'Local de Vacinação';
-        // CORREÇÃO 1: Adicionadas as crases (backticks) aqui
         const url = Platform.select({
             ios: `maps:0,0?q=${label}@${lat},${lng}`,
             android: `geo:0,0?q=${lat},${lng}(${label})`
@@ -67,15 +53,14 @@ const CampanhaDetalheScreen = ({ campanhaDados, setScreen }) => {
       </html>
     `;
 
-    // Componente auxiliar para linhas de informação
     const InfoRow = ({ icon, label, value, isBold = false }) => (
         <View style={styles.infoRow}>
-            <View style={styles.iconBox}>
-                <Ionicons name={icon} size={20} color={COLORS.primary} />
+            <View style={styles.iconeDetalhes}>
+                <Ionicons name={icon} size={20} color={"#0d2a53ff"} />
             </View>
             <View style={{flex: 1}}>
                 <Text style={styles.infoLabel}>{label}</Text>
-                <Text style={[styles.infoValue, isBold && { fontWeight: 'bold', color: COLORS.textDark }]}>
+                <Text style={[styles.infoValor, isBold && { color: "#5f6b80ff" }]}>
                     {value || 'Não informado'}
                 </Text>
             </View>
@@ -83,55 +68,51 @@ const CampanhaDetalheScreen = ({ campanhaDados, setScreen }) => {
     );
 
     return (
+        <SafeAreaView style={styles.safe}>
         <View style={styles.container}>
             <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
                 
-                {/* Header Imersivo com Parallax visual */}
-                <View style={styles.detailHeader}>
+                <View style={styles.detalhesCabecalho}>
                     <Image 
                         source={{ uri: item.imagem_url || item.imagemUrl || 'https://via.placeholder.com/600x400' }} 
-                        style={styles.detailImage} 
+                        style={styles.detalhesImg} 
                     />
                     <LinearGradient
                         colors={['rgba(0,0,0,0.6)', 'transparent', 'rgba(0,0,0,0.8)']}
                         style={styles.detailOverlay}
                     />
-                    <TouchableOpacity style={styles.backButtonAbsolute} onPress={() => setScreen('campanhas')}>
+                    <TouchableOpacity style={styles.btnVoltar} onPress={() => setScreen('campanhas')}>
                         <Ionicons name="arrow-back" size={24} color="#FFF" />
                     </TouchableOpacity>
                     
-                    <View style={styles.headerTexts}>
-                        <View style={styles.typeBadge}>
-                            <Text style={styles.typeBadgeText}>{item.tipo_vacina}</Text>
+                    <View style={styles.headerTexto}>
+                        <View style={styles.tipoBadge}>
+                            <Text style={styles.tipoBadgeTexto}>{item.tipo_vacina}</Text>
                         </View>
-                        <Text style={styles.detailTitle}>{item.titulo}</Text>
+                        <Text style={styles.detalheTitulo}>{item.titulo}</Text>
                     </View>
                 </View>
 
-                {/* Corpo do Conteúdo */}
-                <View style={styles.detailBody}>
+                <View style={styles.detalhes}>
                     
-                    {/* Descrição */}
-                    <Text style={styles.sectionHeader}>Sobre a Campanha</Text>
-                    <Text style={styles.descriptionText}>
+                    <Text style={styles.secaoDetalhe}>Sobre a Campanha</Text>
+                    <Text style={styles.descricaoDet}>
                         {item.descricao || 'Confira os detalhes desta campanha de vacinação e compareça à unidade mais próxima.'}
                     </Text>
 
-                    <View style={styles.divider} />
+                    <View style={styles.divisor} />
 
-                    {/* Informações Principais */}
-                    <Text style={styles.sectionHeader}>Detalhes do Atendimento</Text>
+                    <Text style={styles.secaoDetalhe}>Detalhes do Atendimento</Text>
                     
                     <View style={styles.infoContainer}>
-                        {/* Exibe o novo campo HORARIO */}
+                        {/*horario*/}
                         <InfoRow 
                             icon="time-outline" 
                             label="Horário de Funcionamento" 
                             value={item.unidade_horario} 
                             isBold={true}
                         />
-                        
-                        {/* CORREÇÃO 2: Adicionadas as crases (backticks) aqui */}
+
                         <InfoRow 
                             icon="calendar-outline" 
                             label="Período da Campanha" 
@@ -145,109 +126,251 @@ const CampanhaDetalheScreen = ({ campanhaDados, setScreen }) => {
                         />
                     </View>
 
-                    <View style={styles.divider} />
+                    <View style={styles.divisor} />
 
-                    {/* Localização e Endereço */}
-                    <Text style={styles.sectionHeader}>Localização</Text>
+                    {/*localização*/}
+                    <Text style={styles.secaoDetalhe}>Localização</Text>
                     
-                    <View style={styles.addressCard}>
-                        <Text style={styles.unitName}>
+                    <View style={styles.locCard}>
+                        <Text style={styles.nome}>
                             {item.unidade_saude_nome || item.locais_aplicacao || "Unidade de Saúde"}
                         </Text>
                         
-                        {/* CORREÇÃO 3: Adicionadas as crases (backticks) aqui */}
-                        <Text style={styles.addressText}>
+                        <Text style={styles.locTexto}>
                             {item.unidade_endereco 
                                 ? `${item.unidade_endereco}, ${item.unidade_cidade || ''}`
                                 : item.endereco || "Endereço não cadastrado"
                             }
                         </Text>
 
-                        {/* Mapa Visual */}
-                        <View style={styles.mapWrapper}>
+                        {/*mapa*/}
+                        <View style={styles.mapaWrap}>
                             <WebView 
                                 originWhitelist={['*']}
                                 source={{ html: mapHtml }}
                                 style={styles.webViewMap}
                                 scrollEnabled={false}
                             />
-                            {/* Overlay transparente para clique */}
                             <TouchableOpacity style={styles.mapClickOverlay} onPress={openGPS} />
                         </View>
 
-                        <TouchableOpacity style={styles.gpsButton} onPress={openGPS} activeOpacity={0.8}>
+                        <TouchableOpacity style={styles.gpsBtn} onPress={openGPS} activeOpacity={0.8}>
                             <Ionicons name="navigate-circle" size={24} color="#FFF" style={{marginRight: 8}} />
-                            <Text style={styles.gpsButtonText}>Traçar Rota no GPS</Text>
+                            <Text style={styles.gpsBtnTexto}>Traçar Rota no GPS</Text>
                         </TouchableOpacity>
                     </View>
                     
-                    {/* Espaço final */}
-                    <View style={{ height: 40 }} />
+                    <View style={{ height: 110 }} />
                 </View>
             </ScrollView>
+
+            <BottomNav active="home" setScreen={setScreen} />
+            
         </View>
+        </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: COLORS.background },
-    
-    // Header Styles
-    detailHeader: { height: 320, width: '100%', position: 'relative' },
-    detailImage: { width: '100%', height: '100%', resizeMode: 'cover' },
+    safe: {
+        flex: 1,
+        backgroundColor: "#fff",
+    },
+
+    container: {
+        flex: 1, 
+        backgroundColor: "#F8F9FA" 
+    },
+
+    detalhesCabecalho: { 
+        height: 320, 
+        width: '100%', 
+        position: 'relative' 
+    },
+
+    detalhesImg: { 
+        width: '100%', 
+        height: '90%', 
+        resizeMode: 'cover' 
+    },
+
     detailOverlay: { ...StyleSheet.absoluteFillObject },
-    backButtonAbsolute: {
-        position: 'absolute', top: Platform.OS === 'ios' ? 50 : 40, left: 20,
-        backgroundColor: 'rgba(255,255,255,0.2)', padding: 10, borderRadius: 20,
+
+    btnVoltar: {
+        position: 'absolute', 
+        top: Platform.OS === 'android' ? 50 : 40, 
+        left: 20,
+        backgroundColor: 'rgba(255, 255, 255, 0.47)', 
+        padding: 10, 
+        borderRadius: 20,
         zIndex: 20,
     },
-    headerTexts: { position: 'absolute', bottom: 40, left: 20, right: 20, zIndex: 10 },
-    typeBadge: { 
-        backgroundColor: COLORS.secondary, alignSelf: 'flex-start', 
-        paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8, marginBottom: 10 
+
+    headerTexto: { 
+        position: 'absolute', 
+        bottom: 40, 
+        left: 20, 
+        right: 20, 
+        zIndex: 10 
     },
-    typeBadgeText: { color: 'white', fontWeight: 'bold', fontSize: 12, textTransform: 'uppercase' },
-    detailTitle: { fontSize: 28, fontWeight: '800', color: 'white', lineHeight: 34, textShadowColor: 'rgba(0,0,0,0.5)', textShadowRadius: 10 },
+
+    tipoBadge: { 
+        backgroundColor: "#699ed0ff", 
+        alignSelf: 'flex-start', 
+        paddingHorizontal: 12, 
+        paddingVertical: 6, 
+        borderRadius: 12,
+        marginBottom: 10,
+        top: -35,
+    },
+
+    tipoBadgeTexto: { 
+        color: 'white', 
+        fontWeight: 'bold', 
+        fontSize: 12, 
+        textTransform: 'uppercase' 
+    },
+
+    detalheTitulo: { 
+        fontSize: 25, 
+        fontWeight: '800', 
+        color: 'white', 
+        lineHeight: 34, 
+        textShadowColor: 'rgba(0,0,0,0.5)', 
+        textShadowRadius: 10,
+        top: -35,
+    },
     
     // Body Styles
-    detailBody: {
-        backgroundColor: COLORS.background,
-        marginTop: -30,
-        borderTopLeftRadius: 32,
-        borderTopRightRadius: 32,
+    detalhes: {
+        backgroundColor: "#F8F9FA",
+        marginTop: -62,
+        borderTopLeftRadius: 40,
+        borderTopRightRadius: 40,
         paddingHorizontal: 24,
         paddingTop: 32,
         flex: 1,
     },
-    sectionHeader: { fontSize: 18, fontWeight: '700', color: COLORS.textDark, marginBottom: 16 },
-    descriptionText: { fontSize: 16, color: '#4A5568', lineHeight: 26 },
-    divider: { height: 1, backgroundColor: '#E2E8F0', marginVertical: 24 },
+
+    secaoDetalhe: { 
+        fontSize: 18, 
+        fontWeight: '700', 
+        color: "#152545ff", 
+        marginBottom: 16 
+    },
+
+    descricaoDet: { 
+        fontSize: 16, 
+        color: '#4A5568', 
+        lineHeight: 26 
+    },
+
+    divisor: { 
+        height: 2, 
+        backgroundColor: '#dadfffb4', 
+        marginVertical: 25,
+        borderRadius: 10, 
+    },
     
     // Info Rows
-    infoContainer: { gap: 16 },
-    infoRow: { flexDirection: 'row', alignItems: 'flex-start' },
-    iconBox: { 
-        width: 40, height: 40, borderRadius: 12, backgroundColor: '#E3F2FD', 
-        justifyContent: 'center', alignItems: 'center', marginRight: 15 
+    infoContainer: { 
+        gap: 16 
     },
-    infoLabel: { fontSize: 12, color: COLORS.textGrey, marginBottom: 2 },
-    infoValue: { fontSize: 15, color: '#2D3748', lineHeight: 22 },
 
-    // Address Card
-    addressCard: { backgroundColor: COLORS.white, borderRadius: 20, padding: 20, elevation: 2, shadowColor: "#000", shadowOpacity: 0.05, shadowRadius: 10 },
-    unitName: { fontSize: 18, fontWeight: '700', color: COLORS.primaryDark, marginBottom: 6 },
-    addressText: { fontSize: 15, color: '#4A5568', marginBottom: 16, lineHeight: 22 },
-    mapWrapper: { height: 180, borderRadius: 16, overflow: 'hidden', position: 'relative', marginBottom: 16, borderWidth: 1, borderColor: '#EDF2F7' },
-    webViewMap: { flex: 1 },
-    mapClickOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'transparent' },
-    gpsButton: {
-        backgroundColor: COLORS.success,
-        flexDirection: 'row', justifyContent: 'center', alignItems: 'center',
-        paddingVertical: 16, borderRadius: 16,
-        shadowColor: COLORS.success, shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3, shadowRadius: 8, elevation: 4
+    infoRow: { 
+        flexDirection: 'row', 
+        alignItems: 'flex-start' 
     },
-    gpsButtonText: { color: COLORS.white, fontSize: 16, fontWeight: 'bold' },
+
+    iconeDetalhes: { 
+        width: 40, 
+        height: 40, 
+        borderRadius: 16, 
+        backgroundColor: '#c0d3fcff', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        marginRight: 15 
+    },
+
+    infoLabel: { 
+        fontSize: 14, 
+        color: "#455061ff", 
+        marginBottom: 2,
+        fontWeight: 'bold' 
+    },
+
+    infoValor: { 
+        fontSize: 13, 
+        color: '#5f6b80ff', 
+        lineHeight: 22 
+    },
+
+    locCard: { 
+        backgroundColor: "#ffff", 
+        borderRadius: 35, 
+        padding: 20, 
+        elevation: 2, 
+        shadowColor: "#000", 
+        shadowOpacity: 0.05, 
+        shadowRadius: 10 
+    },
+
+    nome: { 
+        fontSize: 18, 
+        fontWeight: '700', 
+        color: "#022e6aff", 
+        marginBottom: 6 
+    },
+
+    locTexto: { 
+        fontSize: 15, 
+        color: '#4A5568', 
+        marginBottom: 16, 
+        lineHeight: 22 
+    },
+
+    mapaWrap: { 
+        height: 180, 
+        borderRadius: 16, 
+        overflow: 'hidden', 
+        position: 'relative', 
+        marginBottom: 16, 
+        borderWidth: 1, 
+        borderColor: '#EDF2F7' 
+    },
+
+    webViewMap: { 
+        flex: 1 
+    },
+
+    mapClickOverlay: { 
+        ...StyleSheet.absoluteFillObject, 
+        backgroundColor: 'transparent' 
+    },
+
+    gpsBtn: {
+        backgroundColor: "#6095d2ff",
+        flexDirection: 'row', 
+        justifyContent: 'center', 
+        alignItems: 'center',
+        paddingVertical: 16, 
+        borderRadius: 25,
+        shadowColor: "#60b6d2ff", 
+        shadowOffset: { 
+            width: 0, 
+            height: 4 
+        },
+
+        shadowOpacity: 0.3, 
+        shadowRadius: 8, 
+        elevation: 4
+    },
+
+    gpsBtnTexto: { 
+        color: "#ffff", 
+        fontSize: 16, 
+        fontWeight: 'bold' 
+    },
 });
 
 export default CampanhaDetalheScreen;
