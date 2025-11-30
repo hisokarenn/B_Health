@@ -63,13 +63,12 @@ export default function App() {
           <ScreenTransition>
             <View style={styles.fullScreen}>
               <CampanhasScreen 
-                // Passamos a função que captura o clique na campanha
                 onSelectCampanha={(item) => {
                     setCampanhaSelecionada(item); // Salva os dados
                     setCurrentScreen('campanhaDetalhe'); // Muda a tela
                 }}
+                setScreen={setCurrentScreen}
               />
-              <Button title="Voltar ao Menu" onPress={() => setCurrentScreen('menu')} />
             </View>
           </ScreenTransition>
         );
