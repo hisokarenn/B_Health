@@ -109,7 +109,7 @@ const CampanhaDetalheScreen = ({ campanhaDados, setScreen }) => {
                         <InfoRow 
                             icon="time-outline" 
                             label="Horário de Funcionamento" 
-                            value={item.unidade_horario} 
+                            value={`${item.hora_inicio} - ${item.hora_fim}`} 
                             isBold={true}
                         />
 
