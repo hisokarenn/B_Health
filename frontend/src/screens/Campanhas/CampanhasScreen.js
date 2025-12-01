@@ -38,7 +38,7 @@ const CampanhaItem = ({ item, onPress }) => (
                     </Text>
                 </View>
                 
-                {item.unidade_horario && (
+                {(item.hora_inicio || item.hora_fim) && (
                     <View style={[styles.tag, { backgroundColor: '#E3F2FD' }]}>
                         <Ionicons 
                             name="time-outline" 
@@ -47,7 +47,7 @@ const CampanhaItem = ({ item, onPress }) => (
                             style={styles.iconeTag}
                         />
                         <Text style={[styles.textoTag, { color: "#23569dff" }]}>
-                            {item.unidade_horario.split(' ')[0]}... 
+                            {item.hora_inicio} - {item.hora_fim} 
                         </Text>
                     </View>
                 )}
@@ -175,7 +175,7 @@ const CampanhasScreen = ({ onSelectCampanha, setScreen }) => {
 const styles = StyleSheet.create({
     safe: { 
         flex: 1, 
-        backgroundColor: "#fff",
+        backgroundColor: "rgba(0,0,0,0)",
     },
 
     telaCheia: {
@@ -323,12 +323,12 @@ const styles = StyleSheet.create({
 
     containerTag: { 
         flexDirection: 'row', 
-        marginBottom: 10, 
+        marginBottom: 5, 
         gap: 8,
     },
 
     tag: { 
-        paddingHorizontal: 15, 
+        paddingHorizontal: 13, 
         paddingVertical: 5, 
         borderRadius: 15, 
         flexDirection: 'row', 
@@ -336,14 +336,15 @@ const styles = StyleSheet.create({
     },
 
     iconeTag: {
-        marginRight: 4,
+        marginRight: 2,
     },
 
     textoTag: { 
         fontSize: width * 0.025, 
         fontWeight: '600', 
         textTransform: 'uppercase', 
-        
+
+
     },
 
     tituloCampanha: { 
