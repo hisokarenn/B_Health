@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
     },
 
     navContainer: {
-        backgroundColor: "#143582ff", 
+        backgroundColor: " 'rgba(15, 34, 86, 0.97)", 
         width: width * 0.95,
         height: width * 0.20,
         borderRadius: 32,
@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
     navTexto: {
         fontSize: width * 0.035,
         marginTop: 4,
-        color: "rgba(255,255,255,0.5)",
+        color: "#fff",
         fontWeight: "600",
     },
 
