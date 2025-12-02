@@ -9,7 +9,8 @@ import { Ionicons } from "@expo/vector-icons";
 
 const { width } = Dimensions.get("window");
 
-const NotificacoesScreen = ({ setScreen }) => {
+// Agora aceita 'onSelectCampanha' para poder enviar os dados para a tela de detalhes
+const NotificacoesScreen = ({ setScreen, onSelectCampanha }) => {
   const [notificacoes, setNotificacoes] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -59,10 +60,14 @@ const NotificacoesScreen = ({ setScreen }) => {
       // 2. Atualiza a lista da tela (remove o item clicado instantaneamente)
       setNotificacoes(prev => prev.filter(item => item.id !== campanha.id));
 
-      // 3. Redireciona para a tela de Campanhas
-      // OBS: Aqui seria ideal passar a campanha específica se sua tela de Campanhas suportar,
-      // mas como estamos usando setScreen simples, vamos apenas para a lista geral.
-      setScreen("campanhas");
+      // 3. Redireciona para a tela de Detalhes da Campanha
+      // Usa a função passada pelo App.js para setar os dados e mudar a tela
+      if (onSelectCampanha) {
+          onSelectCampanha(campanha);
+      } else {
+          // Fallback caso a prop não tenha sido passada
+          setScreen("campanhas");
+      }
 
     } catch (error) {
       console.log("Erro ao salvar leitura da notificação", error);

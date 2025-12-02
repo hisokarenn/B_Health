@@ -87,7 +87,14 @@ export default function App() {
       case 'notificacoes':
         return (
           <ScreenTransition>
-            <NotificacoesScreen setScreen={setCurrentScreen} />
+            <NotificacoesScreen 
+                setScreen={setCurrentScreen} 
+                // AQUI: Passamos a função para selecionar a campanha e ir para DETALHES
+                onSelectCampanha={(item) => {
+                    setCampanhaSelecionada(item); 
+                    setCurrentScreen('campanhaDetalhe'); 
+                }}
+            />
           </ScreenTransition>
         );
 
