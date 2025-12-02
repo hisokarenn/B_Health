@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Button, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 
 // Importa todas as telas
 import LoginScreen from './src/screens/Login/LoginScreen';
@@ -8,20 +8,20 @@ import MenuScreen from './src/screens/Menu/MenuScreen';
 import HistoricoScreen from './src/screens/Historico/HistoricoScreen';
 import CampanhasScreen from './src/screens/Campanhas/CampanhasScreen'; 
 import PerfilScreen from "./src/screens/Perfil/PerfilScreen";
-import CampanhaDetalheScreen from './src/screens/CampanhaDetalhe/CampanhaDetalheScreen'; // NOVO IMPORT
-import NotificacoesScreen from './src/screens/Notificacoes/NotificacoesScreen'; // <--- ADICIONADO AQUI
-
-// Importa componente de transição (se você estiver usando)
+import CampanhaDetalheScreen from './src/screens/CampanhaDetalhe/CampanhaDetalheScreen'; 
+import NotificacoesScreen from './src/screens/Notificacoes/NotificacoesScreen'; 
 import ScreenTransition from "./src/components/ScreenTransition";
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState('login'); 
   const [pacienteInfo, setPacienteInfo] = useState(null); 
    
-  // NOVO ESTADO: Para guardar os dados da campanha clicada
+  // Estado para guardar os dados da campanha clicada
   const [campanhaSelecionada, setCampanhaSelecionada] = useState(null);
 
+  // Função chamada quando o login é bem-sucedido no LoginScreen
   const handleSuccessfulLogin = (userInfo) => {
+    // userInfo agora vem direto como o objeto User do firebase (conforme alteramos no authService)
     setPacienteInfo(userInfo);
     setCurrentScreen('menu');
   };
@@ -29,6 +29,7 @@ export default function App() {
   const renderScreen = () => {
     switch (currentScreen) {
       case 'login':
+        // Limpa dados anteriores ao voltar pro login
         if (pacienteInfo) setPacienteInfo(null);
         return (
           <ScreenTransition>
@@ -73,7 +74,6 @@ export default function App() {
           </ScreenTransition>
         );
 
-      // NOVO CASE: Tela de Detalhes da Campanha
       case 'campanhaDetalhe':
         return (
           <ScreenTransition>
@@ -84,7 +84,6 @@ export default function App() {
           </ScreenTransition>
         );
 
-      // <--- ADICIONADO AQUI: Tela de Notificações
       case 'notificacoes':
         return (
           <ScreenTransition>
@@ -95,8 +94,10 @@ export default function App() {
       case 'perfil':
         return(
           <ScreenTransition>
-            {/* O PerfilScreen já tem botão de voltar interno, mas mantivemos sua estrutura */}
-            <PerfilScreen pacienteId={pacienteInfo.uid} setScreen={setCurrentScreen}/> 
+            <PerfilScreen 
+                pacienteInfo={pacienteInfo} 
+                setScreen={setCurrentScreen}
+            /> 
           </ScreenTransition>
         );
 
