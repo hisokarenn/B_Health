@@ -57,7 +57,7 @@ export const realizarLogin = async (email, senha) => {
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email, senha);
         const user = userCredential.user;
-        return { user }; 
+        return user; 
     } catch (error) {
         if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
             throw new Error('E-mail ou senha incorretos.');

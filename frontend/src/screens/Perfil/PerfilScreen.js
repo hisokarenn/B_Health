@@ -1,31 +1,51 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
     View, Text, StyleSheet, TouchableOpacity, ScrollView, 
-    Dimensions, Alert, StatusBar, Platform 
+    Dimensions, Alert, StatusBar, ActivityIndicator 
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import BottomNav from '../../components/BarraNavegacao';
-import { useEffect, useState } from 'react';
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
+import { getPerfil } from '../../services/authService'; 
 
 const { width } = Dimensions.get("window");
 
 const PerfilScreen = ({ setScreen, pacienteInfo }) => {
 
-    const [loading, setLoading] = useState(false);
+    const [perfilCompleto, setPerfilCompleto] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-    if (loading && !pacienteInfo) {
+    useEffect(() => {
+        const carregarDadosDoServidor = async () => {
+            if (pacienteInfo?.uid) {
+                try {
+                    const response = await getPerfil(pacienteInfo.uid);
+                    setPerfilCompleto(response.data);
+                } catch (error) {
+                    console.error("Erro ao atualizar perfil:", error);
+                } finally {
+                    setLoading(false);
+                }
+            } else {
+                setLoading(false);
+            }
+        };
+
+        carregarDadosDoServidor();
+    }, [pacienteInfo]);
+
+    if (loading) {
         return (
-            <SafeAreaView style={styles.safe}>
-                <Text style={{ color: 'white', textAlign: 'center', marginTop: 50 }}>Carregando...</Text>
-            </SafeAreaView>
+            <View style={styles.loadingContainer}>
+                <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+                <ActivityIndicator size="large" color="#1d4886ff" />
+                <Text style={styles.loadingText}>Carregando perfil...</Text>
+            </View>
         );
     }
 
-    // Função para pegar as iniciais do nome
     const getInitials = (name) => {
         if (!name) return "P";
         const names = name.split(' ');
@@ -52,17 +72,16 @@ const PerfilScreen = ({ setScreen, pacienteInfo }) => {
             ]
         );
     };
-
-    // Dados de fallback para evitar erro se pacienteInfo vier vazio
-    const user = pacienteInfo || {
-        nome: "Não informado",
-        email: "Não informado",
-        cpf: "Não informado",
-        cns: "Não informado",
-        createdAt: new Date().toISOString()
+    const dadosBackend = perfilCompleto || {};
+    
+    const user = {
+        nome: dadosBackend.nome || pacienteInfo?.displayName || pacienteInfo?.nome || "Usuário",
+        email: dadosBackend.email || pacienteInfo?.email || "Email não disponível",
+        cpf: dadosBackend.cpf || "Não cadastrado",
+        cns: dadosBackend.cns || "Não cadastrado",
+        createdAt: pacienteInfo?.metadata?.creationTime || new Date().toISOString()
     };
 
-    // Componente auxiliar para Linha de Dados
     const InfoItem = ({ icon, label, value, isCopyable = false }) => (
         <View style={styles.infoItem}>
             <View style={styles.iconContainer}>
@@ -79,10 +98,6 @@ const PerfilScreen = ({ setScreen, pacienteInfo }) => {
             )}
         </View>
     );
-
-    console.log("pacienteInfo:", pacienteInfo);
-    console.log("user do AsyncStorage:", user);
-
 
     return (
         <SafeAreaView style={styles.safe}>
@@ -109,7 +124,7 @@ const PerfilScreen = ({ setScreen, pacienteInfo }) => {
                             
                             <Text style={styles.userNome}>{user.nome}</Text>
                             <Text style={styles.userEmail}>{user.email}</Text>
-                            <Text style={styles.tempoDeUso}>Membro desde {formatDate(user.createdAt)}</Text>
+                            <Text style={styles.tempoDeUso}>Membro desde {user.createdAt ? formatDate(user.createdAt) : "-"}</Text>
                         </View>
                     </SafeAreaView>
                 </LinearGradient>
@@ -177,6 +192,18 @@ const styles = StyleSheet.create({
         backgroundColor: "rgba(255, 255, 255, 1)",
     },
     
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+    },
+    loadingText: {
+        marginTop: 15,
+        color: '#666',
+        fontSize: 16,
+    },
+
     cabecalho: {
         paddingBottom: 40,
         alignItems: 'center',
@@ -299,7 +326,6 @@ const styles = StyleSheet.create({
         marginRight: 20,
     },
 
-    // Logout Button
     sairBtn: {
         marginTop: 20,
         backgroundColor: '#FFF5F5',
