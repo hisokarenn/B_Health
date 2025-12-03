@@ -7,7 +7,7 @@ import BottomNav from '../../components/BarraNavegacao';
 import { SafeAreaView } from "react-native-safe-area-context"; 
 import { Ionicons } from "@expo/vector-icons";
 
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
 
 // Agora aceita 'onSelectCampanha' para poder enviar os dados para a tela de detalhes
 const NotificacoesScreen = ({ setScreen, onSelectCampanha }) => {
@@ -78,9 +78,12 @@ const NotificacoesScreen = ({ setScreen, onSelectCampanha }) => {
     <SafeAreaView style={styles.safe}>
       <View style={styles.container}>
         
-        {/* Cabeçalho Simples */}
         <View style={styles.header}>
-            <Text style={styles.headerTitle}>Notificações</Text>
+          <TouchableOpacity onPress={() => setScreen('menu')}>
+            <Ionicons name="arrow-back" size={26} color="#fff" />
+          </TouchableOpacity>
+
+          <Text style={styles.headerTitle}>Notificações</Text>
         </View>
 
         {loading ? (
@@ -88,13 +91,12 @@ const NotificacoesScreen = ({ setScreen, onSelectCampanha }) => {
                 <ActivityIndicator size="large" color="#143582ff" />
             </View>
         ) : notificacoes.length === 0 ? (
-            // Tela Vazia
+
             <View style={styles.emptyContainer}>
                 <Ionicons name="notifications-off-outline" size={60} color="#ccc" />
                 <Text style={styles.emptyText}>Nenhuma campanha nova</Text>
             </View>
         ) : (
-            // Lista de Notificações
             <FlatList
                 data={notificacoes}
                 keyExtractor={(item) => item.id}
@@ -106,28 +108,27 @@ const NotificacoesScreen = ({ setScreen, onSelectCampanha }) => {
                         activeOpacity={0.9}
                     >
                         <View style={styles.badgeNew}>
-                            <Ionicons name="sparkles" size={14} color="#143582ff" style={{marginRight: 5}}/>
+                            <Ionicons name="sparkles" size={14} color="#3b8214ff" style={{marginRight: 8}}/>
                             <Text style={styles.badgeText}>Nova campanha publicada!</Text>
                         </View>
 
-                        {/* Tenta renderizar imagem se existir */}
                         {item.imagemUrl ? (
                             <Image source={{ uri: item.imagemUrl }} style={styles.cardImage} />
                         ) : null}
 
                         <Text style={styles.cardTitle}>{item.nome || item.titulo || "Nova Campanha de Vacinação"}</Text>
+
+                        <View style={styles.divisor} />
                         
                         <View style={styles.footerCard}>
                             <Text style={styles.clickHint}>Toque para ver</Text>
-                            <Ionicons name="chevron-forward" size={16} color="#28a745" />
+                            <Ionicons name="chevron-forward" size={16} color="#285fa7ff" />
                         </View>
                     </TouchableOpacity>
                 )}
             />
         )}
 
-        {/* Barra de Navegação - Ativa em 'notificacoes' */}
-        {/* Passamos temNotificacao={notificacoes.length > 0} para a bolinha continuar acesa se ainda houver itens na lista */}
         <BottomNav 
             active="notificacoes" 
             setScreen={setScreen} 
@@ -144,15 +145,18 @@ const styles = StyleSheet.create({
   
   header: {
     padding: 20,
-    backgroundColor: "#fff",
+    backgroundColor: "#052858ff",
     borderBottomWidth: 1,
     borderBottomColor: "#eee",
-    alignItems: 'center'
+    alignItems: 'flex-start'
   },
+  
   headerTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#143582ff"
+    color: "#f0f0f0ff",
+    marginLeft: 50,
+    marginTop: height * -0.03
   },
 
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
@@ -161,8 +165,9 @@ const styles = StyleSheet.create({
     flex: 1, 
     justifyContent: 'center', 
     alignItems: 'center',
-    paddingBottom: 100 // espaço para nav
+    paddingBottom: 100 
   },
+
   emptyText: { 
     marginTop: 15,
     fontSize: 16, 
@@ -172,60 +177,76 @@ const styles = StyleSheet.create({
 
   listContent: {
     padding: 20,
-    paddingBottom: 120 // Espaço extra para não ficar atrás da BottomNav
+    paddingBottom: 120 
   },
   
   card: {
     backgroundColor: '#fff',
-    borderRadius: 16,
+    borderRadius: 30,
     padding: 16,
+    paddingVertical: height * 0.03,
     marginBottom: 20,
-    elevation: 4, // Android shadow
-    shadowColor: '#000', // iOS shadow
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
   },
+
   badgeNew: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#e3f2fd',
+    backgroundColor: '#bceddd76',
     paddingHorizontal: 10,
     paddingVertical: 6,
-    borderRadius: 8,
+    borderRadius: 12,
     alignSelf: 'flex-start',
     marginBottom: 12,
+    marginLeft: width * 0.025
   },
+
   badgeText: {
-    color: '#143582ff',
+    color: '#219b6eff',
     fontWeight: 'bold',
     fontSize: 12,
+    
   },
+
   cardImage: {
     width: '100%',
     height: 160,
     borderRadius: 12,
     marginBottom: 12,
     resizeMode: 'cover',
-    backgroundColor: '#eee'
+    backgroundColor: '#eeeeeeff'
   },
+
   cardTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
     marginBottom: 8,
+    marginLeft: width * 0.025
   },
+
   footerCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 5
+    marginTop: 5,
+    marginLeft: width * 0.025
   },
+  
   clickHint: {
     fontSize: 14,
-    color: '#28a745',
+    color: '#285fa7ff',
     fontWeight: '600',
-    marginRight: 2
-  }
+    marginRight: 2,
+    marginLeft: width * 0.25,
+  },
+
+  divisor: { 
+    height: 1.5, 
+    backgroundColor: '#b3b3b37d', 
+    marginVertical: 10,
+    marginHorizontal: 10,
+    borderRadius: 10, 
+  },
 });
 
 export default NotificacoesScreen;
