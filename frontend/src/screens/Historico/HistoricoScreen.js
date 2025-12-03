@@ -24,7 +24,7 @@ const HistoricoItem = ({ item }) => (
             <Text style={styles.detalheText}>Local: {item.nome_unidade || item.unidade_saude}</Text>
 
             {item.profissional_responsavel && (
-                <Text style={styles.detalheText}>Prof: {item.profissional_responsavel}</Text>
+                <Text style={styles.detalheText}>Profissional: {item.profissional_responsavel}</Text>
             )}
 
             {item.lote && (
@@ -158,12 +158,12 @@ const HistoricoScreen = ({ pacienteId, setScreen }) => {
 const styles = StyleSheet.create({
     safe: { 
         flex: 1, 
-        backgroundColor: "#fff" 
+        backgroundColor: "#08366171"
     },
 
     header: {
-        paddingTop: Platform.OS === "android" ? height * 0.04 : height * 0.03,
-        paddingBottom: height * 0.03,
+        paddingTop: Platform.OS === "android" ? height * 0.02 : height * 0,
+        paddingBottom: height * 0.02,
         paddingHorizontal: width * 0.05,
         flexDirection: "row",
         justifyContent: 'flex-start',

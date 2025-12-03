@@ -9,7 +9,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import BottomNav from '../../components/BarraNavegacao';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+const { width, height } = Dimensions.get("window");
+
 const CampanhaDetalheScreen = ({ campanhaDados, setScreen }) => {
+    
     const item = campanhaDados;
 
     if (!item) return null;
@@ -108,7 +111,7 @@ const CampanhaDetalheScreen = ({ campanhaDados, setScreen }) => {
                         {/*horario*/}
                         <InfoRow 
                             icon="time-outline" 
-                            label="Horário de Funcionamento" 
+                            label="Horário da Campanha" 
                             value={`${item.hora_inicio} - ${item.hora_fim}`} 
                             isBold={true}
                         />
@@ -174,7 +177,7 @@ const CampanhaDetalheScreen = ({ campanhaDados, setScreen }) => {
 const styles = StyleSheet.create({
     safe: {
         flex: 1,
-        backgroundColor: "#fff",
+        backgroundColor: "#08366171" ,
     },
 
     container: {
@@ -183,9 +186,9 @@ const styles = StyleSheet.create({
     },
 
     detalhesCabecalho: { 
-        height: 320, 
+        height: height * 0.38, 
         width: '100%', 
-        position: 'relative' 
+        position: 'relative'
     },
 
     detalhesImg: { 
@@ -194,87 +197,88 @@ const styles = StyleSheet.create({
         resizeMode: 'cover' 
     },
 
-    detailOverlay: { ...StyleSheet.absoluteFillObject },
+    detailOverlay: { 
+        ...StyleSheet.absoluteFillObject 
+    },
 
     btnVoltar: {
         position: 'absolute', 
-        top: Platform.OS === 'android' ? 50 : 40, 
-        left: 20,
+        top: Platform.OS === 'android' ? height * 0.06 : height * 0.05,
+        left: width * 0.05,
         backgroundColor: 'rgba(255, 255, 255, 0.47)', 
-        padding: 10, 
-        borderRadius: 20,
+        padding: width * 0.03, 
+        borderRadius: width * 0.06,
         zIndex: 20,
     },
 
     headerTexto: { 
         position: 'absolute', 
-        bottom: 40, 
-        left: 20, 
-        right: 20, 
+        bottom: height * 0.06,
+        left: width * 0.05,
+        right: width * 0.05,
         zIndex: 10 
     },
 
     tipoBadge: { 
         backgroundColor: "#699ed0ff", 
         alignSelf: 'flex-start', 
-        paddingHorizontal: 12, 
-        paddingVertical: 6, 
-        borderRadius: 12,
-        marginBottom: 10,
-        top: -35,
+        paddingHorizontal: width * 0.03, 
+        paddingVertical: height * 0.007, 
+        borderRadius: width * 0.03,
+        marginBottom: height * 0.012,
+        top: -height * 0.045,
     },
 
     tipoBadgeTexto: { 
         color: 'white', 
         fontWeight: 'bold', 
-        fontSize: 12, 
+        fontSize: width * 0.03,
         textTransform: 'uppercase' 
     },
 
     detalheTitulo: { 
-        fontSize: 25, 
+        fontSize: width * 0.07, 
         fontWeight: '800', 
         color: 'white', 
-        lineHeight: 34, 
+        lineHeight: width * 0.085,
         textShadowColor: 'rgba(0,0,0,0.5)', 
         textShadowRadius: 10,
-        top: -35,
+        top: -height * 0.045,
     },
     
-    // Body Styles
     detalhes: {
         backgroundColor: "#F8F9FA",
-        marginTop: -62,
-        borderTopLeftRadius: 40,
-        borderTopRightRadius: 40,
-        paddingHorizontal: 24,
-        paddingTop: 32,
+        marginTop: -height * 0.08,
+        borderTopLeftRadius: width * 0.1,
+        borderTopRightRadius: width * 0.1,
+        paddingHorizontal: width * 0.06,
+        paddingTop: height * 0.04,
         flex: 1,
     },
 
     secaoDetalhe: { 
-        fontSize: 18, 
+        fontSize: width * 0.05,
         fontWeight: '700', 
         color: "#152545ff", 
-        marginBottom: 16 
+        marginBottom: height * 0.02 
     },
 
     descricaoDet: { 
-        fontSize: 16, 
+        fontSize: width * 0.04,
         color: '#4A5568', 
-        lineHeight: 26 
+        lineHeight: width * 0.055,
+        textAlign: 'justify',
     },
 
     divisor: { 
         height: 2, 
         backgroundColor: '#dadfffb4', 
-        marginVertical: 25,
+        marginVertical: height * 0.03,
         borderRadius: 10, 
     },
     
-    // Info Rows
     infoContainer: { 
-        gap: 16 
+        gap: height * 0.02 
     },
 
     infoRow: { 
@@ -283,58 +287,59 @@ const styles = StyleSheet.create({
     },
 
     iconeDetalhes: { 
-        width: 40, 
-        height: 40, 
-        borderRadius: 16, 
+        width: width * 0.11,
+        height: width * 0.11,
+        borderRadius: width * 0.04,
         backgroundColor: '#c0d3fcff', 
         justifyContent: 'center', 
         alignItems: 'center', 
-        marginRight: 15 
+        marginRight: width * 0.04 
     },
 
     infoLabel: { 
-        fontSize: 14, 
+        fontSize: width * 0.035, 
         color: "#455061ff", 
         marginBottom: 2,
         fontWeight: 'bold' 
     },
 
     infoValor: { 
-        fontSize: 13, 
+        fontSize: width * 0.033, 
         color: '#5f6b80ff', 
-        lineHeight: 22 
+        lineHeight: width * 0.05
     },
 
     locCard: { 
-        backgroundColor: "#ffff", 
-        borderRadius: 35, 
-        padding: 20, 
+        backgroundColor: "#fff", 
+        borderRadius: width * 0.09,
+        padding: width * 0.05, 
         elevation: 2, 
         shadowColor: "#000", 
         shadowOpacity: 0.05, 
-        shadowRadius: 10 
+        shadowRadius: 10,
+        marginTop: height * 0.015
     },
 
     nome: { 
-        fontSize: 18, 
+        fontSize: width * 0.05,
         fontWeight: '700', 
         color: "#022e6aff", 
-        marginBottom: 6 
+        marginBottom: height * 0.01 
     },
 
     locTexto: { 
-        fontSize: 15, 
+        fontSize: width * 0.04,
         color: '#4A5568', 
-        marginBottom: 16, 
-        lineHeight: 22 
+        marginBottom: height * 0.02, 
+        lineHeight: width * 0.053
     },
 
     mapaWrap: { 
-        height: 180, 
-        borderRadius: 16, 
+        height: height * 0.22,
+        borderRadius: width * 0.04,
         overflow: 'hidden', 
         position: 'relative', 
-        marginBottom: 16, 
+        marginBottom: height * 0.02, 
         borderWidth: 1, 
         borderColor: '#EDF2F7' 
     },
@@ -353,22 +358,18 @@ const styles = StyleSheet.create({
         flexDirection: 'row', 
         justifyContent: 'center', 
         alignItems: 'center',
-        paddingVertical: 16, 
-        borderRadius: 25,
-        shadowColor: "#60b6d2ff", 
-        shadowOffset: { 
-            width: 0, 
-            height: 4 
-        },
-
+        paddingVertical: height * 0.02,
+        borderRadius: width * 0.07,
+        shadowColor: "#60b6d2ff",
+        shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3, 
         shadowRadius: 8, 
         elevation: 4
     },
 
     gpsBtnTexto: { 
-        color: "#ffff", 
-        fontSize: 16, 
+        color: "#fff", 
+        fontSize: width * 0.045,
         fontWeight: 'bold' 
     },
 });

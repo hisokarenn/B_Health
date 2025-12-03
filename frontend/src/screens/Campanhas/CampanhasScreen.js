@@ -175,7 +175,7 @@ const CampanhasScreen = ({ onSelectCampanha, setScreen }) => {
 const styles = StyleSheet.create({
     safe: { 
         flex: 1, 
-        backgroundColor: "rgba(0,0,0,0)",
+        backgroundColor: "#08366171",
     },
 
     telaCheia: {
@@ -194,8 +194,8 @@ const styles = StyleSheet.create({
     },
     
     header: {
-        paddingTop: Platform.OS === "android" ? height * 0.025 : height * 0.03,
-        paddingBottom: height * 0.025,
+        paddingTop: Platform.OS === "android" ? height * 0.02 : height * 0.02,
+        paddingBottom: height * 0.02,
         paddingHorizontal: width * 0.05,
         flexDirection: "row",
         justifyContent: 'flex-start',

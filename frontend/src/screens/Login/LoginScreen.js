@@ -181,7 +181,7 @@ const {width, height} = Dimensions.get('window');
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: 'transparent',
+    backgroundColor: "#08366171" ,
   },
 
   container: {
@@ -192,11 +192,12 @@ const styles = StyleSheet.create({
 
   cabecalho: {
     height: height * 0.30,
+    maxHeight: 300, 
     borderBottomLeftRadius: width * 0.12,
     borderBottomRightRadius: width * 0.12,
     alignItems: 'center',
     justifyContent: 'center',
-  },
+},
 
   logo: {
     width: width * 0.28,
@@ -205,7 +206,7 @@ const styles = StyleSheet.create({
   },
 
   titulo: {
-    fontSize: width * 0.08,
+    fontSize: Math.min(width * 0.08, 40),
     fontWeight: 'bold',
     color: '#ffffff',
     marginTop: 15,
@@ -213,7 +214,7 @@ const styles = StyleSheet.create({
 
   loginTitulo: {
     marginTop: 20,
-    fontSize: width * 0.06,
+    fontSize: Math.min(width * 0.06, 30),
     fontWeight: 'bold',
     color: '#192f3fff',
     textAlign: 'center',
@@ -227,7 +228,7 @@ const styles = StyleSheet.create({
   },
 
   emaileSenha: {
-    fontSize: width * 0.035,
+    fontSize: Math.min(width * 0.035, 18),
     color: '#181818ff',
     marginBottom: 5,
     fontWeight: 'bold',
@@ -236,7 +237,7 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: '#e9ecee',
     borderRadius: 20,
-    height: height * 0.055,
+    height: 50,
     paddingHorizontal: 15,
     marginBottom: 15,
     color: '#333',
@@ -248,6 +249,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#e9ecee',
     borderRadius: 20,
     marginBottom: 15,
+    height: 50,
   },
 
   esqueciSenhaButton: {
@@ -258,7 +260,7 @@ const styles = StyleSheet.create({
 
   esqueciSenhaTexto: {
     color: '#c53939', 
-    fontSize: width * 0.035,
+    fontSize: Math.min(width * 0.035, 18),
     fontWeight: 'bold',
     textDecorationLine: 'underline',
     textAlign: 'center',
@@ -267,7 +269,7 @@ const styles = StyleSheet.create({
   botao: {
     backgroundColor: '#00245aff',
     borderRadius: 20,
-    paddingVertical: height * 0.015,
+    paddingVertical: 15,
     alignItems: 'center',
     marginVertical: 10,
     marginTop: 30,
@@ -275,7 +277,7 @@ const styles = StyleSheet.create({
 
   btnTexto: {
     color: '#ffffff',
-    fontSize: width * 0.04,
+    fontSize: Math.min(width * 0.04, 20),
     fontWeight: 'bold',
   },
 
@@ -289,6 +291,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     textDecorationLine: 'underline',
     fontWeight: 'bold',
+    fontSize: Math.min(width * 0.035, 18),
   },
 
   checkboxContainer: {

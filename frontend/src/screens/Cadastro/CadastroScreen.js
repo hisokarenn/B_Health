@@ -227,7 +227,7 @@ const {width, height} = Dimensions.get('window');
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#eef1f4',
+    backgroundColor: "#08366171" ,
   },
 
   container: {
@@ -235,16 +235,17 @@ const styles = StyleSheet.create({
     paddingTop: Platform.OS === 'android' ? 0 : 0,
     backgroundColor: '#ffffff',
   },
-
+  
   cabecalho: {
     height: height * 0.18,
+    maxHeight: 150,
     justifyContent: 'center',
     alignItems: 'flex-start',
     borderBottomLeftRadius: width * 0.10,
     borderBottomRightRadius: width * 0.10,
     paddingHorizontal: width * 0.06,
   },
-
+  
   cabecalho2: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -261,14 +262,14 @@ const styles = StyleSheet.create({
   },
 
   titulo: {
-    fontSize: width * 0.07,
+    fontSize: Math.min(width * 0.07, 35),
     fontWeight: 'bold',
     color: '#fff',
   },
 
   loginTitulo: {
     marginTop: height * 0.02,
-    fontSize: width * 0.055,
+    fontSize: Math.min(width * 0.055, 28),
     fontWeight: 'bold',
     color: '#192f3fff',
     textAlign: 'center',
@@ -282,7 +283,7 @@ const styles = StyleSheet.create({
   },
 
   label: {
-    fontSize: width * 0.035,
+    fontSize: Math.min(width * 0.035, 18),
     color: '#333',
     marginBottom: 5,
     fontWeight: 'bold',
@@ -291,7 +292,7 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: '#e9ecee',
     borderRadius: width * 0.05,
-    height: height * 0.055,
+    height: 50,
     paddingHorizontal: 15,
     marginBottom: 15,
     color: '#333',
@@ -303,6 +304,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#e9ecee',
     borderRadius: width * 0.05,
     marginBottom: 15,
+    height: 50,
   },
 
   botao: {
@@ -311,13 +313,14 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     alignItems: 'center',
     marginVertical: 10,
-    height: height * 0.055,
+    height: 50,
   },
 
   btnTexto: {
     color: '#ffffff',
-    fontSize: width * 0.04,
+    fontSize: Math.min(width * 0.04, 20),
     fontWeight: 'bold',
+    marginTop: height * 0.004
   },
 
   btnDesativado: {
@@ -330,6 +333,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     textDecorationLine: 'underline',
     fontWeight: 'bold',
+    fontSize: Math.min(width * 0.035, 18),
   },
 });
 

@@ -122,7 +122,6 @@ const NotificacoesScreen = ({ setScreen, onSelectCampanha }) => {
                         
                         <View style={styles.footerCard}>
                             <Text style={styles.clickHint}>Toque para ver</Text>
-                            <Ionicons name="chevron-forward" size={16} color="#285fa7ff" />
                         </View>
                     </TouchableOpacity>
                 )}
@@ -140,52 +139,64 @@ const NotificacoesScreen = ({ setScreen, onSelectCampanha }) => {
 };
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#fff" },
-  container: { flex: 1, backgroundColor: "#f8f9fa" },
-  
+  safe: { 
+    flex: 1, 
+    backgroundColor: "#081d35ff"
+  },
+
+  container: { 
+    flex: 1, 
+    backgroundColor: "#f8f9fa" 
+  },
+
   header: {
-    padding: 20,
+    paddingVertical: height * 0.02,
+    paddingHorizontal: width * 0.05,
     backgroundColor: "#052858ff",
     borderBottomWidth: 1,
     borderBottomColor: "#eee",
-    alignItems: 'flex-start'
-  },
-  
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#f0f0f0ff",
-    marginLeft: 50,
-    marginTop: height * -0.03
+    flexDirection: "row",
+    alignItems: "center",
   },
 
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  
+  headerTitle: {
+    fontSize: width * 0.055,
+    fontWeight: "bold",
+    color: "#f0f0f0ff",
+    marginLeft: width * 0.04,
+  },
+
+  center: { 
+    flex: 1, 
+    justifyContent: 'center', 
+    alignItems: 'center' 
+  },
+
   emptyContainer: { 
     flex: 1, 
     justifyContent: 'center', 
     alignItems: 'center',
-    paddingBottom: 100 
+    paddingBottom: height * 0.15
   },
 
   emptyText: { 
     marginTop: 15,
-    fontSize: 16, 
+    fontSize: width * 0.04, 
     color: '#888', 
     fontWeight: '500' 
   },
 
   listContent: {
-    padding: 20,
-    paddingBottom: 120 
+    padding: width * 0.05,
+    paddingBottom: height * 0.18
   },
   
   card: {
     backgroundColor: '#fff',
     borderRadius: 30,
-    padding: 16,
-    paddingVertical: height * 0.03,
-    marginBottom: 20,
+    padding: width * 0.04,
+    paddingVertical: height * 0.02,
+    marginBottom: height * 0.025,
     elevation: 4,
   },
 
@@ -193,58 +204,55 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#bceddd76',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    paddingHorizontal: width * 0.03,
+    paddingVertical: height * 0.008,
     borderRadius: 12,
     alignSelf: 'flex-start',
-    marginBottom: 12,
-    marginLeft: width * 0.025
+    marginBottom: height * 0.015,
   },
 
   badgeText: {
     color: '#219b6eff',
     fontWeight: 'bold',
-    fontSize: 12,
-    
+    fontSize: width * 0.03,
   },
 
   cardImage: {
     width: '100%',
-    height: 160,
+    height: height * 0.22,
     borderRadius: 12,
-    marginBottom: 12,
+    marginBottom: height * 0.015,
     resizeMode: 'cover',
     backgroundColor: '#eeeeeeff'
   },
 
   cardTitle: {
-    fontSize: 18,
+    fontSize: width * 0.045,
     fontWeight: 'bold',
     color: '#333',
-    marginBottom: 8,
-    marginLeft: width * 0.025
+    marginBottom: height * 0.01,
   },
 
   footerCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 5,
-    marginLeft: width * 0.025
+    justifyContent: "center",
+    marginTop: height * 0.002,
+    backgroundColor: "#aecfef8c",
+    height: height * 0.05,
+    borderRadius: 15,
   },
   
   clickHint: {
-    fontSize: 14,
-    color: '#285fa7ff',
+    fontSize: width * 0.038,
+    color: '#0f3a72ff',
     fontWeight: '600',
-    marginRight: 2,
-    marginLeft: width * 0.25,
   },
 
   divisor: { 
     height: 1.5, 
     backgroundColor: '#b3b3b37d', 
-    marginVertical: 10,
-    marginHorizontal: 10,
+    marginVertical: height * 0.015,
     borderRadius: 10, 
   },
 });

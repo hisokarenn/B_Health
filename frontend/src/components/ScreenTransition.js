@@ -1,23 +1,28 @@
-import React, { useEffect, useRef } from "react";
-import { Animated } from "react-native";
+// ScreenTransition.js
+import React from "react";
+import { View, StyleSheet, Animated } from "react-native";
 
-export default function ScreenTransition({ children }) {
-  const opacity = useRef(new Animated.Value(0)).current;
+export default function ScreenTransition({ children, screenKey }) {
+  const fadeAnim = React.useRef(new Animated.Value(0)).current;
 
-  useEffect(() => {
-    opacity.setValue(0.8);
-    Animated.timing(opacity, {
+  React.useEffect(() => {
+    fadeAnim.setValue(0.5);
+    Animated.timing(fadeAnim, {
       toValue: 1,
-      duration: 800,
+      duration: 250,
       useNativeDriver: true,
     }).start();
-  }, [children]);
+  }, [screenKey]);
 
   return (
-    <Animated.View style={{ flex: 1, opacity }}>
+    <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
       {children}
     </Animated.View>
   );
 }
 
-//é um componente que vai ser reutilizado várias vezes nas transições das telas
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});
