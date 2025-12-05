@@ -134,7 +134,7 @@ const NotificacoesScreen = ({ setScreen, onSelectCampanha }) => {
 const styles = StyleSheet.create({
   safe: { 
     flex: 1, 
-    backgroundColor: "#081d35ff"
+    backgroundColor: "#08366171"
   },
 
   container: { 
