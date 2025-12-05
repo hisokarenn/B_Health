@@ -6,7 +6,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getCampanhas } from '../../services/authService';
-import BottomNav from '../../components/BarraNavegacao';
 
 const { width, height } = Dimensions.get('window');
 
@@ -103,7 +102,7 @@ const CampanhasScreen = ({ onSelectCampanha, setScreen }) => {
     if (loading) {
         return (
             <SafeAreaView style={styles.containerCentralizado}>
-                <ActivityIndicator size="large" color="#052f68ff" />
+                <ActivityIndicator size="large" color="#0c2c5aff" />
                 <Text style={styles.textoCarregamento}>Buscando informações...</Text>
             </SafeAreaView>
         );
@@ -162,9 +161,6 @@ const CampanhasScreen = ({ onSelectCampanha, setScreen }) => {
                             showsVerticalScrollIndicator={false}
                         />
                     )}
-
-                    <BottomNav active="home" setScreen={setScreen} />
-
                 </View>
             </View>
         </SafeAreaView>
@@ -175,7 +171,7 @@ const CampanhasScreen = ({ onSelectCampanha, setScreen }) => {
 const styles = StyleSheet.create({
     safe: { 
         flex: 1, 
-        backgroundColor: "rgba(0,0,0,0)",
+        backgroundColor: "#08366171",
     },
 
     telaCheia: {
@@ -194,8 +190,8 @@ const styles = StyleSheet.create({
     },
     
     header: {
-        paddingTop: Platform.OS === "android" ? height * 0.025 : height * 0.03,
-        paddingBottom: height * 0.025,
+        paddingTop: Platform.OS === "android" ? height * 0.02 : height * 0.02,
+        paddingBottom: height * 0.02,
         paddingHorizontal: width * 0.05,
         flexDirection: "row",
         justifyContent: 'flex-start',

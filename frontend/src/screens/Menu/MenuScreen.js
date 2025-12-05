@@ -5,8 +5,7 @@ import {
 
 import { SafeAreaView } from "react-native-safe-area-context"; 
 import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
-import BottomNav from "../../components/BarraNavegacao";          
+import { Ionicons } from "@expo/vector-icons";       
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { collection, getDocs } from 'firebase/firestore'; 
 import { db } from '../../services/firebaseConfig'; // Verifique se o caminho está correto para seu projeto
@@ -68,9 +67,7 @@ const MenuScreen = ({ setScreen, pacienteInfo }) => {
 
                 {/*cabecalhor*/}
                 <LinearGradient
-                    colors={["#0b4786ff", "#001c42ff"]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
+                    colors={["#001c42ff", "#0b4786ff"]}
                     style={styles.header}
                 >
                     <View>
@@ -103,28 +100,11 @@ const MenuScreen = ({ setScreen, pacienteInfo }) => {
                     </TouchableOpacity>
 
                     <Text style={styles.secaoTitulo}>Ações de Vacinação</Text>
-                    
-                    {/*scroll bar horizontal*/}
-                    <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator
-                        contentContainerStyle={styles.horizontalScrollContent} 
-                    >
-                        <TouchableOpacity style={styles.miniBtn} onPress={() => setScreen("menu")}>
-                            <Text style={styles.miniBtnTexto}>Mapa de{"\n"}Vacinação</Text>
-                            <Ionicons style={styles.miniIcones} name="map-outline" size={width * 0.07} color="white"/>
-                        </TouchableOpacity>
 
                         <TouchableOpacity style={styles.miniBtn} onPress={() => setScreen("campanhas")}>
                             <Text style={styles.miniBtnTexto}>Campanhas</Text>
                             <Ionicons style={styles.miniIcones} name="megaphone-outline" size={width * 0.07} color="white" />
                         </TouchableOpacity>
-
-                        <TouchableOpacity style={styles.miniBtn} onPress={() => setScreen("menu")}>
-                            <Text style={styles.miniBtnTexto}>Informações Vacinas</Text>
-                            <Ionicons style={styles.miniIcones} name="information-circle-outline" size={width * 0.07} color="white" />
-                        </TouchableOpacity>
-                    </ScrollView>
 
                     {/*ajuda e informações*/}
                     <Text style={styles.secaoTitulo}>Ajuda e Informações</Text>
@@ -144,9 +124,6 @@ const MenuScreen = ({ setScreen, pacienteInfo }) => {
                         <Text style={styles.infoBtnText}>Sobre nós</Text>
                     </TouchableOpacity>
                 </ScrollView>
-
-                {/*chamando o componente barraNavegação COM a nova prop temNotificacao*/}
-                <BottomNav active="home" setScreen={setScreen} temNotificacao={temNotificacao} />
 
                 {/*modal - importancia*/}
                 <Modal visible={modalVisibleImp} transparent animationType="fade">
@@ -221,141 +198,137 @@ const MenuScreen = ({ setScreen, pacienteInfo }) => {
 };
 
 const styles = StyleSheet.create({
-    safe: { flex: 1, backgroundColor: "#fff" },
-    container: { flex: 1, backgroundColor: "#fff" },
+    safe: { 
+        flex: 1, 
+        backgroundColor: "#08366171" 
+    },
+
+    container: { 
+        flex: 1, 
+        backgroundColor: "#fff" 
+    },
 
     //cabeçalho
     header: {
-        paddingTop: Platform.OS === "android" ? height * 0.04 : height * 0.03,
-        paddingBottom: height * 0.040,
+        paddingTop: Platform.OS === "android" ? 0 : 0,
+        paddingBottom: height * 0.04,
         paddingHorizontal: width * 0.05,
-        borderBottomLeftRadius: 25,
-        borderBottomRightRadius: 25,
+        borderBottomLeftRadius: 20,
+        borderBottomRightRadius: 20,
         flexDirection: "row",
         justifyContent: "space-between",
-        alignItems: "center"
+        alignItems: "center",
     },
 
     logo: {
-        width: width * 0.15,
-        height: width * 0.15,
-        tintColor: '#fff',
-        marginRight: width * 0.02,
-        marginLeft: width * 0.02,
-        shadowOpacity: 0.8,
-        shadowRadius: 10,
+        width: width * 0.17,
+        height: width * 0.17,
+        tintColor: "#fff",
+        marginLeft: width * 0.03,
+        marginTop: height * 0.03
     },
 
     cabecalhoTitulo: {
         color: "white",
-        fontSize: width * 0.045,
+        fontSize: width * 0.04,
         fontWeight: "bold",
         lineHeight: width * 0.065,
-        marginLeft: width * 0.20,
-        marginTop: height * -0.067,
+        marginTop: height * -0.075,
+        marginLeft: width * 0.25,
     },
 
     cabSubtitulo: {
         color: "rgba(255,255,255,0.9)",
-        marginTop: 4,
+        marginTop: height * 0.005,
         fontSize: width * 0.035,
-        marginLeft: width * 0.20,
+        marginLeft: width * 0.25,
     },
 
     logoutBtn: {
-        padding: width * 0.01,
+        padding: width * 0.02,
         borderRadius: 10,
     },
 
     //seção de titluos
     secaoTitulo: {
-        marginTop: height * 0.020,
+        marginTop: height * 0.02,
         marginLeft: width * 0.05,
-        fontSize: width * 0.040,
+        fontSize: width * 0.045,
         color: "#444",
         fontWeight: "bold",
     },
 
     //carteira
     bigBtn: {
+        width: width * 0.88,
         backgroundColor: "#6c9fd9ff",
-        margin: width * 0.07,
+        marginTop: height * 0.02,
         padding: width * 0.06,
-        borderRadius: 30,
+        borderRadius: 28,
         flexDirection: "row",
         alignItems: "center",
-        gap: 15,
+        justifyContent: "space-between",
+        alignSelf: "center",
         height: height * 0.16,
-        marginTop: height * 0.020,
-        shadowColor: "#000000ff",
-        elevation: 2,
+        elevation: 9,
     },
 
     bigBtnTexto: {
         color: "white",
-        fontSize: width * 0.07,
+        fontSize: width * 0.065,
         fontWeight: "bold",
-        marginRight: width * 0.03,
-        marginLeft: width * 0.05,
+        width: "60%",
     },
 
     iconeBigBtn: {
-        marginLeft: width * 0.10,
+        alignSelf: "center",
     },
 
-    //scrollBar horizontal
-    horizontalScrollContent: {
-        marginTop: height * 0.020,
-        paddingLeft: width * 0.05,
-        paddingRight: width * 0.03,
-        gap: 8,
-    },
-
+    //mini botões
     miniBtn: {
-        backgroundColor: "#2b61b7ff",
-        width: width * 0.32,
-        height: width * 0.32,
-        borderRadius: 30,
+        backgroundColor: "#2b61b7c5",
+        width: width * 0.88,
+        height: height * 0.08,
+        paddingHorizontal: width * 0.04,
+        borderRadius: 20,
+        borderTopLeftRadius: 0,
         justifyContent: "center",
-        alignItems: "flex-start",
-        padding: 10,
-        marginRight: 2,
-        marginLeft: 6,
-        shadowColor: "#000000d5",
-        elevation: 5,
+        alignSelf: "center",
+        elevation: 9,
+        marginTop: height * 0.015,
     },
 
     miniBtnTexto: {
         color: "white",
         fontWeight: "bold",
-        textAlign: "left",
-        marginTop: -2,
-        fontSize: width * 0.040,
-        marginLeft: width * 0.02,
+        fontSize: width * 0.045,
+        marginLeft: width * 0.03,
+        color: "#ffffffff"
     },
 
     miniIcones: {
-        marginTop: width * 0.03,
-        marginLeft: width * 0.17,
+        position: "absolute",
+        right: width * 0.09,
+        top: height * 0.023,
     },
 
     //Informações Btn
     infoBtn: {
         backgroundColor: "#dfeef5ff",
-        padding: width * 0.040,
+        padding: width * 0.035,
         marginHorizontal: width * 0.08,
-        marginTop: 15,
+        marginTop: height * 0.02,
         borderRadius: 20,
         flexDirection: "row",
         alignItems: "center",
-        gap: 15,
-        shadowColor: "#000000d5",
+        gap: width * 0.04,
         elevation: 5,
-        marginLeft: width * 0.08,
+        alignSelf: "center",
+        width: width * 0.85,
     },
 
     infoBtnText: {
-        fontSize: width * 0.04,
+        fontSize: width * 0.043,
         color: "#333",
     },
 
@@ -369,7 +342,7 @@ const styles = StyleSheet.create({
 
     ImpModal: {
         backgroundColor: "white",
-        width: "80%",
+        width: width * 0.80,
         padding: width * 0.06,
         borderRadius: 20,
     },
@@ -386,7 +359,7 @@ const styles = StyleSheet.create({
         color: "#555",
     },
 
-    //Modal fale conosco
+    //Modal Fale Conosco
     ModalFale: {
         flex: 1,
         backgroundColor: "rgba(0,0,0,0.4)",
@@ -396,7 +369,7 @@ const styles = StyleSheet.create({
 
     FaleModal: {
         backgroundColor: "white",
-        width: "80%",
+        width: width * 0.80,
         padding: width * 0.06,
         borderRadius: 20,
     },
@@ -413,7 +386,7 @@ const styles = StyleSheet.create({
         color: "#555",
     },
 
-    //Modal Sobre nos
+    //Modal Sobre Nós
     ModalSobreNos: {
         flex: 1,
         backgroundColor: "rgba(0,0,0,0.4)",
@@ -423,7 +396,7 @@ const styles = StyleSheet.create({
 
     SobreNosModal: {
         backgroundColor: "white",
-        width: "80%",
+        width: width * 0.80,
         padding: width * 0.06,
         borderRadius: 20,
     },
@@ -440,12 +413,11 @@ const styles = StyleSheet.create({
         color: "#555",
     },
 
-
-    //fehcar modal
+    //fechar modal
     FecharModal: {
         backgroundColor: "#5758b9ff",
-        marginTop: 20,
-        padding: 10,
+        marginTop: height * 0.02,
+        padding: width * 0.03,
         borderRadius: 15,
         alignItems: "center",
     },

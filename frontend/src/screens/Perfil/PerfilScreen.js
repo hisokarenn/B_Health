@@ -6,11 +6,9 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import BottomNav from '../../components/BarraNavegacao';
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getPerfil } from '../../services/authService'; 
 
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
 
 const PerfilScreen = ({ setScreen, pacienteInfo }) => {
 
@@ -85,7 +83,7 @@ const PerfilScreen = ({ setScreen, pacienteInfo }) => {
     const InfoItem = ({ icon, label, value, isCopyable = false }) => (
         <View style={styles.infoItem}>
             <View style={styles.iconContainer}>
-                <Ionicons name={icon} size={22} color={"#1d4886ff"} />
+                <Ionicons name={icon} size={width * 0.055} color={"#1d4886ff"} />
             </View>
             <View style={styles.infoContent}>
                 <Text style={styles.infoLabel}>{label}</Text>
@@ -93,7 +91,7 @@ const PerfilScreen = ({ setScreen, pacienteInfo }) => {
             </View>
             {isCopyable && (
                 <TouchableOpacity>
-                    <Ionicons name="copy-outline" size={18} color={"#718096"} />
+                    <Ionicons name="copy-outline" size={width * 0.045} color={"#718096"} />
                 </TouchableOpacity>
             )}
         </View>
@@ -105,26 +103,26 @@ const PerfilScreen = ({ setScreen, pacienteInfo }) => {
             <StatusBar barStyle="light-content" backgroundColor={"#052858ff"} />
             
             <ScrollView 
-                contentContainerStyle={{ paddingBottom: 100 }} 
+                contentContainerStyle={{ paddingBottom: height * 0.12 }} 
                 showsVerticalScrollIndicator={false}
                 bounces={false}
             >
                 {/*cabecalho*/}
                 <LinearGradient
                     colors={["rgba(4, 29, 54, 1)", "rgba(13, 48, 82, 0.89)", "rgba(32, 79, 126, 0.81)", "rgba(83, 142, 201, 0.76)","rgba(235, 245, 255, 0.14)"]}
-                    style={styles.cabecalho}
+                    style={[styles.cabecalho, { paddingBottom: height * 0.05 }]}
                 >
                     <SafeAreaView edges={['top']}>
                         <View style={styles.cabecalhoContent}>
-                            <Text style={styles.cabecalhoTitulo}>Meu Perfil</Text>
+                            <Text style={[styles.cabecalhoTitulo, { fontSize: width * 0.05 } ]}>Meu Perfil</Text>
                             
-                            <View style={styles.avatarContainer}>
-                                <Text style={styles.avatarTexto}>{getInitials(user.nome)}</Text>
+                            <View style={[styles.avatarContainer, { width: width * 0.26, height: width * 0.26, borderRadius: width * 0.13 }]}>
+                                <Text style={[styles.avatarTexto, { fontSize: width * 0.12 }]}>{getInitials(user.nome)}</Text>
                             </View>
                             
-                            <Text style={styles.userNome}>{user.nome}</Text>
-                            <Text style={styles.userEmail}>{user.email}</Text>
-                            <Text style={styles.tempoDeUso}>Membro desde {user.createdAt ? formatDate(user.createdAt) : "-"}</Text>
+                            <Text style={[styles.userNome, { fontSize: width * 0.065 }]}>{user.nome}</Text>
+                            <Text style={[styles.userEmail, { fontSize: width * 0.04 }]}>{user.email}</Text>
+                            <Text style={[styles.tempoDeUso, { fontSize: width * 0.032 }]}>Membro desde {user.createdAt ? formatDate(user.createdAt) : "-"}</Text>
                         </View>
                     </SafeAreaView>
                 </LinearGradient>
@@ -132,15 +130,15 @@ const PerfilScreen = ({ setScreen, pacienteInfo }) => {
                 {/*informações*/}
                 <View style={styles.body}>
                     
-                    <Text style={styles.secaoTitulo}>Documentação Pessoal</Text>
+                    <Text style={[styles.secaoTitulo, { fontSize: width * 0.045 }]}>Documentação Pessoal</Text>
                     <View style={styles.divisor} />
-                    <View style={styles.card}>
+                    <View style={[styles.card, { padding: width * 0.02 }]}>
                         <InfoItem 
                             icon="card-outline" 
                             label="CPF" 
                             value={user.cpf} 
                         />
-                        <View style={styles.divisor2} />
+                        <View style={[styles.divisor2, { marginLeft: width * 0.18 }]} />
                         <InfoItem 
                             icon="medical-outline" 
                             label="Cartão Nacional de Saúde (CNS)" 
@@ -148,15 +146,15 @@ const PerfilScreen = ({ setScreen, pacienteInfo }) => {
                         />
                     </View>
 
-                    <Text style={styles.secaoTitulo}>Dados da Conta</Text>
+                    <Text style={[styles.secaoTitulo, { fontSize: width * 0.045 }]}>Dados da Conta</Text>
                     <View style={styles.divisor} />
-                    <View style={styles.card}>
+                    <View style={[styles.card, { padding: width * 0.02 }]}>
                         <InfoItem 
                             icon="mail-outline" 
                             label="E-mail Cadastrado" 
                             value={user.email} 
                         />
-                        <View style={styles.divisor2} />
+                        <View style={[styles.divisor2, { marginLeft: width * 0.18 }]} />
                         <InfoItem 
                             icon="shield-checkmark-outline" 
                             label="Status da Conta" 
@@ -165,17 +163,21 @@ const PerfilScreen = ({ setScreen, pacienteInfo }) => {
                     </View>
 
                     {/*sair*/}
-                    <TouchableOpacity style={styles.sairBtn} onPress={handleLogout}>
-                        <Ionicons name="log-out-outline" size={22} color={"#E53E3E"} />
-                        <Text style={styles.sairTexto}>Sair da Conta</Text>
+                    <TouchableOpacity 
+                        style={[
+                            styles.sairBtn, 
+                            { paddingVertical: height * 0.017, borderRadius: width * 0.07 }
+                        ]} 
+                        onPress={handleLogout}
+                    >
+                        <Ionicons name="log-out-outline" size={width * 0.06} color={"#E53E3E"} />
+                        <Text style={[styles.sairTexto, { fontSize: width * 0.045 }]}>Sair da Conta</Text>
                     </TouchableOpacity>
 
-                    <Text style={styles.versaoTexto}>B Health App v1.0.2</Text>
+                    <Text style={[styles.versaoTexto, { fontSize: width * 0.032 }]}>B Health App v1.0.2</Text>
                 </View>
             </ScrollView>
 
-            {/*barra de navegação*/}
-            <BottomNav active="perfil" setScreen={setScreen} />
         </View>
         </SafeAreaView>
     );
@@ -184,7 +186,7 @@ const PerfilScreen = ({ setScreen, pacienteInfo }) => {
 const styles = StyleSheet.create({
     safe: {
         flex: 1,
-        backgroundColor: "#081d35ff"
+        backgroundColor: "#08366171"
     },
 
     container: {
@@ -205,7 +207,6 @@ const styles = StyleSheet.create({
     },
 
     cabecalho: {
-        paddingBottom: 40,
         alignItems: 'center',
     },
 
@@ -216,15 +217,11 @@ const styles = StyleSheet.create({
 
     cabecalhoTitulo: {
         color: '#fff',
-        fontSize: 18,
         fontWeight: '600',
         marginBottom: 20,
     },
 
     avatarContainer: {
-        width: 100,
-        height: 100,
-        borderRadius: 50,
         backgroundColor: 'rgba(255,255,255,0.2)',
         justifyContent: 'center',
         alignItems: 'center',
@@ -235,13 +232,11 @@ const styles = StyleSheet.create({
 
     avatarTexto: {
         color: 'white',
-        fontSize: 36,
         fontWeight: 'bold',
     },
 
     userNome: {
         color: 'white',
-        fontSize: 22,
         fontWeight: 'bold',
         textAlign: 'center',
         marginBottom: 5,
@@ -249,14 +244,12 @@ const styles = StyleSheet.create({
 
     userEmail: {
         color: 'rgba(255, 255, 255, 1)',
-        fontSize: 14,
         marginBottom: 5,
         fontWeight: 'bold'
     },
 
     tempoDeUso: {
         color: 'rgba(255, 255, 255, 1)',
-        fontSize: 12,
         fontStyle: 'italic',
         fontWeight: 'bold'
     },
@@ -267,7 +260,6 @@ const styles = StyleSheet.create({
     },
 
     secaoTitulo: {
-        fontSize: 16,
         fontWeight: '700',
         color: "#718096",
         marginTop: 35,
@@ -278,7 +270,6 @@ const styles = StyleSheet.create({
 
     card: {
         backgroundColor: "#FFFFFF",
-        padding: 5,
     },
 
     divisor: { 
@@ -294,13 +285,13 @@ const styles = StyleSheet.create({
     },
 
     iconContainer: {
-        width: 45,
-        height: 45,
-        borderRadius: 12,
         backgroundColor: '#E3F2FD',
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: 15,
+        width: 45,
+        height: 45,
+        borderRadius: 12,
     },
 
     infoContent: {
@@ -322,7 +313,6 @@ const styles = StyleSheet.create({
     divisor2: {
         height: 1,
         backgroundColor: "#E2E8F0",
-        marginLeft: 76,
         marginRight: 20,
     },
 
@@ -332,15 +322,12 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 13,
-        borderRadius: 25,
         borderWidth: 1,
         borderColor: '#FED7D7',
     },
 
     sairTexto: {
         color: "#E53E3E",
-        fontSize: 16,
         fontWeight: 'bold',
         marginLeft: 10,
     },
@@ -348,7 +335,6 @@ const styles = StyleSheet.create({
     versaoTexto: {
         textAlign: 'center',
         color: "#718096",
-        fontSize: 12,
         marginTop: 10,
         opacity: 0.6
     }

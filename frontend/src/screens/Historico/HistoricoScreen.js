@@ -9,7 +9,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { getHistorico } from '../../services/authService';
-import BottomNav from '../../components/BarraNavegacao';
 
 const HistoricoItem = ({ item }) => (
     <View style={styles.itemContainer}>
@@ -24,7 +23,7 @@ const HistoricoItem = ({ item }) => (
             <Text style={styles.detalheText}>Local: {item.nome_unidade || item.unidade_saude}</Text>
 
             {item.profissional_responsavel && (
-                <Text style={styles.detalheText}>Prof: {item.profissional_responsavel}</Text>
+                <Text style={styles.detalheText}>Profissional: {item.profissional_responsavel}</Text>
             )}
 
             {item.lote && (
@@ -92,7 +91,7 @@ const HistoricoScreen = ({ pacienteId, setScreen }) => {
     if (loading) {
         return (
             <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#007AFF" />
+                <ActivityIndicator size="large" color="#103d6dff" />
                 <Text style={styles.messageText}>{message}</Text>
             </View>
         );
@@ -147,9 +146,6 @@ const HistoricoScreen = ({ pacienteId, setScreen }) => {
                         />
                     )}
                 </View>
-                {/*chamando o componente barraNavegação*/}
-                <BottomNav active="home" setScreen={setScreen} />
-
             </View>
         </SafeAreaView>
     );
@@ -158,12 +154,12 @@ const HistoricoScreen = ({ pacienteId, setScreen }) => {
 const styles = StyleSheet.create({
     safe: { 
         flex: 1, 
-        backgroundColor: "#fff" 
+        backgroundColor: "#08366171"
     },
 
     header: {
-        paddingTop: Platform.OS === "android" ? height * 0.04 : height * 0.03,
-        paddingBottom: height * 0.03,
+        paddingTop: Platform.OS === "android" ? height * 0.02 : height * 0,
+        paddingBottom: height * 0.02,
         paddingHorizontal: width * 0.05,
         flexDirection: "row",
         justifyContent: 'flex-start',
@@ -267,7 +263,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        padding: width * 0.05,
+        padding: 20,
     },
 
     emptyContainer: {
@@ -276,10 +272,9 @@ const styles = StyleSheet.create({
     },
 
     messageText: {
-        textAlign: 'center',
-        color: '#666',
-        fontSize: width * 0.04,
-        marginTop: height * 0.065,
+        marginTop: 15, 
+        color: "#718096", 
+        fontSize: width * 0.045,
     },
 });
 
