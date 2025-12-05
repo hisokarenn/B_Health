@@ -96,7 +96,6 @@ const styles = StyleSheet.create({
         fontWeight: "700",
     },
 
-    // Estilo da bolinha verde
     badge: {
         position: 'absolute',
         right: -2,
@@ -104,9 +103,8 @@ const styles = StyleSheet.create({
         width: 10,
         height: 10,
         borderRadius: 5,
-        backgroundColor: '#28a745', // Verde vibrante
-        borderWidth: 1.5,
-        borderColor: '#143582ff', // Borda da cor do fundo para destacar
+        backgroundColor: '#28a745',
+        borderColor: '#143582ff',
         zIndex: 10,
     }
 });

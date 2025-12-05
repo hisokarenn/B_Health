@@ -7,13 +7,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 
 const { width, height } = Dimensions.get("window");
-
-// Agora aceita 'onSelectCampanha' para poder enviar os dados para a tela de detalhes
 const NotificacoesScreen = ({ setScreen, onSelectCampanha }) => {
   const [notificacoes, setNotificacoes] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Função para buscar e filtrar campanhas
   const carregarNotificacoes = async () => {
     try {
       setLoading(true);
@@ -40,14 +37,12 @@ const NotificacoesScreen = ({ setScreen, onSelectCampanha }) => {
     }
   };
 
-  // Como sua navegação desmonta a tela ao sair, o useEffect funciona como o "onFocus"
   useEffect(() => {
     carregarNotificacoes();
   }, []);
 
   const handleAbrirCampanha = async (campanha) => {
     try {
-      // 1. Salva o ID da campanha como "lido" no AsyncStorage
       const lidasStorage = await AsyncStorage.getItem('@notificacoes_lidas');
       const idsLidas = lidasStorage ? JSON.parse(lidasStorage) : [];
       
@@ -55,16 +50,11 @@ const NotificacoesScreen = ({ setScreen, onSelectCampanha }) => {
         const novosIds = [...idsLidas, campanha.id];
         await AsyncStorage.setItem('@notificacoes_lidas', JSON.stringify(novosIds));
       }
-
-      // 2. Atualiza a lista da tela (remove o item clicado instantaneamente)
       setNotificacoes(prev => prev.filter(item => item.id !== campanha.id));
 
-      // 3. Redireciona para a tela de Detalhes da Campanha
-      // Usa a função passada pelo App.js para setar os dados e mudar a tela
       if (onSelectCampanha) {
           onSelectCampanha(campanha);
       } else {
-          // Fallback caso a prop não tenha sido passada
           setScreen("campanhas");
       }
 

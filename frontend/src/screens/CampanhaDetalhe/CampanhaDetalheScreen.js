@@ -17,7 +17,7 @@ const CampanhaDetalheScreen = ({ campanhaDados, setScreen }) => {
 
     if (!item) return null;
 
-    let lat = -3.10719; //Manaus
+    let lat = -3.10719;
     let lng = -60.0261;
 
     if (item.unidade_latitude && item.unidade_longitude) {
