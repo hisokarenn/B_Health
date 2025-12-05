@@ -5,8 +5,7 @@ import {
 
 import { SafeAreaView } from "react-native-safe-area-context"; 
 import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
-import BottomNav from "../../components/BarraNavegacao";          
+import { Ionicons } from "@expo/vector-icons";       
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { collection, getDocs } from 'firebase/firestore'; 
 import { db } from '../../services/firebaseConfig'; // Verifique se o caminho está correto para seu projeto
@@ -68,9 +67,7 @@ const MenuScreen = ({ setScreen, pacienteInfo }) => {
 
                 {/*cabecalhor*/}
                 <LinearGradient
-                    colors={["#0b4786ff", "#001c42ff"]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
+                    colors={["#001c42ff", "#0b4786ff"]}
                     style={styles.header}
                 >
                     <View>
@@ -109,11 +106,6 @@ const MenuScreen = ({ setScreen, pacienteInfo }) => {
                             <Ionicons style={styles.miniIcones} name="megaphone-outline" size={width * 0.07} color="white" />
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={styles.miniBtn} onPress={() => setScreen("menu")}>
-                            <Text style={styles.miniBtnTexto}>Informações Vacinais</Text>
-                            <Ionicons style={styles.miniIcones} name="information-circle-outline" size={width * 0.07} color="white" />
-                        </TouchableOpacity>
-
                     {/*ajuda e informações*/}
                     <Text style={styles.secaoTitulo}>Ajuda e Informações</Text>
 
@@ -132,9 +124,6 @@ const MenuScreen = ({ setScreen, pacienteInfo }) => {
                         <Text style={styles.infoBtnText}>Sobre nós</Text>
                     </TouchableOpacity>
                 </ScrollView>
-
-                {/*chamando o componente barraNavegação COM a nova prop temNotificacao*/}
-                <BottomNav active="home" setScreen={setScreen} temNotificacao={temNotificacao} />
 
                 {/*modal - importancia*/}
                 <Modal visible={modalVisibleImp} transparent animationType="fade">
@@ -297,11 +286,12 @@ const styles = StyleSheet.create({
 
     //mini botões
     miniBtn: {
-        backgroundColor: "#2b61b7ff",
+        backgroundColor: "#2b61b7c5",
         width: width * 0.88,
-        height: height * 0.065,
+        height: height * 0.08,
         paddingHorizontal: width * 0.04,
         borderRadius: 20,
+        borderTopLeftRadius: 0,
         justifyContent: "center",
         alignSelf: "center",
         elevation: 9,
@@ -311,13 +301,15 @@ const styles = StyleSheet.create({
     miniBtnTexto: {
         color: "white",
         fontWeight: "bold",
-        fontSize: width * 0.040,
+        fontSize: width * 0.045,
+        marginLeft: width * 0.03,
+        color: "#ffffffff"
     },
 
     miniIcones: {
         position: "absolute",
-        right: width * 0.05,
-        top: height * 0.015,
+        right: width * 0.09,
+        top: height * 0.023,
     },
 
     //Informações Btn

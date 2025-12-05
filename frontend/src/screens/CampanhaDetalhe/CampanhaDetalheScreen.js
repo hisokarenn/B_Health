@@ -166,8 +166,6 @@ const CampanhaDetalheScreen = ({ campanhaDados, setScreen }) => {
                     <View style={{ height: 110 }} />
                 </View>
             </ScrollView>
-
-            <BottomNav active="home" setScreen={setScreen} />
             
         </View>
         </SafeAreaView>

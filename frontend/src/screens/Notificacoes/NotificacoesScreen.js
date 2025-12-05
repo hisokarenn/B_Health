@@ -3,7 +3,6 @@ import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, ActivityIndi
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { collection, getDocs } from 'firebase/firestore'; 
 import { db } from '../../services/firebaseConfig';
-import BottomNav from '../../components/BarraNavegacao';
 import { SafeAreaView } from "react-native-safe-area-context"; 
 import { Ionicons } from "@expo/vector-icons";
 
@@ -127,12 +126,6 @@ const NotificacoesScreen = ({ setScreen, onSelectCampanha }) => {
                 )}
             />
         )}
-
-        <BottomNav 
-            active="notificacoes" 
-            setScreen={setScreen} 
-            temNotificacao={notificacoes.length > 0} 
-        />
       </View>
     </SafeAreaView>
   );

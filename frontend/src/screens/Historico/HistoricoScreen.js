@@ -9,7 +9,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { getHistorico } from '../../services/authService';
-import BottomNav from '../../components/BarraNavegacao';
 
 const HistoricoItem = ({ item }) => (
     <View style={styles.itemContainer}>
@@ -92,7 +91,7 @@ const HistoricoScreen = ({ pacienteId, setScreen }) => {
     if (loading) {
         return (
             <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#007AFF" />
+                <ActivityIndicator size="large" color="#103d6dff" />
                 <Text style={styles.messageText}>{message}</Text>
             </View>
         );
@@ -147,9 +146,6 @@ const HistoricoScreen = ({ pacienteId, setScreen }) => {
                         />
                     )}
                 </View>
-                {/*chamando o componente barraNavegação*/}
-                <BottomNav active="home" setScreen={setScreen} />
-
             </View>
         </SafeAreaView>
     );
@@ -267,7 +263,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        padding: width * 0.05,
+        padding: 20,
     },
 
     emptyContainer: {
@@ -276,10 +272,9 @@ const styles = StyleSheet.create({
     },
 
     messageText: {
-        textAlign: 'center',
-        color: '#666',
-        fontSize: width * 0.04,
-        marginTop: height * 0.065,
+        marginTop: 15, 
+        color: "#718096", 
+        fontSize: width * 0.045,
     },
 });
 

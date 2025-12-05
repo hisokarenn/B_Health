@@ -6,8 +6,6 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import BottomNav from '../../components/BarraNavegacao';
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getPerfil } from '../../services/authService'; 
 
 const { width, height } = Dimensions.get("window");
@@ -180,8 +178,6 @@ const PerfilScreen = ({ setScreen, pacienteInfo }) => {
                 </View>
             </ScrollView>
 
-            {/*barra de navegação*/}
-            <BottomNav active="perfil" setScreen={setScreen} />
         </View>
         </SafeAreaView>
     );

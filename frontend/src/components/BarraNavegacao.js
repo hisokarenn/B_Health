@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
 const ICONE_TAM = width * 0.05;
 
 export default function BottomNav({ active, setScreen, temNotificacao }) { 
@@ -77,6 +77,7 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 4 },
         shadowRadius: 8,
         elevation: 8,
+        marginBottom: height * 0.015,
     },
 
     navItem: {
