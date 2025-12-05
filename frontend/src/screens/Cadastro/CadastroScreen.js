@@ -32,10 +32,8 @@ const CadastroScreen = ({ setScreen }) => {
 
     setLoading(true);
     try {
-      // A função cadastrarPaciente agora retorna o objeto 'user' do Firebase Auth
       const user = await cadastrarPaciente({ nome, cpf, cns, email, senha });
       
-      // CORREÇÃO AQUI: Usamos o nome do estado local, pois o user do Firebase pode não ter o displayName atualizado instantaneamente
       Alert.alert(
         'Sucesso B Health!',
         `Cadastro de ${nome} realizado com sucesso!`
@@ -48,7 +46,6 @@ const CadastroScreen = ({ setScreen }) => {
       setSenha('');
       setScreen('login');
     } catch (error) {
-      // Tratamento de erro robusto para capturar mensagens do Firebase ou da API
       const errorMessage = error.message || 'Não foi possível se conectar';
       Alert.alert('Erro no Cadastro', errorMessage);
       console.error("Erro detalhado no cadastro:", error);
@@ -56,8 +53,6 @@ const CadastroScreen = ({ setScreen }) => {
       setLoading(false);
     }
   };
-
-
   //CPF
   const formatarCPF = (value) => {
     let raw = value.replace(/\D/g, "");
@@ -71,7 +66,7 @@ const CadastroScreen = ({ setScreen }) => {
   };
 
   const validarCPF = (cpf) => {
-    const somenteNumeros = cpf.replace(/\D/g, ""); //isso faz q tenha a contagem somente dos números
+    const somenteNumeros = cpf.replace(/\D/g, "");
     return somenteNumeros.length === 11;
   };
 

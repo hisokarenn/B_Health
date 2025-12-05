@@ -7,8 +7,7 @@ import {
 } from "firebase/auth";
 import { updateProfile } from "firebase/auth";
 
-// Se estiver testando localemnte, rode o backend localmente, use o IP da sua máquina (ex: http://192.168.1.15:3000)
-// Se quiser testar o  backend no Render, use a URL do Render 'https://b-health-app-api.onrender.com'
+// Se estiver testando localemnte, rode o backend localmente, use o IP da sua máquina (ex: 'http://192.168.1.15:3000')
 const API_BASE_URL = 'https://b-health-app-api.onrender.com'; 
 
 // Recuperar Senha (Nativa do Firebase)

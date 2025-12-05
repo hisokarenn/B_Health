@@ -54,7 +54,6 @@ const LoginScreen = ({ setScreen, onLoginSuccess }) => {
     }
   };
 
-  // 2. Nova função para lidar com o "Esqueci minha senha"
   const handleEsqueciSenha = async () => {
     if (!email) {
       Alert.alert('Atenção', 'Por favor, digite seu e-mail no campo acima para recuperar a senha.');

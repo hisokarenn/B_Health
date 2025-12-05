@@ -8,7 +8,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";       
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { collection, getDocs } from 'firebase/firestore'; 
-import { db } from '../../services/firebaseConfig'; // Verifique se o caminho está correto para seu projeto
+import { db } from '../../services/firebaseConfig';
 
 const { width, height } = Dimensions.get("window");
 
@@ -17,10 +17,7 @@ const MenuScreen = ({ setScreen, pacienteInfo }) => {
     const [modalVisibleFale, setModalVisibleFale] = useState(false);
     const [modalVisibleNos, setModalVisibleNos] = useState(false);
     
-    // Estado para controlar a bolinha de notificação
     const [temNotificacao, setTemNotificacao] = useState(false);
-
-    // Lógica para verificar notificações novas
     const checarNotificacoes = async () => {
         try {
             // 1. Busca todas as campanhas do banco
@@ -39,7 +36,6 @@ const MenuScreen = ({ setScreen, pacienteInfo }) => {
         }
     };
 
-    // Verifica sempre que a tela é montada
     useEffect(() => {
         checarNotificacoes();
     }, []);
