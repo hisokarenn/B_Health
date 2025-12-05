@@ -5,8 +5,6 @@
 
 ## 📝 Arquitetura e Tecnologias
 
-Este projeto utiliza uma arquitetura full-stack moderna, com os serviços de backend e banco de dados hospedados na nuvem (planos gratuitos).
-
 ### **Frontend (Mobile):**
 - [React Native](https://reactnative.dev/) (gerenciado pelo [Expo](https://expo.dev/))
 - [Axios](https://axios-http.com/) (para comunicação com a API)
@@ -17,7 +15,7 @@ Este projeto utiliza uma arquitetura full-stack moderna, com os serviços de bac
 
 ### **Hospedagem (Nuvem):**
 - **API (Backend):** Hospedado no [Render](https://render.com/).
-- **Banco de Dados:** Hospedado no [Supabase](https://supabase.com/) (PostgreSQL como serviço).
+- **Banco de Dados:** Firebase Firestore.
 <br>
 
 ---
