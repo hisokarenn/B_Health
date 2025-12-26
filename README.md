@@ -1,3 +1,5 @@
+` ⚠️ Servidor Desligado `
+
 # <img width="50" height="50" alt="LOGOpng (2)" src="https://github.com/user-attachments/assets/224ce150-7512-4de7-9d5b-a5675c4e3828" /> B Health - Carteira de Vacinação Digital
   Projeto de um aplicativo de carteira de vacinação digital (B Health) funcional. O sistema permite o cadastro de pacientes, autenticação (login), visualização do histórico de vacinas e campanhas de saúde ativas.
 <br>
