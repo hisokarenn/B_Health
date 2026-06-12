@@ -6,46 +6,58 @@ const { width, height } = Dimensions.get("window");
 const ICONE_TAM = width * 0.05;
 
 export default function BottomNav({ active, setScreen, temNotificacao }) { 
+    const activeItem = active === "home" ? "menu" : active;
+    const isActive = (screen) => activeItem === screen;
+
     return (
         <View style={styles.wrapper}>
             <View style={styles.navContainer}>
                 
                 {/*menu */}
-                <TouchableOpacity style={styles.navItem} onPress={() => setScreen("menu")}>
+                <TouchableOpacity
+                    style={[styles.navItem, isActive("menu") && styles.navItemAtivo]}
+                    onPress={() => setScreen("menu")}
+                >
                     <Ionicons
                         name="home-outline"
                         size={ICONE_TAM}
-                        color={active === "home" ? "#ffffff" : "rgba(255,255,255,0.5)"}
+                        color={isActive("menu") ? "#ffffff" : "rgba(255,255,255,0.55)"}
                     />
-                    <Text style={[styles.navTexto, active === "home" && styles.textoAtivo]}>
+                    <Text style={[styles.navTexto, isActive("menu") && styles.textoAtivo]}>
                         Principal
                     </Text>
                 </TouchableOpacity>
 
                 {/*notificações*/}
-                <TouchableOpacity style={styles.navItem} onPress={() => setScreen("notificacoes")}> 
+                <TouchableOpacity
+                    style={[styles.navItem, isActive("notificacoes") && styles.navItemAtivo]}
+                    onPress={() => setScreen("notificacoes")}
+                > 
                     <View>
                         <Ionicons
                             name="notifications-outline"
                             size={ICONE_TAM}
-                            color={active === "notificacoes" ? "#ffffff" : "rgba(255,255,255,0.5)"}
+                            color={isActive("notificacoes") ? "#ffffff" : "rgba(255,255,255,0.55)"}
                         />
                         {/* Exibe a bolinha se temNotificacao for true */}
                         {temNotificacao && <View style={styles.badge} />} 
                     </View>
-                    <Text style={[styles.navTexto, active === "notificacoes" && styles.textoAtivo]}>
+                    <Text style={[styles.navTexto, isActive("notificacoes") && styles.textoAtivo]}>
                         Notificações
                     </Text>
                 </TouchableOpacity>
 
                 {/*perfil*/}
-                <TouchableOpacity style={styles.navItem} onPress={() => setScreen("perfil")}>
+                <TouchableOpacity
+                    style={[styles.navItem, isActive("perfil") && styles.navItemAtivo]}
+                    onPress={() => setScreen("perfil")}
+                >
                     <Ionicons
                         name="person-outline"
                         size={ICONE_TAM}
-                        color={active === "perfil" ? "#ffffff" : "rgba(255,255,255,0.5)"}
+                        color={isActive("perfil") ? "#ffffff" : "rgba(255,255,255,0.55)"}
                     />
-                    <Text style={[styles.navTexto, active === "perfil" && styles.textoAtivo]}>
+                    <Text style={[styles.navTexto, isActive("perfil") && styles.textoAtivo]}>
                         Perfil
                     </Text>
                 </TouchableOpacity>
@@ -63,7 +75,7 @@ const styles = StyleSheet.create({
     },
 
     navContainer: {
-        backgroundColor: " 'rgba(15, 34, 86, 0.97)", 
+        backgroundColor: "rgba(15, 34, 86, 0.97)", 
         width: width * 0.95,
         height: width * 0.20,
         borderRadius: 32,
@@ -82,12 +94,20 @@ const styles = StyleSheet.create({
 
     navItem: {
         alignItems: "center",
+        justifyContent: "center",
+        minWidth: width * 0.23,
+        minHeight: width * 0.14,
+        borderRadius: 20,
+    },
+
+    navItemAtivo: {
+        backgroundColor: "rgba(255,255,255,0.14)",
     },
 
     navTexto: {
         fontSize: width * 0.035,
         marginTop: 4,
-        color: "#fff",
+        color: "rgba(255,255,255,0.65)",
         fontWeight: "600",
     },
 

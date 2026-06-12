@@ -67,6 +67,7 @@ const CadastroScreen = ({ setScreen }) => {
       setScreen('login');
     } catch (error) {
       const errorMessage = error.message || 'Não foi possível se conectar';
+      setErrors({ form: errorMessage });
       Alert.alert('Erro no Cadastro', errorMessage);
       console.error("Erro detalhado no cadastro:", error);
     } finally {

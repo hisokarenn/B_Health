@@ -79,10 +79,10 @@ Requisito obrigatório global: ao desenvolver qualquer seção deste checklist, 
 
 ## 7. Navegacao e interface
 
-- [ ] Requisito obrigatório: desenvolver esta seção seguindo todas as premissas de Nielsen.
-- [ ] Corrigir destaque da barra inferior para o item `Principal`.
-- [ ] Validar que o item ativo permanece correto ao navegar entre telas.
-- [ ] Garantir que erros de cadastro, login, historico, campanhas e notificacoes aparecam para o usuario, nao apenas no console.
+- [x] Requisito obrigatório: desenvolver esta seção seguindo todas as premissas de Nielsen.
+- [x] Corrigir destaque da barra inferior para o item `Principal`.
+- [x] Validar que o item ativo permanece correto ao navegar entre telas.
+- [x] Garantir que erros de cadastro, login, historico, campanhas e notificacoes aparecam para o usuario, nao apenas no console.
 
 ## 8. Configuracao e inicializacao
 
