@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import LoginScreen from './src/screens/Login/LoginScreen';
 import CadastroScreen from './src/screens/Cadastro/CadastroScreen';
@@ -22,16 +23,15 @@ export default function App() {
   const [temNotificacao, setTemNotificacao] = useState(false);
 
   const checarNotificacoes = async () => {
-    if (!pacienteInfo?.uid) {
-      setTemNotificacao(false);
-      return;
-    }
-
     try {
-        const haNovas = await existemNotificacoesNaoLidas(pacienteInfo.uid);
-        setTemNotificacao(haNovas);
+      const snapshot = await getDocs(collection(db, "campanhas"));
+      const totalCampanhasIds = snapshot.docs.map(doc => doc.id);
+      const lidasStorage = await AsyncStorage.getItem('@notificacoes_lidas');
+      const idsLidas = lidasStorage ? JSON.parse(lidasStorage) : [];
+      const haNovas = totalCampanhasIds.some(id => !idsLidas.includes(id));
+      setTemNotificacao(haNovas);
     } catch (error) {
-        console.log("Erro ao verificar notificações:", error);
+      console.log("Erro ao verificar notificações:", error);
     }
   };
 
@@ -152,20 +152,21 @@ export default function App() {
   }
 
   return (
-    <View style={styles.rootContainer}>
-      <ScreenTransition screenKey={currentScreen}>
-        {renderScreen()}
-      </ScreenTransition>
-    
-      {showBottomNav && (
+    <SafeAreaProvider>
+      <View style={styles.rootContainer}>
+        <ScreenTransition screenKey={currentScreen}>
+          {renderScreen()}
+        </ScreenTransition>
+      
+        {showBottomNav && (
           <BottomNav
-            style={styles.navBar}
             active={currentScreen} 
             setScreen={setCurrentScreen} 
             temNotificacao={temNotificacao} 
           />
-      )}
-    </View>
+        )}
+      </View>
+    </SafeAreaProvider>
   );
 }
 
@@ -178,36 +179,4 @@ const styles = StyleSheet.create({
   fullScreen: {
     flex: 1,
   },
-
-  navBar: {
-    marginBottom: 20
-  },
-
-  configContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 24,
-    backgroundColor: '#F7FAFC',
-  },
-
-  configTitle: {
-    color: '#102A43',
-    fontSize: 24,
-    fontWeight: '700',
-    marginBottom: 12,
-  },
-
-  configMessage: {
-    color: '#334E68',
-    fontSize: 16,
-    lineHeight: 24,
-  },
-
-  configHint: {
-    color: '#486581',
-    fontSize: 14,
-    lineHeight: 20,
-    marginTop: 12,
-  }
-
 });
