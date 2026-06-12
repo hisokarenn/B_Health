@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { 
     View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, Image, StatusBar, Platform, Dimensions
 } from 'react-native';
@@ -8,102 +8,134 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { getCampanhas } from '../../services/authService';
 
 const { width, height } = Dimensions.get('window');
+const IMAGEM_PLACEHOLDER = require('../../../assets/bhealth.png');
+const TEMPO_LOADING_PROLONGADO_MS = 8000;
 
+const obterImagemCampanha = (item) => {
+    const uri = String(item?.imagem_url || item?.imagemUrl || '').trim();
+    return /^https?:\/\//i.test(uri) ? { uri } : IMAGEM_PLACEHOLDER;
+};
 
-const CampanhaItem = ({ item, onPress }) => (
-    <TouchableOpacity
-        style={styles.cartao}
-        onPress={() => onPress(item)}
-        activeOpacity={0.8}
-    >
-        <View style={styles.containerImagem}>
-            <Image
-                source={{ uri: item.imagem_url || 'https://via.placeholder.com/600x300' }}
-                style={styles.imagemCartao}
-                resizeMode="cover"
-            />
-            
-            <View style={styles.seloData}>
-                <Text style={styles.textoDataSelo}>{item.data_inicio}</Text>
-                <Text style={styles.subTextoDataSelo}>INÍCIO</Text>
-            </View>
-        </View>
+const CampanhaItem = ({ item, onPress }) => {
+    const [imagemFalhou, setImagemFalhou] = useState(false);
+    const imagemCampanha = imagemFalhou ? IMAGEM_PLACEHOLDER : obterImagemCampanha(item);
 
-        <View style={styles.conteudoCartao}>
-            <View style={styles.containerTag}>
-                <View style={[styles.tag, { backgroundColor: '#e9e9e9ff' }]}>
-                    <Text style={[styles.textoTag, { color: '#717776ff' }]}>
-                        {item.tipo_vacina}
-                    </Text>
-                </View>
+    return (
+        <TouchableOpacity
+            style={styles.cartao}
+            onPress={() => onPress(item)}
+            activeOpacity={0.8}
+        >
+            <View style={styles.containerImagem}>
+                <Image
+                    source={imagemCampanha}
+                    style={styles.imagemCartao}
+                    resizeMode="cover"
+                    onError={() => setImagemFalhou(true)}
+                />
                 
-                {(item.hora_inicio || item.hora_fim) && (
-                    <View style={[styles.tag, { backgroundColor: '#E3F2FD' }]}>
-                        <Ionicons 
-                            name="time-outline" 
-                            size={width * 0.035}
-                            color="#23569dff" 
-                            style={styles.iconeTag}
-                        />
-                        <Text style={[styles.textoTag, { color: "#23569dff" }]}>
-                            {item.hora_inicio} - {item.hora_fim} 
+                <View style={styles.seloData}>
+                    <Text style={styles.textoDataSelo}>{item.data_inicio || 'Data a definir'}</Text>
+                    <Text style={styles.subTextoDataSelo}>INÍCIO</Text>
+                </View>
+            </View>
+
+            <View style={styles.conteudoCartao}>
+                <View style={styles.containerTag}>
+                    <View style={[styles.tag, { backgroundColor: '#e9e9e9ff' }]}>
+                        <Text style={[styles.textoTag, { color: '#717776ff' }]}>
+                            {item.tipo_vacina || 'Campanha'}
                         </Text>
                     </View>
-                )}
-            </View>
+                    
+                    {(item.hora_inicio || item.hora_fim) && (
+                        <View style={[styles.tag, { backgroundColor: '#E3F2FD' }]}>
+                            <Ionicons 
+                                name="time-outline" 
+                                size={width * 0.035}
+                                color="#23569dff" 
+                                style={styles.iconeTag}
+                            />
+                            <Text style={[styles.textoTag, { color: "#23569dff" }]}>
+                                {item.hora_inicio || '--:--'} - {item.hora_fim || '--:--'} 
+                            </Text>
+                        </View>
+                    )}
+                </View>
 
-            <Text style={styles.tituloCampanha} numberOfLines={2}>
-                {item.titulo}
-            </Text>
-
-            <View style={styles.rodapeCartao}>
-                <Text style={styles.textoLocalizacao} numberOfLines={1}>
-                    <Ionicons name="location-sharp" size={width * 0.04} color="#d55656ff" />
-                    {' '}{item.unidade_saude_nome || "Unidade de Saúde"}
+                <Text style={styles.tituloCampanha} numberOfLines={2}>
+                    {item.titulo || 'Campanha de vacinação'}
                 </Text>
-                <Ionicons 
-                    name="arrow-forward-circle" 
-                    size={width * 0.1}
-                    color="#41669aff" 
-                />
+
+                <View style={styles.rodapeCartao}>
+                    <Text style={styles.textoLocalizacao} numberOfLines={1}>
+                        <Ionicons name="location-sharp" size={width * 0.04} color="#d55656ff" />
+                        {' '}{item.unidade_saude_nome || item.locais_aplicacao || "Unidade de Saúde"}
+                    </Text>
+                    <Ionicons 
+                        name="arrow-forward-circle" 
+                        size={width * 0.1}
+                        color="#41669aff" 
+                    />
+                </View>
             </View>
-        </View>
-    </TouchableOpacity>
-);
+        </TouchableOpacity>
+    );
+};
 
 const CampanhasScreen = ({ onSelectCampanha, setScreen }) => {
     const [campanhas, setCampanhas] = useState([]);
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState('Atualizando campanhas...');
+    const [erroCarregamento, setErroCarregamento] = useState(false);
+    const [loadingProlongado, setLoadingProlongado] = useState(false);
 
-    useEffect(() => {
-        const fetchCampanhas = async () => {
-            setLoading(true); 
-            try {
-                const response = await getCampanhas();
-                
-                if (response.data && response.data.campanhas?.length > 0) {
-                    setCampanhas(response.data.campanhas);
-                } else {
-                    setCampanhas([]);
-                    setMessage('Nenhuma campanha ativa no momento.');
-                }
-            } catch (error) {
+    const fetchCampanhas = useCallback(async () => {
+        let timeoutLoading = null;
+
+        setLoading(true);
+        setErroCarregamento(false);
+        setLoadingProlongado(false);
+        setMessage('Atualizando campanhas...');
+
+        timeoutLoading = setTimeout(() => {
+            setLoadingProlongado(true);
+            setMessage('A API pode demorar até 50 segundos na primeira abertura. Ainda estamos buscando as campanhas.');
+        }, TEMPO_LOADING_PROLONGADO_MS);
+
+        try {
+            const response = await getCampanhas();
+            const campanhasRecebidas = response.data?.campanhas || response.data?.camapnhas || [];
+
+            if (campanhasRecebidas.length > 0) {
+                setCampanhas(campanhasRecebidas);
+                setMessage('');
+            } else {
                 setCampanhas([]);
-                setMessage('Não foi possível carregar as campanhas. Verifique sua conexão.');
-            } finally {
-                setLoading(false);
+                setMessage(response.data?.message || 'Nenhuma campanha ativa no momento.');
             }
-        };
-        
-        fetchCampanhas();
+        } catch (error) {
+            setCampanhas([]);
+            setErroCarregamento(true);
+            setMessage('Não foi possível carregar as campanhas. Verifique sua conexão e tente novamente.');
+        } finally {
+            clearTimeout(timeoutLoading);
+            setLoading(false);
+            setLoadingProlongado(false);
+        }
     }, []);
 
+    useEffect(() => {
+        fetchCampanhas();
+    }, [fetchCampanhas]);
+        
     if (loading) {
         return (
             <SafeAreaView style={styles.containerCentralizado}>
                 <ActivityIndicator size="large" color="#0c2c5aff" />
-                <Text style={styles.textoCarregamento}>Buscando informações...</Text>
+                <Text style={styles.textoCarregamento}>
+                    {loadingProlongado ? message : 'Buscando informações...'}
+                </Text>
             </SafeAreaView>
         );
     }
@@ -142,8 +174,18 @@ const CampanhasScreen = ({ onSelectCampanha, setScreen }) => {
 
                     {campanhas.length === 0 ? (
                         <View style={styles.containerCentralizado}>
-                            <Ionicons name="folder-open-outline" size={width * 0.15} color="#CBD5E0" />
+                            <Ionicons
+                                name={erroCarregamento ? 'alert-circle-outline' : 'folder-open-outline'}
+                                size={width * 0.15}
+                                color={erroCarregamento ? '#B42318' : '#CBD5E0'}
+                            />
                             <Text style={styles.textoMensagem}>{message}</Text>
+                            {erroCarregamento && (
+                                <TouchableOpacity style={styles.botaoTentarNovamente} onPress={fetchCampanhas}>
+                                    <Ionicons name="refresh-outline" size={width * 0.05} color="#FFFFFF" />
+                                    <Text style={styles.textoBotaoTentarNovamente}>Tentar novamente</Text>
+                                </TouchableOpacity>
+                            )}
                         </View>
 
                     ) : (
@@ -249,6 +291,23 @@ const styles = StyleSheet.create({
         color: "#718096", 
         fontSize: width * 0.045, 
         textAlign: 'center',
+    },
+
+    botaoTentarNovamente: {
+        marginTop: 18,
+        backgroundColor: '#41669aff',
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 18,
+        paddingVertical: 12,
+        borderRadius: 24,
+    },
+
+    textoBotaoTentarNovamente: {
+        color: '#FFFFFF',
+        fontWeight: '700',
+        marginLeft: 8,
+        fontSize: width * 0.04,
     },
 
     cartao: {

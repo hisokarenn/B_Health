@@ -43,30 +43,30 @@ Requisito obrigatório global: ao desenvolver qualquer seção deste checklist, 
 
 ## 4. Historico vacinal
 
-- [ ] Requisito obrigatório: desenvolver esta seção seguindo todas as premissas de Nielsen.
-- [ ] Exibir estado vazio quando o paciente nao tiver registros de historico.
-- [ ] Validar tela de historico com muitos registros de vacina.
-- [ ] Definir limite, paginacao, ordenacao ou virtualizacao para listas grandes, se necessario.
-- [ ] Validar exibicao do campo `nome_vacina`.
-- [ ] Validar exibicao do campo `dose`.
-- [ ] Validar exibicao do campo `data_aplicacao`.
-- [ ] Validar exibicao do campo `lote`.
-- [ ] Validar exibicao do campo `profissional_responsavel`.
-- [ ] Definir fallback visual para campos ausentes ou incompletos no historico.
+- [x] Requisito obrigatório: desenvolver esta seção seguindo todas as premissas de Nielsen.
+- [x] Exibir estado vazio quando o paciente nao tiver registros de historico.
+- [x] Validar tela de historico com muitos registros de vacina.
+- [x] Definir limite, paginacao, ordenacao ou virtualizacao para listas grandes, se necessario.
+- [x] Validar exibicao do campo `nome_vacina`.
+- [x] Validar exibicao do campo `dose`.
+- [x] Validar exibicao do campo `data_aplicacao`.
+- [x] Validar exibicao do campo `lote`.
+- [x] Validar exibicao do campo `profissional_responsavel`.
+- [x] Definir fallback visual para campos ausentes ou incompletos no historico.
 
 ## 5. Campanhas
 
-- [ ] Requisito obrigatório: desenvolver esta seção seguindo todas as premissas de Nielsen.
-- [ ] Tratar abertura de campanhas quando a API no Render estiver fria e demorar cerca de 50 segundos.
-- [ ] Exibir loading adequado durante demora prolongada da API.
-- [ ] Permitir nova tentativa quando o carregamento de campanhas falhar.
-- [ ] Exibir estado vazio quando a colecao de campanhas estiver vazia.
-- [ ] Corrigir tratamento de imagem quebrada em campanha.
-- [ ] Usar placeholder quando a imagem da campanha estiver ausente, quebrada ou invalida.
-- [ ] Validar detalhe de campanha sem latitude/longitude.
-- [ ] Aplicar fallback para Manaus quando latitude/longitude estiverem ausentes.
-- [ ] Validar campanha com coordenada invalida antes de montar mapa ou WebView.
-- [ ] Exibir mensagem amigavel quando o mapa ou rota nao puderem ser carregados.
+- [x] Requisito obrigatório: desenvolver esta seção seguindo todas as premissas de Nielsen.
+- [x] Tratar abertura de campanhas quando a API no Render estiver fria e demorar cerca de 50 segundos.
+- [x] Exibir loading adequado durante demora prolongada da API.
+- [x] Permitir nova tentativa quando o carregamento de campanhas falhar.
+- [x] Exibir estado vazio quando a colecao de campanhas estiver vazia.
+- [x] Corrigir tratamento de imagem quebrada em campanha.
+- [x] Usar placeholder quando a imagem da campanha estiver ausente, quebrada ou invalida.
+- [x] Validar detalhe de campanha sem latitude/longitude.
+- [x] Aplicar fallback para Manaus quando latitude/longitude estiverem ausentes.
+- [x] Validar campanha com coordenada invalida antes de montar mapa ou WebView.
+- [x] Exibir mensagem amigavel quando o mapa ou rota nao puderem ser carregados.
 
 ## 6. Notificacoes
 

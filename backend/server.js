@@ -268,9 +268,9 @@ app.get('/historico/:pacienteId', autenticarRequisicao, autorizarMesmoPaciente('
 app.get('/campanhas', async (req, res) => {
     try {
         const snapshot = await db.collection('campanhas').get();
-        if(snapshot.empty) return res.status(200).json({message: 'Nenhuma campanha ativa.', camapnhas: []});
-        const camapnhas = snapshot.docs.map(doc =>({id: doc.id, ...doc.data()}));
-        res.status(200).json({campanhas:camapnhas})
+        if(snapshot.empty) return res.status(200).json({message: 'Nenhuma campanha ativa.', campanhas: []});
+        const campanhas = snapshot.docs.map(doc =>({id: doc.id, ...doc.data()}));
+        res.status(200).json({campanhas:campanhas})
     }catch(error){
         console.error('Erro ao buscar campanhas:', error);
         res.status(500).json({error:'Erro interno.'});

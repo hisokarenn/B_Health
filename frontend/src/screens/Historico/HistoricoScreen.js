@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import {
-    View, Text, StyleSheet, FlatList, ActivityIndicator, Button,
+    View, Text, StyleSheet, FlatList, ActivityIndicator,
     RefreshControl, TouchableOpacity, Platform, Dimensions
 } from 'react-native';
 
@@ -10,30 +10,115 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { getHistorico } from '../../services/authService';
 
+const FALLBACK_CAMPO = 'Não informado';
+
+const normalizarTexto = (valor) => {
+    const texto = String(valor || '').trim();
+    return texto || FALLBACK_CAMPO;
+};
+
+const obterDataValida = (valor) => {
+    if (!valor) return null;
+
+    if (typeof valor.toDate === 'function') {
+        return valor.toDate();
+    }
+
+    if (valor.seconds !== undefined || valor._seconds !== undefined) {
+        return new Date((valor.seconds ?? valor._seconds) * 1000);
+    }
+
+    const texto = String(valor).trim();
+
+    if (!texto) return null;
+
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(texto)) {
+        const [dia, mes, ano] = texto.split('/').map(Number);
+        const dataBr = new Date(ano, mes - 1, dia);
+
+        return dataBr.getFullYear() === ano
+            && dataBr.getMonth() === mes - 1
+            && dataBr.getDate() === dia
+            ? dataBr
+            : null;
+    }
+
+    const dataIso = /^\d{4}-\d{2}-\d{2}$/.test(texto)
+        ? new Date(`${texto}T00:00:00`)
+        : new Date(texto);
+
+    return Number.isNaN(dataIso.getTime()) ? null : dataIso;
+};
+
+const formatarDataAplicacao = (valor) => {
+    const texto = String(valor || '').trim();
+
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(texto)) {
+        return texto;
+    }
+
+    const data = obterDataValida(valor);
+
+    if (!data) {
+        return texto || FALLBACK_CAMPO;
+    }
+
+    return data.toLocaleDateString('pt-BR');
+};
+
+const obterTimestampAplicacao = (valor) => {
+    const data = obterDataValida(valor);
+    return data ? data.getTime() : 0;
+};
+
+const formatarDose = (valor) => {
+    const texto = String(valor || '').trim();
+
+    if (!texto) return 'Dose não informada';
+    if (/^\d+$/.test(texto)) return `${texto}ª Dose`;
+    if (/dose/i.test(texto)) return texto;
+
+    return `Dose ${texto}`;
+};
+
+const normalizarRegistroHistorico = (registro, index) => {
+    const timestampAplicacao = obterTimestampAplicacao(registro?.data_aplicacao);
+
+    return {
+        ...registro,
+        _key: registro?.id || `historico-${timestampAplicacao}-${index}`,
+        _timestampAplicacao: timestampAplicacao,
+        nome_vacina: normalizarTexto(registro?.nome_vacina),
+        dose: formatarDose(registro?.dose),
+        data_aplicacao: formatarDataAplicacao(registro?.data_aplicacao),
+        nome_unidade: normalizarTexto(registro?.nome_unidade || registro?.unidade_saude),
+        lote: normalizarTexto(registro?.lote),
+        profissional_responsavel: normalizarTexto(registro?.profissional_responsavel),
+    };
+};
+
+const ordenarHistorico = (registros) => (
+    registros
+        .map(normalizarRegistroHistorico)
+        .sort((a, b) => b._timestampAplicacao - a._timestampAplicacao)
+);
+
 const HistoricoItem = ({ item }) => (
     <View style={styles.itemContainer}>
         <View style={styles.headerItem}>
             <Text style={styles.vacinaNome}>{item.nome_vacina}</Text>
-            <Text style={styles.doseBadge}>{item.dose}ª Dose</Text>
+            <Text style={styles.doseBadge}>{item.dose}</Text>
         </View>
 
         <Text style={styles.dataText}>Aplicado em: {item.data_aplicacao}</Text>
 
         <View style={styles.detalhesContainer}>
-            <Text style={styles.detalheText}>Local: {item.nome_unidade || item.unidade_saude}</Text>
-
-            {item.profissional_responsavel && (
-                <Text style={styles.detalheText}>Profissional: {item.profissional_responsavel}</Text>
-            )}
-
-            {item.lote && (
-                <Text style={styles.detalheText}>Lote: {item.lote}</Text>
-            )}
+            <Text style={styles.detalheText}>Local: {item.nome_unidade}</Text>
+            <Text style={styles.detalheText}>Profissional: {item.profissional_responsavel}</Text>
+            <Text style={styles.detalheText}>Lote: {item.lote}</Text>
         </View>
     </View>
 );
-
-
 
 const {width, height} = Dimensions.get("window");
 
@@ -42,6 +127,7 @@ const HistoricoScreen = ({ pacienteId, setScreen }) => {
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [message, setMessage] = useState('Buscando histórico...');
+    const [estadoLista, setEstadoLista] = useState('carregando');
 
     const avisoCard = (
     <View style={styles.cardAviso}>
@@ -51,7 +137,7 @@ const HistoricoScreen = ({ pacienteId, setScreen }) => {
         color="#302569ff"
         style={{ marginRight: width * 0.03 }}
         />
-        <View>
+        <View style={styles.avisoConteudo}>
         <Text style={styles.avisoTitulo}>Mantenha sua carteira sempre atualizada</Text>
         <Text style={styles.avisoTexto}>
             Mantenha seu histórico de vacinação completo!{"\n"}Visite a UBS e atualize suas vacinas.
@@ -60,20 +146,46 @@ const HistoricoScreen = ({ pacienteId, setScreen }) => {
     </View>
     );
 
+    const renderHistoricoItem = useCallback(({ item }) => (
+        <HistoricoItem item={item} />
+    ), []);
+
+    const keyExtractor = useCallback((item) => item._key, []);
+
+    const emptyState = (
+        <View style={styles.emptyContainer}>
+            <Ionicons
+                name={estadoLista === 'erro' ? 'alert-circle-outline' : 'file-tray-outline'}
+                size={42}
+                color={estadoLista === 'erro' ? '#B42318' : '#718096'}
+            />
+            <Text style={styles.emptyTitle}>
+                {estadoLista === 'erro' ? 'Não foi possível carregar' : 'Nenhum registro encontrado'}
+            </Text>
+            <Text style={styles.messageText}>{message}</Text>
+        </View>
+    );
+
     const fetchHistorico = useCallback(async () => {
         try {
             const response = await getHistorico(pacienteId);
+            const registros = Array.isArray(response.data.historico)
+                ? ordenarHistorico(response.data.historico)
+                : [];
 
-            if (response.data.historico?.length > 0) {
-                setHistorico(response.data.historico);
+            if (registros.length > 0) {
+                setHistorico(registros);
                 setMessage('');
+                setEstadoLista('com_registros');
             } else {
                 setHistorico([]);
                 setMessage('Não há registros de vacina disponíveis.');
+                setEstadoLista('vazio');
             }
         } catch (error) {
             setHistorico([]);
             setMessage(error.message || 'Erro ao carregar o histórico.');
+            setEstadoLista('erro');
         } finally {
             setLoading(false);
             setRefreshing(false);
@@ -119,33 +231,25 @@ const HistoricoScreen = ({ pacienteId, setScreen }) => {
 
                     <Text style={styles.historicoTitle}>Minhas Vacinas</Text>
                     
-                    {/*lista*/}
-                    {historico.length === 0 ? (
-                        <FlatList
-                            data={[]}
-                            renderItem={null}
-                            ListHeaderComponent={avisoCard}
-                            ListEmptyComponent={
-                                <View style={styles.emptyContainer}>
-                                    <Text style={styles.messageText}>{message}</Text>
-                                </View>
-                            }
-                            refreshControl={
-                                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-                            }
-                        />
-                    ) : (
-                        <FlatList
-                            data={historico}
-                            keyExtractor={(item, index) => index.toString()}
-                            renderItem={({ item }) => <HistoricoItem item={item} />}
-                            ListHeaderComponent={avisoCard}
-                            contentContainerStyle={{ paddingBottom: 75 }}
-                            refreshControl={
-                                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-                            }
-                        />
-                    )}
+                    <FlatList
+                        data={historico}
+                        keyExtractor={keyExtractor}
+                        renderItem={renderHistoricoItem}
+                        ListHeaderComponent={avisoCard}
+                        ListEmptyComponent={emptyState}
+                        contentContainerStyle={[
+                            styles.listaConteudo,
+                            historico.length === 0 && styles.listaConteudoVazia
+                        ]}
+                        initialNumToRender={8}
+                        maxToRenderPerBatch={8}
+                        updateCellsBatchingPeriod={50}
+                        windowSize={7}
+                        removeClippedSubviews={Platform.OS === 'android'}
+                        refreshControl={
+                            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                        }
+                    />
                 </View>
             </View>
         </SafeAreaView>
@@ -195,6 +299,10 @@ const styles = StyleSheet.create({
         marginBottom: height * 0.03,
     },
 
+    avisoConteudo: {
+        flex: 1,
+    },
+
     avisoTitulo: {
         fontWeight: 'bold',
         fontSize: width * 0.04,
@@ -220,17 +328,20 @@ const styles = StyleSheet.create({
     headerItem: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center',
+        alignItems: 'flex-start',
     },
 
     vacinaNome: {
+        flex: 1,
         fontSize: width * 0.045,
         fontWeight: 'bold',
         color: '#333',
         marginLeft: width * 0.03,
+        marginRight: width * 0.03,
     },
 
     doseBadge: {
+        maxWidth: width * 0.34,
         backgroundColor: '#e3f2fd',
         color: '#034a95ff',
         paddingHorizontal: width * 0.02,
@@ -238,6 +349,7 @@ const styles = StyleSheet.create({
         borderRadius: width * 0.03,
         fontSize: width * 0.03,
         fontWeight: 'bold',
+        textAlign: 'center',
     },
 
     dataText: {
@@ -258,6 +370,7 @@ const styles = StyleSheet.create({
         fontSize: width * 0.032,
         color: '#777',
         marginLeft: width * 0.03,
+        marginBottom: height * 0.004,
     },
 
     loadingContainer: {
@@ -269,13 +382,30 @@ const styles = StyleSheet.create({
 
     emptyContainer: {
         alignItems: 'center',
-        marginTop: height * 0.12,
+        marginTop: height * 0.08,
+        paddingHorizontal: width * 0.06,
+    },
+
+    emptyTitle: {
+        marginTop: 12,
+        color: '#2D3748',
+        fontSize: width * 0.045,
+        fontWeight: '700',
     },
 
     messageText: {
-        marginTop: 15, 
+        marginTop: 8, 
         color: "#718096", 
         fontSize: width * 0.045,
+        textAlign: 'center',
+    },
+
+    listaConteudo: {
+        paddingBottom: 75,
+    },
+
+    listaConteudoVazia: {
+        flexGrow: 1,
     },
 });
 

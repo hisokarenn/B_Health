@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { 
     View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, 
     Linking, Platform, Dimensions 
@@ -6,38 +6,131 @@ import {
 import { WebView } from 'react-native-webview'; 
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import BottomNav from '../../components/BarraNavegacao';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width, height } = Dimensions.get("window");
+const IMAGEM_PLACEHOLDER = require('../../../assets/bhealth.png');
+const COORDENADAS_MANAUS = {
+    lat: -3.1190275,
+    lng: -60.0217314,
+};
 
-const CampanhaDetalheScreen = ({ campanhaDados, setScreen }) => {
-    
-    const item = campanhaDados;
+const textoSeguro = (valor, fallback = 'Não informado') => {
+    const texto = String(valor || '').trim();
+    return texto || fallback;
+};
 
-    if (!item) return null;
+const obterImagemCampanha = (item) => {
+    const uri = String(item?.imagem_url || item?.imagemUrl || '').trim();
+    return /^https?:\/\//i.test(uri) ? { uri } : IMAGEM_PLACEHOLDER;
+};
 
-    let lat = -3.10719;
-    let lng = -60.0261;
+const parseCoordenada = (valor) => {
+    if (valor === undefined || valor === null || valor === '') return null;
 
-    if (item.unidade_latitude && item.unidade_longitude) {
-        lat = parseFloat(item.unidade_latitude);
-        lng = parseFloat(item.unidade_longitude);
-    } else if (item.localizacao) {
-        lat = item.localizacao.latitude || item.localizacao._lat;
-        lng = item.localizacao.longitude || item.localizacao._long;
+    const numero = typeof valor === 'number'
+        ? valor
+        : Number(String(valor).replace(',', '.').trim());
+
+    return Number.isFinite(numero) ? numero : null;
+};
+
+const coordenadasSaoValidas = (lat, lng) => (
+    Number.isFinite(lat)
+    && Number.isFinite(lng)
+    && lat >= -90
+    && lat <= 90
+    && lng >= -180
+    && lng <= 180
+);
+
+const obterCoordenadasCampanha = (item) => {
+    const candidatos = [
+        {
+            lat: item?.unidade_latitude,
+            lng: item?.unidade_longitude,
+        },
+        {
+            lat: item?.localizacao?.latitude ?? item?.localizacao?._lat,
+            lng: item?.localizacao?.longitude ?? item?.localizacao?._long,
+        },
+    ];
+
+    const candidatoInformado = candidatos.find((coordenada) => (
+        coordenada.lat !== undefined
+        && coordenada.lat !== null
+        && coordenada.lat !== ''
+        && coordenada.lng !== undefined
+        && coordenada.lng !== null
+        && coordenada.lng !== ''
+    ));
+
+    if (!candidatoInformado) {
+        return {
+            ...COORDENADAS_MANAUS,
+            usandoFallback: true,
+            mensagem: 'Localização não informada. Exibimos Manaus como referência.',
+        };
     }
 
-    const openGPS = () => {
-        const label = item.unidade_saude_nome || item.locais_aplicacao || 'Local de Vacinação';
+    const lat = parseCoordenada(candidatoInformado.lat);
+    const lng = parseCoordenada(candidatoInformado.lng);
+
+    if (!coordenadasSaoValidas(lat, lng)) {
+        return {
+            ...COORDENADAS_MANAUS,
+            usandoFallback: true,
+            mensagem: 'Coordenada inválida na campanha. Exibimos Manaus como referência.',
+        };
+    }
+
+    return {
+        lat,
+        lng,
+        usandoFallback: false,
+        mensagem: '',
+    };
+};
+
+const CampanhaDetalheScreen = ({ campanhaDados, setScreen }) => {
+    const [imagemFalhou, setImagemFalhou] = useState(false);
+    const [mapaFalhou, setMapaFalhou] = useState(false);
+    const [mapaMensagem, setMapaMensagem] = useState('');
+    const item = campanhaDados || {};
+
+    const coordenadas = useMemo(() => obterCoordenadasCampanha(item), [item]);
+    const imagemCampanha = imagemFalhou ? IMAGEM_PLACEHOLDER : obterImagemCampanha(item);
+
+    const openGPS = useCallback(async () => {
+        const label = encodeURIComponent(
+            textoSeguro(item.unidade_saude_nome || item.locais_aplicacao, 'Local de Vacinação')
+        );
+        const { lat, lng } = coordenadas;
         const url = Platform.select({
             ios: `maps:0,0?q=${label}@${lat},${lng}`,
-            android: `geo:0,0?q=${lat},${lng}(${label})`
+            android: `geo:0,0?q=${lat},${lng}(${label})`,
+            default: `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`,
         });
-        Linking.openURL(url);
-    };
+        const fallbackUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
 
-    const mapHtml = `
+        try {
+            setMapaMensagem('');
+            let destino = fallbackUrl;
+
+            try {
+                const podeAbrirUrlNativa = await Linking.canOpenURL(url);
+                destino = podeAbrirUrlNativa ? url : fallbackUrl;
+            } catch (error) {
+                destino = fallbackUrl;
+            }
+
+            await Linking.openURL(destino);
+        } catch (error) {
+            setMapaMensagem('Não foi possível abrir o mapa neste dispositivo. Tente novamente mais tarde.');
+        }
+    }, [coordenadas, item]);
+
+    const mapHtml = useMemo(() => `
       <!DOCTYPE html>
       <html>
       <head>
@@ -49,12 +142,12 @@ const CampanhaDetalheScreen = ({ campanhaDados, setScreen }) => {
       </head>
       <body>
         <iframe 
-          src="https://maps.google.com/maps?q=${lat},${lng}&z=15&output=embed" 
+          src="https://maps.google.com/maps?q=${coordenadas.lat},${coordenadas.lng}&z=15&output=embed" 
           frameborder="0" style="border:0">
         </iframe>
       </body>
       </html>
-    `;
+    `, [coordenadas.lat, coordenadas.lng]);
 
     const InfoRow = ({ icon, label, value, isBold = false }) => (
         <View style={styles.infoRow}>
@@ -64,7 +157,7 @@ const CampanhaDetalheScreen = ({ campanhaDados, setScreen }) => {
             <View style={{flex: 1}}>
                 <Text style={styles.infoLabel}>{label}</Text>
                 <Text style={[styles.infoValor, isBold && { color: "#5f6b80ff" }]}>
-                    {value || 'Não informado'}
+                    {textoSeguro(value)}
                 </Text>
             </View>
         </View>
@@ -77,8 +170,9 @@ const CampanhaDetalheScreen = ({ campanhaDados, setScreen }) => {
                 
                 <View style={styles.detalhesCabecalho}>
                     <Image 
-                        source={{ uri: item.imagem_url || item.imagemUrl || 'https://via.placeholder.com/600x400' }} 
+                        source={imagemCampanha} 
                         style={styles.detalhesImg} 
+                        onError={() => setImagemFalhou(true)}
                     />
                     <LinearGradient
                         colors={['rgba(0,0,0,0.6)', 'transparent', 'rgba(0,0,0,0.8)']}
@@ -90,9 +184,9 @@ const CampanhaDetalheScreen = ({ campanhaDados, setScreen }) => {
                     
                     <View style={styles.headerTexto}>
                         <View style={styles.tipoBadge}>
-                            <Text style={styles.tipoBadgeTexto}>{item.tipo_vacina}</Text>
+                            <Text style={styles.tipoBadgeTexto}>{textoSeguro(item.tipo_vacina, 'Campanha')}</Text>
                         </View>
-                        <Text style={styles.detalheTitulo}>{item.titulo}</Text>
+                        <Text style={styles.detalheTitulo}>{textoSeguro(item.titulo, 'Campanha de vacinação')}</Text>
                     </View>
                 </View>
 
@@ -112,14 +206,20 @@ const CampanhaDetalheScreen = ({ campanhaDados, setScreen }) => {
                         <InfoRow 
                             icon="time-outline" 
                             label="Horário da Campanha" 
-                            value={`${item.hora_inicio} - ${item.hora_fim}`} 
+                            value={item.hora_inicio || item.hora_fim
+                                ? `${item.hora_inicio || '--:--'} - ${item.hora_fim || '--:--'}`
+                                : ''
+                            } 
                             isBold={true}
                         />
 
                         <InfoRow 
                             icon="calendar-outline" 
                             label="Período da Campanha" 
-                            value={`${item.data_inicio} até ${item.data_fim}`} 
+                            value={item.data_inicio || item.data_fim
+                                ? `${item.data_inicio || 'Data inicial não informada'} até ${item.data_fim || 'data final não informada'}`
+                                : ''
+                            } 
                         />
                         
                         <InfoRow 
@@ -146,16 +246,47 @@ const CampanhaDetalheScreen = ({ campanhaDados, setScreen }) => {
                             }
                         </Text>
 
+                        {coordenadas.usandoFallback && (
+                            <View style={styles.avisoLocalizacao}>
+                                <Ionicons name="information-circle-outline" size={18} color="#8A4B0F" />
+                                <Text style={styles.avisoLocalizacaoTexto}>{coordenadas.mensagem}</Text>
+                            </View>
+                        )}
+
                         {/*mapa*/}
                         <View style={styles.mapaWrap}>
-                            <WebView 
-                                originWhitelist={['*']}
-                                source={{ html: mapHtml }}
-                                style={styles.webViewMap}
-                                scrollEnabled={false}
-                            />
+                            {mapaFalhou ? (
+                                <View style={styles.mapaFallback}>
+                                    <Ionicons name="map-outline" size={36} color="#41669aff" />
+                                    <Text style={styles.mapaFallbackTexto}>
+                                        Não foi possível carregar o mapa agora.
+                                    </Text>
+                                </View>
+                            ) : (
+                                <WebView 
+                                    originWhitelist={['*']}
+                                    source={{ html: mapHtml }}
+                                    style={styles.webViewMap}
+                                    scrollEnabled={false}
+                                    onError={() => {
+                                        setMapaFalhou(true);
+                                        setMapaMensagem('Não foi possível carregar o mapa. Você ainda pode tentar abrir a rota no GPS.');
+                                    }}
+                                    onHttpError={() => {
+                                        setMapaFalhou(true);
+                                        setMapaMensagem('Não foi possível carregar o mapa. Você ainda pode tentar abrir a rota no GPS.');
+                                    }}
+                                />
+                            )}
                             <TouchableOpacity style={styles.mapClickOverlay} onPress={openGPS} />
                         </View>
+
+                        {mapaMensagem ? (
+                            <View style={styles.erroMapa}>
+                                <Ionicons name="alert-circle-outline" size={18} color="#B42318" />
+                                <Text style={styles.erroMapaTexto}>{mapaMensagem}</Text>
+                            </View>
+                        ) : null}
 
                         <TouchableOpacity style={styles.gpsBtn} onPress={openGPS} activeOpacity={0.8}>
                             <Ionicons name="navigate-circle" size={24} color="#FFF" style={{marginRight: 8}} />
@@ -332,6 +463,26 @@ const styles = StyleSheet.create({
         lineHeight: width * 0.053
     },
 
+    avisoLocalizacao: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        backgroundColor: '#FFF7E8',
+        borderWidth: 1,
+        borderColor: '#F8D7A1',
+        borderRadius: width * 0.035,
+        padding: width * 0.035,
+        marginBottom: height * 0.02,
+    },
+
+    avisoLocalizacaoTexto: {
+        flex: 1,
+        color: '#8A4B0F',
+        marginLeft: 8,
+        fontSize: width * 0.033,
+        lineHeight: width * 0.047,
+        fontWeight: '600',
+    },
+
     mapaWrap: { 
         height: height * 0.22,
         borderRadius: width * 0.04,
@@ -346,9 +497,45 @@ const styles = StyleSheet.create({
         flex: 1 
     },
 
+    mapaFallback: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#EEF5FF',
+        paddingHorizontal: width * 0.06,
+    },
+
+    mapaFallbackTexto: {
+        marginTop: 8,
+        color: '#41669aff',
+        fontSize: width * 0.036,
+        textAlign: 'center',
+        fontWeight: '700',
+    },
+
     mapClickOverlay: { 
         ...StyleSheet.absoluteFillObject, 
         backgroundColor: 'transparent' 
+    },
+
+    erroMapa: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        backgroundColor: '#FFF4ED',
+        borderWidth: 1,
+        borderColor: '#FECDCA',
+        borderRadius: width * 0.035,
+        padding: width * 0.035,
+        marginBottom: height * 0.02,
+    },
+
+    erroMapaTexto: {
+        flex: 1,
+        marginLeft: 8,
+        color: '#B42318',
+        fontSize: width * 0.033,
+        lineHeight: width * 0.047,
+        fontWeight: '600',
     },
 
     gpsBtn: {
