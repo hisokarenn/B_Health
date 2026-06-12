@@ -14,32 +14,152 @@ app.get('/', (req, res) => {
     res.send('API B Health (Node.js + Firebase Firestore) rodando!');
 });
 
+const somenteDigitos = (value) => String(value || '').replace(/\D/g, '');
+const textoLimpo = (value) => String(value || '').trim();
+const emailGmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/i;
+const formatarCpf = (value) => value.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+const formatarCns = (value) => value.replace(/(\d{3})(\d{4})(\d{4})(\d{4})/, '$1 $2 $3 $4');
+
+const criarErroHttp = (status, message) => {
+    const error = new Error(message);
+    error.status = status;
+    return error;
+};
+
+const existePacienteComValor = async (campo, valores, uidAtual) => {
+    const valoresUnicos = [...new Set(valores.filter(Boolean))];
+
+    for (const valor of valoresUnicos) {
+        const snapshot = await db.collection('pacientes')
+            .where(campo, '==', valor)
+            .limit(1)
+            .get();
+
+        if (snapshot.docs.some((doc) => doc.id !== uidAtual)) {
+            return true;
+        }
+    }
+
+    return false;
+};
+
 app.post('/pacientes', async (req, res) => {
     const { uid, nome, cpf, cns, email } = req.body;
+    const uidLimpo = textoLimpo(uid);
+    const nomeLimpo = textoLimpo(nome);
+    const cpfLimpo = textoLimpo(cpf);
+    const cnsLimpo = textoLimpo(cns);
+    const emailLimpo = textoLimpo(email).toLowerCase();
+    const cpfNumeros = somenteDigitos(cpfLimpo);
+    const cnsNumeros = somenteDigitos(cnsLimpo);
     
-    if (!uid || !nome || !cpf || !cns) {
-        return res.status(400).json({ error: 'Dados incompletos para o cadastro.' });
+    if (!uidLimpo || !nomeLimpo || !cpfNumeros || !cnsNumeros || !emailLimpo) {
+        return res.status(400).json({ error: 'Todos os campos são obrigatórios' });
     }
+
+    if (!emailGmailRegex.test(emailLimpo)) {
+        return res.status(400).json({ error: 'Use um e-mail válido do domínio @gmail.com.' });
+    }
+
+    if (cpfNumeros.length !== 11) {
+        return res.status(400).json({ error: 'O CPF deve conter 11 dígitos.' });
+    }
+
+    if (cnsNumeros.length !== 15) {
+        return res.status(400).json({ error: 'O CNS deve conter 15 dígitos.' });
+    }
+
+    const cpfFormatado = formatarCpf(cpfNumeros);
+    const cnsFormatado = formatarCns(cnsNumeros);
+
     try {
-        const cpfQuery = await db.collection('pacientes').where('cpf', '==', cpf).get();
-        if (!cpfQuery.empty) {
+        const cpfDuplicado = await existePacienteComValor(
+            'cpf',
+            [cpfLimpo, cpfNumeros, cpfFormatado],
+            uidLimpo
+        ) || await existePacienteComValor(
+            'cpfNormalizado',
+            [cpfNumeros],
+            uidLimpo
+        );
+
+        if (cpfDuplicado) {
             return res.status(409).json({ error: 'CPF já cadastrado.' });
         }
 
-        await db.collection('pacientes').doc(uid).set({
-            nome,
-            cpf,
-            cns,
-            email,
-            createdAt: new Date().toISOString()
+        const cnsDuplicado = await existePacienteComValor(
+            'cns',
+            [cnsLimpo, cnsNumeros, cnsFormatado],
+            uidLimpo
+        ) || await existePacienteComValor(
+            'cnsNormalizado',
+            [cnsNumeros],
+            uidLimpo
+        );
+
+        if (cnsDuplicado) {
+            return res.status(409).json({ error: 'CNS já cadastrado.' });
+        }
+
+        const pacientesRef = db.collection('pacientes');
+        const unicosRef = db.collection('paciente_unicos');
+        const pacienteRef = pacientesRef.doc(uidLimpo);
+        const cpfUnicoRef = unicosRef.doc(`cpf_${cpfNumeros}`);
+        const cnsUnicoRef = unicosRef.doc(`cns_${cnsNumeros}`);
+        const createdAt = new Date().toISOString();
+
+        await db.runTransaction(async (transaction) => {
+            const pacienteDoc = await transaction.get(pacienteRef);
+            const cpfUnicoDoc = await transaction.get(cpfUnicoRef);
+            const cnsUnicoDoc = await transaction.get(cnsUnicoRef);
+
+            if (pacienteDoc.exists) {
+                throw criarErroHttp(409, 'Paciente já cadastrado.');
+            }
+
+            if (cpfUnicoDoc.exists && cpfUnicoDoc.data().uid !== uidLimpo) {
+                throw criarErroHttp(409, 'CPF já cadastrado.');
+            }
+
+            if (cnsUnicoDoc.exists && cnsUnicoDoc.data().uid !== uidLimpo) {
+                throw criarErroHttp(409, 'CNS já cadastrado.');
+            }
+
+            transaction.set(cpfUnicoRef, {
+                uid: uidLimpo,
+                tipo: 'cpf',
+                valor: cpfNumeros,
+                createdAt,
+            });
+
+            transaction.set(cnsUnicoRef, {
+                uid: uidLimpo,
+                tipo: 'cns',
+                valor: cnsNumeros,
+                createdAt,
+            });
+
+            transaction.set(pacienteRef, {
+                nome: nomeLimpo,
+                cpf: cpfFormatado,
+                cns: cnsFormatado,
+                cpfNormalizado: cpfNumeros,
+                cnsNormalizado: cnsNumeros,
+                email: emailLimpo,
+                createdAt,
+            });
         });
 
         res.status(201).json({ 
             message: 'Paciente cadastrado com sucesso!', 
-            id: uid 
+            id: uidLimpo
         });
 
     } catch (error) {
+        if (error.status) {
+            return res.status(error.status).json({ error: error.message });
+        }
+
         console.error('Erro ao cadastrar no Firestore:', error);
         res.status(500).json({ error: 'Erro interno do servidor ao salvar dados.' });
     }

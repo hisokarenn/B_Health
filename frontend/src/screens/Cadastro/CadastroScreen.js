@@ -17,26 +17,45 @@ const CadastroScreen = ({ setScreen }) => {
   const [senha, setSenha] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  const limparErro = (campo) => {
+    setErrors((prevErrors) => {
+      if (!prevErrors[campo] && !prevErrors.form) return prevErrors;
+      const nextErrors = { ...prevErrors };
+      delete nextErrors[campo];
+      delete nextErrors.form;
+      return nextErrors;
+    });
+  };
 
   const handleCadastro = async () => {
-    if (!nome || !cpf || !cns || !email || !senha) {
-      Alert.alert('Erro', 'Todos os campos são obrigatórios para o cadastro.');
-      return;
-    }
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+    const dadosCadastro = {
+      nome: nome.trim(),
+      cpf,
+      cns,
+      email: email.trim().toLowerCase(),
+      senha,
+    };
 
-    if (!emailRegex.test(email)) {
-        Alert.alert('Erro', 'Por favor, insira um endereço de e-mail Gmail válido (ex: usuario@gmail.com).');
-        return;
+    const validationErrors = validarCadastro(dadosCadastro);
+    setErrors(validationErrors);
+
+    if (Object.keys(validationErrors).length > 0) {
+      Alert.alert(
+        'Erro',
+        validationErrors.form || validationErrors.email || validationErrors.cpf || validationErrors.cns
+      );
+      return;
     }
 
     setLoading(true);
     try {
-      const user = await cadastrarPaciente({ nome, cpf, cns, email, senha });
+      await cadastrarPaciente(dadosCadastro);
       
       Alert.alert(
         'Sucesso B Health!',
-        `Cadastro de ${nome} realizado com sucesso!`
+        `Cadastro de ${dadosCadastro.nome} realizado com sucesso!`
       );
       
       setNome('');
@@ -44,6 +63,7 @@ const CadastroScreen = ({ setScreen }) => {
       setCns('');
       setEmail('');
       setSenha('');
+      setErrors({});
       setScreen('login');
     } catch (error) {
       const errorMessage = error.message || 'Não foi possível se conectar';
@@ -88,6 +108,36 @@ const CadastroScreen = ({ setScreen }) => {
     return somenteNumeros.length === 15;
   };
 
+  const validarCadastro = (dadosCadastro) => {
+    const validationErrors = {};
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/i;
+
+    if (
+      !dadosCadastro.nome ||
+      !dadosCadastro.cpf ||
+      !dadosCadastro.cns ||
+      !dadosCadastro.email ||
+      !dadosCadastro.senha.trim()
+    ) {
+      validationErrors.form = 'Todos os campos são obrigatórios';
+      return validationErrors;
+    }
+
+    if (!emailRegex.test(dadosCadastro.email)) {
+      validationErrors.email = 'Use um e-mail válido do domínio @gmail.com.';
+    }
+
+    if (!validarCPF(dadosCadastro.cpf)) {
+      validationErrors.cpf = 'O CPF deve conter 11 dígitos.';
+    }
+
+    if (!validarCNS(dadosCadastro.cns)) {
+      validationErrors.cns = 'O CNS deve conter 15 dígitos.';
+    }
+
+    return validationErrors;
+  };
+
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -116,13 +166,20 @@ const CadastroScreen = ({ setScreen }) => {
             <Text style={styles.loginTitulo}>Cadastro</Text>
 
             <View style={styles.containerCadastro}>
+              {errors.form ? (
+                <Text style={styles.formErrorText}>{errors.form}</Text>
+              ) : null}
+
               <Text style={styles.label}>Nome completo*</Text>
               <TextInput
                 placeholder="Digite seu nome"
                 placeholderTextColor="#999"
                 style={styles.input}
                 value={nome}
-                onChangeText={setNome}
+                onChangeText={(text) => {
+                  setNome(text);
+                  limparErro('nome');
+                }}
               />
 
               <Text style={styles.label}>CPF*</Text>
@@ -133,15 +190,23 @@ const CadastroScreen = ({ setScreen }) => {
                 maxLength={14}
                 style={styles.input}
                 value={cpf}
-                onChangeText={(text) => setCpf(formatarCPF(text))}
+                onChangeText={(text) => {
+                  setCpf(formatarCPF(text));
+                  limparErro('cpf');
+                }}
 
                 onBlur={() => {
-                  if (!validarCPF(cpf)) {
-                    Alert.alert("Erro", "O CPF deve conter 11 dígitos.");
-                    return;
+                  if (cpf && !validarCPF(cpf)) {
+                    setErrors((prevErrors) => ({
+                      ...prevErrors,
+                      cpf: 'O CPF deve conter 11 dígitos.',
+                    }));
                   }
                 }}
               />
+              {errors.cpf ? (
+                <Text style={styles.errorText}>{errors.cpf}</Text>
+              ) : null}
 
               <Text style={styles.label}>CNS*</Text>
               <TextInput
@@ -151,15 +216,23 @@ const CadastroScreen = ({ setScreen }) => {
                 maxLength={19} //isso dos espaços
                 style={styles.input}
                 value={cns}
-                onChangeText={(text) => setCns(formatarCNS(text))}
+                onChangeText={(text) => {
+                  setCns(formatarCNS(text));
+                  limparErro('cns');
+                }}
 
                 onBlur={() => {
-                  if (!validarCNS(cns)) {
-                    Alert.alert("Erro", "O CNS deve conter 15 dígitos.");
-                    setCns(""); 
+                  if (cns && !validarCNS(cns)) {
+                    setErrors((prevErrors) => ({
+                      ...prevErrors,
+                      cns: 'O CNS deve conter 15 dígitos.',
+                    }));
                   }
                 }}
               />
+              {errors.cns ? (
+                <Text style={styles.errorText}>{errors.cns}</Text>
+              ) : null}
 
               <Text style={styles.label}>E-mail*</Text>
               <TextInput
@@ -169,8 +242,14 @@ const CadastroScreen = ({ setScreen }) => {
                 autoCapitalize="none"
                 style={styles.input}
                 value={email}
-                onChangeText={setEmail}
+                onChangeText={(text) => {
+                  setEmail(text);
+                  limparErro('email');
+                }}
               />
+              {errors.email ? (
+                <Text style={styles.errorText}>{errors.email}</Text>
+              ) : null}
 
               <Text style={styles.label}>Senha*</Text>
               <View style={styles.senhaContainer}>
@@ -180,7 +259,10 @@ const CadastroScreen = ({ setScreen }) => {
                   secureTextEntry={!showPassword}
                   style={[styles.input, { flex: 1, marginBottom: 0 }]}
                   value={senha}
-                  onChangeText={setSenha}
+                  onChangeText={(text) => {
+                    setSenha(text);
+                    limparErro('senha');
+                  }}
                 />
                 <TouchableOpacity
                   onPress={() => setShowPassword(!showPassword)}
@@ -291,6 +373,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     marginBottom: 15,
     color: '#333',
+  },
+
+  errorText: {
+    color: '#c53939',
+    fontSize: Math.min(width * 0.032, 15),
+    fontWeight: '600',
+    marginTop: -8,
+    marginBottom: 12,
+  },
+
+  formErrorText: {
+    color: '#c53939',
+    fontSize: Math.min(width * 0.034, 16),
+    fontWeight: '700',
+    marginBottom: 12,
   },
 
   senhaContainer: {

@@ -4,8 +4,10 @@ export async function salvarCredenciais(email, senha) {
   try {
     await SecureStore.setItemAsync('login_email', email);
     await SecureStore.setItemAsync('login_senha', senha);
+    return true;
   } catch (error) {
     console.error("Erro ao salvar credenciais:", error);
+    throw new Error('Não foi possível salvar suas credenciais neste dispositivo.');
   }
 }
 
@@ -19,7 +21,7 @@ export async function obterCredenciais() {
     return { email, senha };
   } catch (error) {
     console.error("Erro ao obter credenciais:", error);
-    return null;
+    throw new Error('Não foi possível recuperar as credenciais salvas neste dispositivo.');
   }
 }
 
@@ -27,7 +29,9 @@ export async function limparCredenciais() {
   try {
     await SecureStore.deleteItemAsync('login_email');
     await SecureStore.deleteItemAsync('login_senha');
+    return true;
   } catch (error) {
     console.error("Erro ao limpar credenciais:", error);
+    throw new Error('Não foi possível limpar as credenciais salvas neste dispositivo.');
   }
 }

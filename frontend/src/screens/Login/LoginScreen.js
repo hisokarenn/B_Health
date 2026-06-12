@@ -14,60 +14,127 @@ const LoginScreen = ({ setScreen, onLoginSuccess }) => {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loadingRecuperacao, setLoadingRecuperacao] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [lembrarMe, setLembrarMe] = useState(false);
+  const [erroLogin, setErroLogin] = useState('');
+  const [erroRecuperacao, setErroRecuperacao] = useState('');
+  const [mensagemLembrarMe, setMensagemLembrarMe] = useState('');
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  const limparFeedback = () => {
+    setErroLogin('');
+    setErroRecuperacao('');
+    setMensagemLembrarMe('');
+  };
 
   useEffect(() => {
+    let mounted = true;
+
     (async () => {
-      const creds = await obterCredenciais();
-      if (creds) {
-        setEmail(creds.email);
-        setSenha(creds.senha);
-        setLembrarMe(true);
+      try {
+        const creds = await obterCredenciais();
+        if (mounted && creds) {
+          setEmail(creds.email);
+          setSenha(creds.senha);
+          setLembrarMe(true);
+          setMensagemLembrarMe('E-mail e senha preenchidos pelo lembrar-me.');
+        }
+      } catch (error) {
+        if (mounted) {
+          const mensagem = error.message || 'Não foi possível carregar as credenciais salvas.';
+          setErroLogin(mensagem);
+          Alert.alert('Atenção', mensagem);
+        }
       }
     })();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const handleLogin = async () => {
-    if (!email || !senha) {
-      Alert.alert('Erro', 'E-mail e senha são obrigatórios.');
+    const emailLimpo = email.trim().toLowerCase();
+
+    limparFeedback();
+
+    if (!emailLimpo || !senha) {
+      const mensagem = 'E-mail e senha são obrigatórios.';
+      setErroLogin(mensagem);
+      Alert.alert('Erro', mensagem);
+      return;
+    }
+
+    if (!emailRegex.test(emailLimpo)) {
+      const mensagem = 'E-mail inválido. Verifique o endereço informado.';
+      setErroLogin(mensagem);
+      Alert.alert('Erro', mensagem);
       return;
     }
 
     setLoading(true);
     try {
-      const response = await realizarLogin(email, senha);
+      const response = await realizarLogin(emailLimpo, senha);
 
-      if (lembrarMe) {
-        await salvarCredenciais(email, senha);
-      } else {
-        await limparCredenciais();
+      try {
+        if (lembrarMe) {
+          await salvarCredenciais(emailLimpo, senha);
+        } else {
+          await limparCredenciais();
+        }
+      } catch (storageError) {
+        Alert.alert(
+          'Atenção',
+          storageError.message || 'Não foi possível atualizar as credenciais salvas.'
+        );
       }
 
       if (response?.user) onLoginSuccess(response.user);
       else onLoginSuccess(response);
 
     } catch (error) {
-      Alert.alert('Erro no Login', error.message || 'Erro de rede.');
+      const mensagem = error.message || 'Não foi possível fazer login. Tente novamente.';
+      setErroLogin(mensagem);
+      Alert.alert('Erro no Login', mensagem);
     } finally {
       setLoading(false);
     }
   };
 
   const handleEsqueciSenha = async () => {
-    if (!email) {
-      Alert.alert('Atenção', 'Por favor, digite seu e-mail no campo acima para recuperar a senha.');
+    const emailLimpo = email.trim().toLowerCase();
+
+    limparFeedback();
+
+    if (!emailLimpo) {
+      const mensagem = 'Digite seu e-mail para recuperar a senha.';
+      setErroRecuperacao(mensagem);
+      Alert.alert('Atenção', mensagem);
       return;
     }
 
+    if (!emailRegex.test(emailLimpo)) {
+      const mensagem = 'E-mail inválido. Verifique o endereço informado.';
+      setErroRecuperacao(mensagem);
+      Alert.alert('Erro', mensagem);
+      return;
+    }
+
+    setLoadingRecuperacao(true);
     try {
-      await solicitarRecuperacaoSenha(email);
+      await solicitarRecuperacaoSenha(emailLimpo);
       Alert.alert(
         'E-mail Enviado', 
         'Verifique sua caixa de entrada (e spam). O link para criar uma nova senha foi enviado!'
       );
     } catch (error) {
-      Alert.alert('Erro', error.message);
+      const mensagem = error.message || 'Não foi possível enviar o e-mail de recuperação.';
+      setErroRecuperacao(mensagem);
+      Alert.alert('Erro', mensagem);
+    } finally {
+      setLoadingRecuperacao(false);
     }
   };
 
@@ -106,7 +173,10 @@ const LoginScreen = ({ setScreen, onLoginSuccess }) => {
                 placeholderTextColor="#999"
                 style={styles.input}
                 value={email}
-                onChangeText={setEmail}
+                onChangeText={(text) => {
+                  setEmail(text);
+                  limparFeedback();
+                }}
                 autoCapitalize="none"
                 keyboardType="email-address"
               />
@@ -118,7 +188,10 @@ const LoginScreen = ({ setScreen, onLoginSuccess }) => {
                   placeholderTextColor="#999"
                   secureTextEntry={!showPassword}
                   value={senha}
-                  onChangeText={setSenha}
+                  onChangeText={(text) => {
+                    setSenha(text);
+                    limparFeedback();
+                  }}
                   style={[styles.input, { flex: 1, marginBottom: 0 }]}
                 />
                 <TouchableOpacity
@@ -133,9 +206,20 @@ const LoginScreen = ({ setScreen, onLoginSuccess }) => {
                 </TouchableOpacity>
               </View>
 
+              {erroLogin ? (
+                <Text style={styles.feedbackErro}>{erroLogin}</Text>
+              ) : null}
+
+              {mensagemLembrarMe ? (
+                <Text style={styles.feedbackInfo}>{mensagemLembrarMe}</Text>
+              ) : null}
+
               <TouchableOpacity
                 style={styles.checkboxContainer}
-                onPress={() => setLembrarMe(!lembrarMe)}
+                onPress={() => {
+                  setLembrarMe(!lembrarMe);
+                  limparFeedback();
+                }}
               >
                 <Ionicons
                   name={lembrarMe ? "checkbox" : "square-outline"}
@@ -158,9 +242,19 @@ const LoginScreen = ({ setScreen, onLoginSuccess }) => {
               </TouchableOpacity>
 
               {/* 3. Botão de Esqueci Minha Senha adicionado aqui */}
-              <TouchableOpacity style={styles.esqueciSenhaButton} onPress={handleEsqueciSenha}>
-                <Text style={styles.esqueciSenhaTexto}>Esqueceu a sua senha? Clique aqui</Text>
+              <TouchableOpacity
+                style={[styles.esqueciSenhaButton, loadingRecuperacao && styles.linkDesativado]}
+                onPress={handleEsqueciSenha}
+                disabled={loadingRecuperacao}
+              >
+                <Text style={styles.esqueciSenhaTexto}>
+                  {loadingRecuperacao ? 'Enviando e-mail...' : 'Esqueceu a sua senha? Clique aqui'}
+                </Text>
               </TouchableOpacity>
+
+              {erroRecuperacao ? (
+                <Text style={styles.feedbackErro}>{erroRecuperacao}</Text>
+              ) : null}
 
               <TouchableOpacity onPress={() => setScreen('cadastro')}>
                 <Text style={styles.cadastroDois}>É novo aqui? Cadastre-se</Text>
@@ -257,11 +351,31 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
+  linkDesativado: {
+    opacity: 0.7,
+  },
+
   esqueciSenhaTexto: {
     color: '#c53939', 
     fontSize: Math.min(width * 0.035, 18),
     fontWeight: 'bold',
     textDecorationLine: 'underline',
+    textAlign: 'center',
+  },
+
+  feedbackErro: {
+    color: '#c53939',
+    fontSize: Math.min(width * 0.033, 16),
+    fontWeight: '600',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+
+  feedbackInfo: {
+    color: '#245e35',
+    fontSize: Math.min(width * 0.032, 15),
+    fontWeight: '600',
+    marginBottom: 10,
     textAlign: 'center',
   },
 
