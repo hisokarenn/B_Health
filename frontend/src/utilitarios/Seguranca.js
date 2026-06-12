@@ -1,5 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
 import { garantirFirebaseConfigurado } from '../services/firebaseConfig';
+import { obterMensagemFalhaTemporaria } from './Erros';
 
 export async function salvarCredenciais(email, senha) {
   try {
@@ -76,5 +77,8 @@ export function obterMensagemAcessoNegado(error, fallback) {
     return mensagemApi;
   }
 
-  return error.message || fallback || 'Não foi possível acessar as informações solicitadas.';
+  return obterMensagemFalhaTemporaria(
+    error,
+    fallback || 'Não foi possível acessar as informações solicitadas.'
+  );
 }

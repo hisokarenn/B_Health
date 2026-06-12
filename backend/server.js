@@ -4,9 +4,11 @@ import cors from 'cors';
 import { db, bucket, firebaseAuth } from './firebase.js'; 
 import multer from 'multer'; 
 import { criarCorsOptions } from './corsConfig.js';
+import { criarCampanhasCache, listarCampanhas } from './campanhasService.js';
 
 const app = express();
 const port = process.env.PORT || 3000;
+const campanhasCache = criarCampanhasCache();
 
 app.use(cors(criarCorsOptions()));
 app.use((error, req, res, next) => {
@@ -243,7 +245,9 @@ app.get('/pacientes/:id', autenticarRequisicao, autorizarMesmoPaciente('id'), as
 
     } catch (error) {
         console.error('Erro ao buscar perfil:', error);
-        res.status(500).json({ error: 'Erro interno.' });
+        res.status(503).json({
+            error: 'Não foi possível carregar o perfil agora. Tente novamente em instantes.'
+        });
     }
 });
 
@@ -271,19 +275,29 @@ app.get('/historico/:pacienteId', autenticarRequisicao, autorizarMesmoPaciente('
 
     } catch (error) {
         console.error('Erro ao buscar histórico:', error);
-        res.status(500).json({ error: 'Erro interno.' });
+        res.status(503).json({
+            error: 'Não foi possível carregar o histórico vacinal agora. Tente novamente em instantes.'
+        });
     }
 });
 
 app.get('/campanhas', async (req, res) => {
     try {
-        const snapshot = await db.collection('campanhas').get();
-        if(snapshot.empty) return res.status(200).json({message: 'Nenhuma campanha ativa.', campanhas: []});
-        const campanhas = snapshot.docs.map(doc =>({id: doc.id, ...doc.data()}));
-        res.status(200).json({campanhas:campanhas})
+        const resultado = await listarCampanhas({
+            db,
+            query: req.query,
+            cache: campanhasCache,
+        });
+        const { cache, ...body } = resultado;
+
+        res.set('Cache-Control', `public, max-age=${Math.floor(cache.ttlMs / 1000)}`);
+        res.set('X-BHealth-Cache', cache.origem);
+        res.status(200).json(body);
     }catch(error){
         console.error('Erro ao buscar campanhas:', error);
-        res.status(500).json({error:'Erro interno.'});
+        res.status(503).json({
+            error: 'Não foi possível carregar as campanhas agora. Tente novamente em instantes.'
+        });
     }
 });
 
@@ -294,7 +308,10 @@ app.get('/campanhas/:id', async (req, res) => {
         if (!doc.exists) return res.status(404).json({ error: 'Campanha não encontrada.' });
         res.status(200).json({ id: doc.id, ...doc.data() });
     } catch (error) {
-        res.status(500).json({ error: 'Erro interno.' });
+        console.error('Erro ao buscar detalhe de campanha:', error);
+        res.status(503).json({
+            error: 'Não foi possível carregar esta campanha agora. Tente novamente em instantes.'
+        });
     }
 });
 

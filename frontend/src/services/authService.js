@@ -11,9 +11,18 @@ import {
     obterCabecalhoAutenticacao,
     obterMensagemAcessoNegado
 } from '../utilitarios/Seguranca';
+import {
+    ehErroSemConexao,
+    obterMensagemFalhaTemporaria
+} from '../utilitarios/Erros';
 
 // Se estiver testando localemnte, rode o backend localmente, use o IP da sua máquina (ex: 'http://192.168.1.15:3000')
 const API_BASE_URL = 'https://b-health-app-api.onrender.com'; 
+const API_TIMEOUT_MS = 65000;
+const api = axios.create({
+    baseURL: API_BASE_URL,
+    timeout: API_TIMEOUT_MS,
+});
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -37,10 +46,7 @@ const normalizarEmail = (email) => String(email || '').trim().toLowerCase();
 const validarEmail = (email) => emailRegex.test(normalizarEmail(email));
 
 const erroSemInternet = (error) => {
-    const message = String(error.message || '').toLowerCase();
-    return error.code === 'auth/network-request-failed'
-        || message.includes('network')
-        || message.includes('offline');
+    return ehErroSemConexao(error);
 };
 
 const mensagemErroAutenticacao = (error, fallback) => {
@@ -64,7 +70,7 @@ const mensagemErroAutenticacao = (error, fallback) => {
         return 'Muitas tentativas em sequência. Aguarde alguns minutos e tente novamente.';
     }
 
-    return fallback;
+    return obterMensagemFalhaTemporaria(error, fallback);
 };
 
 const desfazerUsuarioFirebase = async (user) => {
@@ -114,7 +120,7 @@ export const cadastrarPaciente = async (dados) => {
         const userCredential = await createUserWithEmailAndPassword(obterAuth(), dados.email, dados.senha);
         user = userCredential.user;
         await updateProfile(user, { displayName: dados.nome });
-        await axios.post(`${API_BASE_URL}/pacientes`, {
+        await api.post('/pacientes', {
             uid: user.uid, 
             nome: dados.nome,
             cpf: dados.cpf,
@@ -125,7 +131,10 @@ export const cadastrarPaciente = async (dados) => {
     } catch (error) {
         if (user) {
             const rollbackRealizado = await desfazerUsuarioFirebase(user);
-            const mensagemApi = obterMensagemErroApi(error) || 'Não foi possível concluir o cadastro do paciente.';
+            const mensagemApi = obterMensagemErroApi(error) || obterMensagemFalhaTemporaria(
+                error,
+                'Não foi possível concluir o cadastro do paciente.'
+            );
 
             if (rollbackRealizado) {
                 throw new Error(mensagemApi);
@@ -146,7 +155,12 @@ export const cadastrarPaciente = async (dados) => {
             throw new Error(mensagemApi);
         }
 
-        throw error;
+        throw new Error(
+            obterMensagemFalhaTemporaria(
+                error,
+                'Não foi possível concluir o cadastro do paciente. Tente novamente.'
+            )
+        );
     }
 };
 
@@ -181,7 +195,7 @@ export const realizarLogin = async (email, senha) => {
 // Busca o perfil usando o UID do usuário logado
 export const getPerfil = (uid) => {
     return executarRequisicaoPrivada(
-        (headers) => axios.get(`${API_BASE_URL}/pacientes/${uid}`, { headers }),
+        (headers) => api.get(`/pacientes/${uid}`, { headers }),
         'Não foi possível carregar seu perfil. Tente novamente.'
     );
 };
@@ -189,17 +203,24 @@ export const getPerfil = (uid) => {
 // Busca o histórico de vacinas
 export const getHistorico = (uid) => {
     return executarRequisicaoPrivada(
-        (headers) => axios.get(`${API_BASE_URL}/historico/${uid}`, { headers }),
+        (headers) => api.get(`/historico/${uid}`, { headers }),
         'Não foi possível carregar seu histórico vacinal. Tente novamente.'
     );
 };
 
 // Busca as campanhas (público)
-export const getCampanhas = () => {
-    return axios.get(`${API_BASE_URL}/campanhas`);
+export const getCampanhas = ({ pagina = 1, limite = 20, busca, tipo_vacina } = {}) => {
+    return api.get('/campanhas', {
+        params: {
+            pagina,
+            limite,
+            busca,
+            tipo_vacina,
+        },
+    });
 };
 
 // Busca detalhes de uma campanha específica
 export const getCampanhaDetalhe = (id) => {
-    return axios.get(`${API_BASE_URL}/campanhas/${id}`);
+    return api.get(`/campanhas/${id}`);
 };

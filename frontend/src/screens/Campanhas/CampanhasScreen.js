@@ -6,15 +6,19 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getCampanhas } from '../../services/authService';
+import { obterMensagemFalhaTemporaria } from '../../utilitarios/Erros';
 
 const { width, height } = Dimensions.get('window');
 const IMAGEM_PLACEHOLDER = require('../../../assets/bhealth.png');
 const TEMPO_LOADING_PROLONGADO_MS = 8000;
+const LIMITE_CAMPANHAS = 20;
 
 const obterImagemCampanha = (item) => {
     const uri = String(item?.imagem_url || item?.imagemUrl || '').trim();
     return /^https?:\/\//i.test(uri) ? { uri } : IMAGEM_PLACEHOLDER;
 };
+
+const obterIdCampanha = (item) => String(item?.id || item?.id_campanha || item?.uid || '');
 
 const CampanhaItem = ({ item, onPress }) => {
     const [imagemFalhou, setImagemFalhou] = useState(false);
@@ -89,38 +93,83 @@ const CampanhasScreen = ({ onSelectCampanha, setScreen }) => {
     const [message, setMessage] = useState('Atualizando campanhas...');
     const [erroCarregamento, setErroCarregamento] = useState(false);
     const [loadingProlongado, setLoadingProlongado] = useState(false);
+    const [paginaAtual, setPaginaAtual] = useState(1);
+    const [temMais, setTemMais] = useState(false);
+    const [loadingMais, setLoadingMais] = useState(false);
 
-    const fetchCampanhas = useCallback(async () => {
+    const fetchCampanhas = useCallback(async ({ pagina = 1, append = false } = {}) => {
         let timeoutLoading = null;
 
-        setLoading(true);
+        if (append) {
+            setLoadingMais(true);
+        } else {
+            setLoading(true);
+        }
+
         setErroCarregamento(false);
         setLoadingProlongado(false);
-        setMessage('Atualizando campanhas...');
+        setMessage(append ? '' : 'Atualizando campanhas...');
 
-        timeoutLoading = setTimeout(() => {
-            setLoadingProlongado(true);
-            setMessage('A API pode demorar até 50 segundos na primeira abertura. Ainda estamos buscando as campanhas.');
-        }, TEMPO_LOADING_PROLONGADO_MS);
+        if (!append) {
+            timeoutLoading = setTimeout(() => {
+                setLoadingProlongado(true);
+                setMessage('A API pode demorar até 50 segundos na primeira abertura. Ainda estamos buscando as campanhas.');
+            }, TEMPO_LOADING_PROLONGADO_MS);
+        }
 
         try {
-            const response = await getCampanhas();
+            const response = await getCampanhas({
+                pagina,
+                limite: LIMITE_CAMPANHAS,
+            });
             const campanhasRecebidas = response.data?.campanhas || response.data?.camapnhas || [];
+            const paginacao = response.data?.paginacao || {};
+
+            setPaginaAtual(paginacao.pagina || pagina);
+            setTemMais(Boolean(paginacao.proximaPagina));
 
             if (campanhasRecebidas.length > 0) {
-                setCampanhas(campanhasRecebidas);
+                setCampanhas((prev) => {
+                    if (!append) {
+                        return campanhasRecebidas;
+                    }
+
+                    const idsExistentes = new Set(prev.map(obterIdCampanha).filter(Boolean));
+                    const novasCampanhas = campanhasRecebidas.filter((campanha, index) => {
+                        const id = obterIdCampanha(campanha) || `pagina-${pagina}-${index}`;
+                        if (idsExistentes.has(id)) {
+                            return false;
+                        }
+
+                        idsExistentes.add(id);
+                        return true;
+                    });
+
+                    return [...prev, ...novasCampanhas];
+                });
                 setMessage('');
             } else {
-                setCampanhas([]);
+                if (!append) {
+                    setCampanhas([]);
+                }
                 setMessage(response.data?.message || 'Nenhuma campanha ativa no momento.');
             }
         } catch (error) {
-            setCampanhas([]);
+            if (!append) {
+                setCampanhas([]);
+            }
             setErroCarregamento(true);
-            setMessage('Não foi possível carregar as campanhas. Verifique sua conexão e tente novamente.');
+            setMessage(obterMensagemFalhaTemporaria(
+                error,
+                'Não foi possível carregar as campanhas. Tente novamente.'
+            ));
         } finally {
             clearTimeout(timeoutLoading);
-            setLoading(false);
+            if (append) {
+                setLoadingMais(false);
+            } else {
+                setLoading(false);
+            }
             setLoadingProlongado(false);
         }
     }, []);
@@ -128,6 +177,42 @@ const CampanhasScreen = ({ onSelectCampanha, setScreen }) => {
     useEffect(() => {
         fetchCampanhas();
     }, [fetchCampanhas]);
+
+    const carregarMaisCampanhas = useCallback(() => {
+        if (!temMais || loadingMais || loading) {
+            return;
+        }
+
+        fetchCampanhas({
+            pagina: paginaAtual + 1,
+            append: true,
+        });
+    }, [fetchCampanhas, loading, loadingMais, paginaAtual, temMais]);
+
+    const renderStatusLista = () => (
+        erroCarregamento && campanhas.length > 0 ? (
+            <View style={styles.statusLista}>
+                <Ionicons name="alert-circle-outline" size={18} color="#B42318" />
+                <Text style={styles.statusListaTexto}>{message}</Text>
+                <TouchableOpacity
+                    style={styles.statusListaBotao}
+                    onPress={carregarMaisCampanhas}
+                    disabled={loadingMais}
+                >
+                    <Text style={styles.statusListaBotaoTexto}>Recarregar</Text>
+                </TouchableOpacity>
+            </View>
+        ) : null
+    );
+
+    const renderFooterLista = () => (
+        loadingMais ? (
+            <View style={styles.listaFooter}>
+                <ActivityIndicator size="small" color="#0c2c5aff" />
+                <Text style={styles.listaFooterTexto}>Carregando mais campanhas...</Text>
+            </View>
+        ) : null
+    );
         
     if (loading) {
         return (
@@ -181,7 +266,10 @@ const CampanhasScreen = ({ onSelectCampanha, setScreen }) => {
                             />
                             <Text style={styles.textoMensagem}>{message}</Text>
                             {erroCarregamento && (
-                                <TouchableOpacity style={styles.botaoTentarNovamente} onPress={fetchCampanhas}>
+                                <TouchableOpacity
+                                    style={styles.botaoTentarNovamente}
+                                    onPress={() => fetchCampanhas()}
+                                >
                                     <Ionicons name="refresh-outline" size={width * 0.05} color="#FFFFFF" />
                                     <Text style={styles.textoBotaoTentarNovamente}>Tentar novamente</Text>
                                 </TouchableOpacity>
@@ -192,14 +280,18 @@ const CampanhasScreen = ({ onSelectCampanha, setScreen }) => {
 
                         <FlatList
                             data={campanhas}
-                            keyExtractor={(item, index) => item.id_campanha ? item.id_campanha.toString() : index.toString()}
+                            keyExtractor={(item, index) => obterIdCampanha(item) || index.toString()}
                             renderItem={({ item }) => (
                                 <CampanhaItem 
                                     item={item} 
                                     onPress={onSelectCampanha} 
                                 />
                             )}
+                            ListHeaderComponent={renderStatusLista}
+                            ListFooterComponent={renderFooterLista}
                             contentContainerStyle={styles.conteudoLista}
+                            onEndReached={carregarMaisCampanhas}
+                            onEndReachedThreshold={0.4}
                             showsVerticalScrollIndicator={false}
                         />
                     )}
@@ -308,6 +400,50 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         marginLeft: 8,
         fontSize: width * 0.04,
+    },
+
+    statusLista: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#FFF4ED',
+        borderWidth: 1,
+        borderColor: '#FECDCA',
+        borderRadius: 14,
+        marginBottom: 18,
+        padding: 12,
+    },
+
+    statusListaTexto: {
+        flex: 1,
+        color: '#B42318',
+        fontSize: width * 0.035,
+        fontWeight: '600',
+        marginLeft: 8,
+    },
+
+    statusListaBotao: {
+        backgroundColor: '#B42318',
+        borderRadius: 16,
+        paddingHorizontal: 10,
+        paddingVertical: 7,
+        marginLeft: 8,
+    },
+
+    statusListaBotaoTexto: {
+        color: '#FFFFFF',
+        fontSize: width * 0.032,
+        fontWeight: '700',
+    },
+
+    listaFooter: {
+        alignItems: 'center',
+        paddingVertical: 18,
+    },
+
+    listaFooterTexto: {
+        color: '#718096',
+        fontSize: width * 0.035,
+        marginTop: 8,
     },
 
     cartao: {

@@ -97,15 +97,15 @@ Requisito obrigatório global: ao desenvolver qualquer seção deste checklist, 
 
 ## 9. Carga, concorrencia e resiliencia
 
-- [ ] Requisito obrigatório: desenvolver esta seção seguindo todas as premissas de Nielsen.
-- [ ] Testar muitos acessos simultaneos a `GET /campanhas`.
-- [ ] Definir estrategia para reduzir custo e latencia em `GET /campanhas`, como cache, paginacao ou filtros.
-- [ ] Simular falha do Firestore durante login.
-- [ ] Simular falha do Firestore durante carregamento de perfil.
-- [ ] Simular falha do Firestore durante carregamento de historico.
-- [ ] Simular falha do Firestore durante carregamento de campanhas.
-- [ ] Garantir mensagens amigaveis para falhas do Firestore.
-- [ ] Garantir que falhas temporarias nao deixem o app em estado travado.
+- [x] Requisito obrigatório: desenvolver esta seção seguindo todas as premissas de Nielsen.
+- [x] Testar muitos acessos simultaneos a `GET /campanhas`.
+- [x] Definir estrategia para reduzir custo e latencia em `GET /campanhas`, como cache, paginacao ou filtros.
+- [x] Simular falha do Firestore durante login.
+- [x] Simular falha do Firestore durante carregamento de perfil.
+- [x] Simular falha do Firestore durante carregamento de historico.
+- [x] Simular falha do Firestore durante carregamento de campanhas.
+- [x] Garantir mensagens amigaveis para falhas do Firestore.
+- [x] Garantir que falhas temporarias nao deixem o app em estado travado.
 
 ## 10. Validacao final
 

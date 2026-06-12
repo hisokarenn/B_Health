@@ -7,6 +7,7 @@ import {
   marcarNotificacaoComoLida,
   obterCampanhaId,
 } from '../../utilitarios/Notificacoes';
+import { obterMensagemFalhaTemporaria } from '../../utilitarios/Erros';
 
 const { width, height } = Dimensions.get("window");
 const IMAGEM_PLACEHOLDER = require('../../../assets/bhealth.png');
@@ -82,7 +83,10 @@ const NotificacoesScreen = ({
     } catch (error) {
       console.error("Erro ao carregar notificações", error);
       setNotificacoes([]);
-      setErro('Não foi possível carregar suas notificações. Verifique sua conexão e tente novamente.');
+      setErro(obterMensagemFalhaTemporaria(
+        error,
+        'Não foi possível carregar suas notificações. Tente novamente.'
+      ));
     } finally {
       setLoading(false);
     }
@@ -121,7 +125,10 @@ const NotificacoesScreen = ({
 
     } catch (error) {
       console.error("Erro ao salvar leitura da notificação", error);
-      setErro(error.message || 'Não foi possível marcar a notificação como lida.');
+      setErro(obterMensagemFalhaTemporaria(
+        error,
+        'Não foi possível marcar a notificação como lida.'
+      ));
     } finally {
       setProcessandoId('');
     }

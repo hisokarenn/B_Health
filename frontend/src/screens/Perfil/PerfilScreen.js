@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { 
     View, Text, StyleSheet, TouchableOpacity, ScrollView, 
     Dimensions, Alert, StatusBar, ActivityIndicator 
@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { getPerfil } from '../../services/authService'; 
+import { obterMensagemFalhaTemporaria } from '../../utilitarios/Erros';
 
 const { width, height } = Dimensions.get("window");
 
@@ -16,26 +17,33 @@ const PerfilScreen = ({ setScreen, pacienteInfo }) => {
     const [loading, setLoading] = useState(true);
     const [erroPerfil, setErroPerfil] = useState('');
 
-    useEffect(() => {
-        const carregarDadosDoServidor = async () => {
-            if (pacienteInfo?.uid) {
-                try {
-                    setErroPerfil('');
-                    const response = await getPerfil(pacienteInfo.uid);
-                    setPerfilCompleto(response.data);
-                } catch (error) {
-                    setErroPerfil(error.message || 'Não foi possível carregar seu perfil.');
-                    console.error("Erro ao atualizar perfil:", error);
-                } finally {
-                    setLoading(false);
-                }
-            } else {
-                setLoading(false);
-            }
-        };
+    const carregarDadosDoServidor = useCallback(async () => {
+        setLoading(true);
 
+        if (!pacienteInfo?.uid) {
+            setErroPerfil('Faça login novamente para carregar seu perfil.');
+            setLoading(false);
+            return;
+        }
+
+        try {
+            setErroPerfil('');
+            const response = await getPerfil(pacienteInfo.uid);
+            setPerfilCompleto(response.data);
+        } catch (error) {
+            setErroPerfil(obterMensagemFalhaTemporaria(
+                error,
+                'Não foi possível carregar seu perfil. Tente novamente.'
+            ));
+            console.error("Erro ao atualizar perfil:", error);
+        } finally {
+            setLoading(false);
+        }
+    }, [pacienteInfo?.uid]);
+
+    useEffect(() => {
         carregarDadosDoServidor();
-    }, [pacienteInfo]);
+    }, [carregarDadosDoServidor]);
 
     if (loading) {
         return (
@@ -135,7 +143,17 @@ const PerfilScreen = ({ setScreen, pacienteInfo }) => {
                     {erroPerfil ? (
                         <View style={styles.erroCard}>
                             <Ionicons name="alert-circle-outline" size={width * 0.055} color="#B42318" />
-                            <Text style={styles.erroTexto}>{erroPerfil}</Text>
+                            <View style={styles.erroConteudo}>
+                                <Text style={styles.erroTexto}>{erroPerfil}</Text>
+                                <TouchableOpacity
+                                    style={styles.erroBotao}
+                                    onPress={carregarDadosDoServidor}
+                                    disabled={loading}
+                                >
+                                    <Ionicons name="refresh-outline" size={16} color="#FFFFFF" />
+                                    <Text style={styles.erroBotaoTexto}>Tentar novamente</Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
                     ) : null}
                     
@@ -293,11 +311,32 @@ const styles = StyleSheet.create({
     },
 
     erroTexto: {
-        flex: 1,
-        marginLeft: 10,
         color: '#B42318',
         fontSize: 14,
         fontWeight: '600',
+    },
+
+    erroConteudo: {
+        flex: 1,
+        marginLeft: 10,
+    },
+
+    erroBotao: {
+        alignSelf: 'flex-start',
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#B42318',
+        borderRadius: 18,
+        marginTop: 10,
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+    },
+
+    erroBotaoTexto: {
+        color: '#FFFFFF',
+        fontSize: 13,
+        fontWeight: '700',
+        marginLeft: 6,
     },
 
     divisor: { 

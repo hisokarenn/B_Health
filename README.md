@@ -61,6 +61,23 @@ CORS_ALLOWED_ORIGINS=http://localhost:19006,http://localhost:8081,http://localho
 ```
 
 Em produção, preencha `CORS_ALLOWED_ORIGINS` apenas com as origens autorizadas. Requisições mobile, scripts e health checks sem cabeçalho `Origin` continuam permitidos; origens externas não listadas recebem `403`.
+
+### Carga e resiliência
+
+O endpoint `GET /campanhas` usa cache em memória com TTL de 60 segundos, paginação por `pagina`/`limite` e limite máximo de 50 itens por página. Requisições simultâneas compartilham a mesma leitura em andamento do Firestore, reduzindo custo e latência em picos de acesso.
+
+Exemplo:
+```bash
+GET /campanhas?pagina=1&limite=20
+```
+
+O frontend usa timeout de 65 segundos para permitir a primeira inicialização da API no Render, mas finalizar a tentativa caso a API ou o Firestore não respondam. Falhas temporárias retornam mensagens amigáveis e botões de nova tentativa nas telas de perfil, histórico e campanhas. No login, falhas de rede ou indisponibilidade do Firebase são exibidas sem deixar o botão preso em carregamento.
+
+Os testes do backend simulam muitos acessos simultâneos a campanhas, uso de cache, paginação e falha do Firestore:
+```bash
+cd backend
+npm test
+```
 <br>
 <br>
 
@@ -99,6 +116,17 @@ npm start
 Escaneie o QR Code que aparece no terminal com o aplicativo Expo Go no seu celular. O aplicativo agora usará a API hospedada no Render.
 
 (Nota: O Render esta no plano gratuito, a primeira inicialização da API pode demorar ~50 segundos para "acordar".)
+
+### Export Android
+
+Para gerar um export Android local usado em validações de bundle:
+
+```bash
+cd frontend
+npm exec expo -- export --platform android --output-dir dist/android
+```
+
+O comando empacota o JavaScript e os assets Android em `frontend/dist/android`. Esse export valida que o app compila para Android, mas não gera um arquivo APK/AAB instalável.
 <br>
 <br>
 

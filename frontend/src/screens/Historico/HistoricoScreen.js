@@ -9,6 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { getHistorico } from '../../services/authService';
+import { obterMensagemFalhaTemporaria } from '../../utilitarios/Erros';
 
 const FALLBACK_CAMPO = 'Não informado';
 
@@ -152,20 +153,6 @@ const HistoricoScreen = ({ pacienteId, setScreen }) => {
 
     const keyExtractor = useCallback((item) => item._key, []);
 
-    const emptyState = (
-        <View style={styles.emptyContainer}>
-            <Ionicons
-                name={estadoLista === 'erro' ? 'alert-circle-outline' : 'file-tray-outline'}
-                size={42}
-                color={estadoLista === 'erro' ? '#B42318' : '#718096'}
-            />
-            <Text style={styles.emptyTitle}>
-                {estadoLista === 'erro' ? 'Não foi possível carregar' : 'Nenhum registro encontrado'}
-            </Text>
-            <Text style={styles.messageText}>{message}</Text>
-        </View>
-    );
-
     const fetchHistorico = useCallback(async () => {
         try {
             const response = await getHistorico(pacienteId);
@@ -184,7 +171,10 @@ const HistoricoScreen = ({ pacienteId, setScreen }) => {
             }
         } catch (error) {
             setHistorico([]);
-            setMessage(error.message || 'Erro ao carregar o histórico.');
+            setMessage(obterMensagemFalhaTemporaria(
+                error,
+                'Não foi possível carregar o histórico. Tente novamente.'
+            ));
             setEstadoLista('erro');
         } finally {
             setLoading(false);
@@ -200,6 +190,32 @@ const HistoricoScreen = ({ pacienteId, setScreen }) => {
         setRefreshing(true);
         fetchHistorico();
     };
+
+    const renderEmptyState = () => (
+        <View style={styles.emptyContainer}>
+            <Ionicons
+                name={estadoLista === 'erro' ? 'alert-circle-outline' : 'file-tray-outline'}
+                size={42}
+                color={estadoLista === 'erro' ? '#B42318' : '#718096'}
+            />
+            <Text style={styles.emptyTitle}>
+                {estadoLista === 'erro' ? 'Não foi possível carregar' : 'Nenhum registro encontrado'}
+            </Text>
+            <Text style={styles.messageText}>{message}</Text>
+            {estadoLista === 'erro' ? (
+                <TouchableOpacity
+                    style={styles.botaoTentarNovamente}
+                    onPress={() => {
+                        setLoading(true);
+                        fetchHistorico();
+                    }}
+                >
+                    <Ionicons name="refresh-outline" size={18} color="#FFFFFF" />
+                    <Text style={styles.textoBotaoTentarNovamente}>Tentar novamente</Text>
+                </TouchableOpacity>
+            ) : null}
+        </View>
+    );
 
     if (loading) {
         return (
@@ -236,7 +252,7 @@ const HistoricoScreen = ({ pacienteId, setScreen }) => {
                         keyExtractor={keyExtractor}
                         renderItem={renderHistoricoItem}
                         ListHeaderComponent={avisoCard}
-                        ListEmptyComponent={emptyState}
+                        ListEmptyComponent={renderEmptyState}
                         contentContainerStyle={[
                             styles.listaConteudo,
                             historico.length === 0 && styles.listaConteudoVazia
@@ -398,6 +414,23 @@ const styles = StyleSheet.create({
         color: "#718096", 
         fontSize: width * 0.045,
         textAlign: 'center',
+    },
+
+    botaoTentarNovamente: {
+        marginTop: height * 0.025,
+        backgroundColor: '#103d6dff',
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: width * 0.05,
+        paddingVertical: height * 0.014,
+        borderRadius: 24,
+    },
+
+    textoBotaoTentarNovamente: {
+        color: '#FFFFFF',
+        fontWeight: '700',
+        marginLeft: 8,
+        fontSize: width * 0.04,
     },
 
     listaConteudo: {
