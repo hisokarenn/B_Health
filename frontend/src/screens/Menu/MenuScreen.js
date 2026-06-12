@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState } from "react";
 import {
     View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView, Alert, Platform, Image, Dimensions
 } from "react-native";
@@ -6,9 +6,6 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context"; 
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";       
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { collection, getDocs } from 'firebase/firestore'; 
-import { db } from '../../services/firebaseConfig';
 
 const { width, height } = Dimensions.get("window");
 
@@ -16,29 +13,6 @@ const MenuScreen = ({ setScreen, pacienteInfo }) => {
     const [modalVisibleImp, setModalVisibleImp] = useState(false);
     const [modalVisibleFale, setModalVisibleFale] = useState(false);
     const [modalVisibleNos, setModalVisibleNos] = useState(false);
-    
-    const [temNotificacao, setTemNotificacao] = useState(false);
-    const checarNotificacoes = async () => {
-        try {
-            // 1. Busca todas as campanhas do banco
-            const snapshot = await getDocs(collection(db, "campanhas"));
-            const totalCampanhasIds = snapshot.docs.map(doc => doc.id);
-
-            // 2. Busca quais já foram lidas no AsyncStorage
-            const lidasStorage = await AsyncStorage.getItem('@notificacoes_lidas');
-            const idsLidas = lidasStorage ? JSON.parse(lidasStorage) : [];
-
-            // 3. Se existe algum ID no banco que NÃO está nas lidas, ativa a bolinha
-            const haNovas = totalCampanhasIds.some(id => !idsLidas.includes(id));
-            setTemNotificacao(haNovas);
-        } catch (error) {
-            console.log("Erro ao verificar notificações:", error);
-        }
-    };
-
-    useEffect(() => {
-        checarNotificacoes();
-    }, []);
 
     const handleLogout = () => {
         Alert.alert(

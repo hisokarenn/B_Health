@@ -1,56 +1,117 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, ActivityIndicator, Dimensions } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { collection, getDocs } from 'firebase/firestore'; 
-import { db } from '../../services/firebaseConfig';
+import React, { useCallback, useEffect, useState } from 'react';
+import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, ActivityIndicator, Dimensions, Alert } from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context"; 
 import { Ionicons } from "@expo/vector-icons";
+import {
+  buscarCampanhasNaoLidas,
+  marcarNotificacaoComoLida,
+  obterCampanhaId,
+} from '../../utilitarios/Notificacoes';
 
 const { width, height } = Dimensions.get("window");
-const NotificacoesScreen = ({ setScreen, onSelectCampanha }) => {
+const IMAGEM_PLACEHOLDER = require('../../../assets/bhealth.png');
+
+const obterImagemCampanha = (item) => {
+  const uri = String(item?.imagemUrl || item?.imagem_url || '').trim();
+  return /^https?:\/\//i.test(uri) ? { uri } : IMAGEM_PLACEHOLDER;
+};
+
+const NotificacaoItem = ({ item, onPress, disabled }) => {
+  const [imagemFalhou, setImagemFalhou] = useState(false);
+  const imagemCampanha = imagemFalhou ? IMAGEM_PLACEHOLDER : obterImagemCampanha(item);
+
+  return (
+    <TouchableOpacity 
+      style={[styles.card, disabled && styles.cardDesabilitado]} 
+      onPress={() => onPress(item)}
+      activeOpacity={0.9}
+      disabled={disabled}
+    >
+      <View style={styles.badgeNew}>
+        <Ionicons name="sparkles" size={14} color="#3b8214ff" style={{marginRight: 8}}/>
+        <Text style={styles.badgeText}>Nova campanha publicada!</Text>
+      </View>
+
+      <Image
+        source={imagemCampanha}
+        style={styles.cardImage}
+        onError={() => setImagemFalhou(true)}
+      />
+
+      <Text style={styles.cardTitle}>{item.nome || item.titulo || "Nova Campanha de Vacinação"}</Text>
+
+      <View style={styles.divisor} />
+      
+      <View style={styles.footerCard}>
+        {disabled ? (
+          <ActivityIndicator size="small" color="#0f3a72ff" />
+        ) : (
+          <Text style={styles.clickHint}>Toque para ver</Text>
+        )}
+      </View>
+    </TouchableOpacity>
+  );
+};
+
+const NotificacoesScreen = ({
+  setScreen,
+  onSelectCampanha,
+  onNotificationsAccessed,
+  pacienteInfo,
+}) => {
   const [notificacoes, setNotificacoes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [mensagem, setMensagem] = useState('');
+  const [erro, setErro] = useState('');
+  const [processandoId, setProcessandoId] = useState('');
 
-  const carregarNotificacoes = async () => {
+  const uidUsuario = pacienteInfo?.uid;
+
+  const carregarNotificacoes = useCallback(async () => {
     try {
       setLoading(true);
-      
-      // 1. Busca todas as campanhas do Firebase
-      const querySnapshot = await getDocs(collection(db, "campanhas"));
-      const campanhasDoBanco = [];
-      querySnapshot.forEach((doc) => {
-        campanhasDoBanco.push({ id: doc.id, ...doc.data() });
-      });
+      setErro('');
+      setMensagem('');
 
-      // 2. Busca IDs já lidos do armazenamento local
-      const lidasStorage = await AsyncStorage.getItem('@notificacoes_lidas');
-      const idsLidas = lidasStorage ? JSON.parse(lidasStorage) : [];
-
-      // 3. Filtra apenas as que NÃO estão salvas como lidas
-      const naoLidas = campanhasDoBanco.filter(c => !idsLidas.includes(c.id));
-      
+      const naoLidas = await buscarCampanhasNaoLidas(uidUsuario);
       setNotificacoes(naoLidas);
+
+      if (naoLidas.length === 0) {
+        setMensagem('Nenhuma campanha nova');
+      }
     } catch (error) {
       console.error("Erro ao carregar notificações", error);
+      setNotificacoes([]);
+      setErro('Não foi possível carregar suas notificações. Verifique sua conexão e tente novamente.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [uidUsuario]);
 
   useEffect(() => {
     carregarNotificacoes();
-  }, []);
+  }, [carregarNotificacoes]);
 
   const handleAbrirCampanha = async (campanha) => {
+    const campanhaId = obterCampanhaId(campanha);
+
     try {
-      const lidasStorage = await AsyncStorage.getItem('@notificacoes_lidas');
-      const idsLidas = lidasStorage ? JSON.parse(lidasStorage) : [];
-      
-      if (!idsLidas.includes(campanha.id)) {
-        const novosIds = [...idsLidas, campanha.id];
-        await AsyncStorage.setItem('@notificacoes_lidas', JSON.stringify(novosIds));
+      setProcessandoId(campanhaId);
+      setErro('');
+      setMensagem('');
+
+      const resultado = await marcarNotificacaoComoLida(campanhaId, uidUsuario);
+
+      if (!resultado.sincronizado && resultado.mensagem) {
+        setMensagem(resultado.mensagem);
+        Alert.alert('Sincronização pendente', resultado.mensagem);
       }
-      setNotificacoes(prev => prev.filter(item => item.id !== campanha.id));
+
+      setNotificacoes(prev => prev.filter(item => obterCampanhaId(item) !== campanhaId));
+
+      if (onNotificationsAccessed) {
+        await onNotificationsAccessed();
+      }
 
       if (onSelectCampanha) {
           onSelectCampanha(campanha);
@@ -59,7 +120,10 @@ const NotificacoesScreen = ({ setScreen, onSelectCampanha }) => {
       }
 
     } catch (error) {
-      console.log("Erro ao salvar leitura da notificação", error);
+      console.error("Erro ao salvar leitura da notificação", error);
+      setErro(error.message || 'Não foi possível marcar a notificação como lida.');
+    } finally {
+      setProcessandoId('');
     }
   };
 
@@ -82,39 +146,43 @@ const NotificacoesScreen = ({ setScreen, onSelectCampanha }) => {
         ) : notificacoes.length === 0 ? (
 
             <View style={styles.emptyContainer}>
-                <Ionicons name="notifications-off-outline" size={60} color="#ccc" />
-                <Text style={styles.emptyText}>Nenhuma campanha nova</Text>
+                <Ionicons
+                  name={erro ? 'alert-circle-outline' : 'notifications-off-outline'}
+                  size={60}
+                  color={erro ? '#B42318' : '#ccc'}
+                />
+                <Text style={[styles.emptyText, erro && styles.errorText]}>
+                  {erro || mensagem || 'Nenhuma campanha nova'}
+                </Text>
+                {erro ? (
+                  <TouchableOpacity style={styles.retryButton} onPress={carregarNotificacoes}>
+                    <Ionicons name="refresh-outline" size={width * 0.05} color="#FFFFFF" />
+                    <Text style={styles.retryButtonText}>Tentar novamente</Text>
+                  </TouchableOpacity>
+                ) : null}
             </View>
         ) : (
+          <>
+            {mensagem ? (
+              <View style={styles.statusCard}>
+                <Ionicons name="information-circle-outline" size={18} color="#0f3a72ff" />
+                <Text style={styles.statusText}>{mensagem}</Text>
+              </View>
+            ) : null}
+
             <FlatList
                 data={notificacoes}
-                keyExtractor={(item) => item.id}
+                keyExtractor={(item) => obterCampanhaId(item)}
                 contentContainerStyle={styles.listContent}
                 renderItem={({ item }) => (
-                    <TouchableOpacity 
-                        style={styles.card} 
-                        onPress={() => handleAbrirCampanha(item)}
-                        activeOpacity={0.9}
-                    >
-                        <View style={styles.badgeNew}>
-                            <Ionicons name="sparkles" size={14} color="#3b8214ff" style={{marginRight: 8}}/>
-                            <Text style={styles.badgeText}>Nova campanha publicada!</Text>
-                        </View>
-
-                        {item.imagemUrl ? (
-                            <Image source={{ uri: item.imagemUrl }} style={styles.cardImage} />
-                        ) : null}
-
-                        <Text style={styles.cardTitle}>{item.nome || item.titulo || "Nova Campanha de Vacinação"}</Text>
-
-                        <View style={styles.divisor} />
-                        
-                        <View style={styles.footerCard}>
-                            <Text style={styles.clickHint}>Toque para ver</Text>
-                        </View>
-                    </TouchableOpacity>
+                    <NotificacaoItem
+                      item={item}
+                      onPress={handleAbrirCampanha}
+                      disabled={processandoId === obterCampanhaId(item)}
+                    />
                 )}
             />
+          </>
         )}
       </View>
     </SafeAreaView>
@@ -166,7 +234,51 @@ const styles = StyleSheet.create({
     marginTop: 15,
     fontSize: width * 0.04, 
     color: '#888', 
-    fontWeight: '500' 
+    fontWeight: '500',
+    textAlign: 'center',
+    paddingHorizontal: width * 0.08,
+  },
+
+  errorText: {
+    color: '#B42318',
+  },
+
+  retryButton: {
+    marginTop: height * 0.025,
+    backgroundColor: '#143582ff',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: width * 0.05,
+    paddingVertical: height * 0.014,
+    borderRadius: 24,
+  },
+
+  retryButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    marginLeft: 8,
+    fontSize: width * 0.04,
+  },
+
+  statusCard: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    backgroundColor: '#E3F2FD',
+    borderWidth: 1,
+    borderColor: '#B6D7FF',
+    borderRadius: 14,
+    marginHorizontal: width * 0.05,
+    marginTop: height * 0.02,
+    padding: width * 0.035,
+  },
+
+  statusText: {
+    flex: 1,
+    color: '#0f3a72ff',
+    marginLeft: 8,
+    fontSize: width * 0.035,
+    lineHeight: width * 0.048,
+    fontWeight: '600',
   },
 
   listContent: {
@@ -181,6 +293,10 @@ const styles = StyleSheet.create({
     paddingVertical: height * 0.02,
     marginBottom: height * 0.025,
     elevation: 4,
+  },
+
+  cardDesabilitado: {
+    opacity: 0.7,
   },
 
   badgeNew: {

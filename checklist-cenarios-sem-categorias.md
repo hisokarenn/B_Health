@@ -70,12 +70,12 @@ Requisito obrigatório global: ao desenvolver qualquer seção deste checklist, 
 
 ## 6. Notificacoes
 
-- [ ] Requisito obrigatório: desenvolver esta seção seguindo todas as premissas de Nielsen.
-- [ ] Garantir que marcar notificacao como lida persista apos fechar e reabrir o app.
-- [ ] Validar reabertura do app com notificacoes ja lidas.
-- [ ] Testar dois dispositivos abrindo a mesma notificacao.
-- [ ] Evitar sobrescrita de estado de leitura em acessos concorrentes.
-- [ ] Definir armazenamento confiavel para notificacoes lidas quando houver uso em multiplos dispositivos.
+- [x] Requisito obrigatório: desenvolver esta seção seguindo todas as premissas de Nielsen.
+- [x] Garantir que marcar notificacao como lida persista apos fechar e reabrir o app.
+- [x] Validar reabertura do app com notificacoes ja lidas.
+- [ ] Testar dois dispositivos abrindo a mesma notificacao. Pendente de teste manual em dois dispositivos/emuladores com Firestore configurado.
+- [x] Evitar sobrescrita de estado de leitura em acessos concorrentes.
+- [x] Definir armazenamento confiavel para notificacoes lidas quando houver uso em multiplos dispositivos.
 
 ## 7. Navegacao e interface
 

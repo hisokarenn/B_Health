@@ -12,9 +12,7 @@ import NotificacoesScreen from './src/screens/Notificacoes/NotificacoesScreen';
 import InicioScreen from './src/screens/Inicio/InicioScreen';
 import ScreenTransition from "./src/components/ScreenTransition";
 import BottomNav from './src/components/BarraNavegacao';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { collection, getDocs } from 'firebase/firestore'; 
-import { db } from './src/services/firebaseConfig';
+import { existemNotificacoesNaoLidas } from './src/utilitarios/Notificacoes';
 
 export default function App() {
   const [pacienteInfo, setPacienteInfo] = useState(null); 
@@ -23,14 +21,13 @@ export default function App() {
   const [temNotificacao, setTemNotificacao] = useState(false);
 
   const checarNotificacoes = async () => {
+    if (!pacienteInfo?.uid) {
+      setTemNotificacao(false);
+      return;
+    }
+
     try {
-        const snapshot = await getDocs(collection(db, "campanhas"));
-        const totalCampanhasIds = snapshot.docs.map(doc => doc.id);
-
-        const lidasStorage = await AsyncStorage.getItem('@notificacoes_lidas');
-        const idsLidas = lidasStorage ? JSON.parse(lidasStorage) : [];
-
-        const haNovas = totalCampanhasIds.some(id => !idsLidas.includes(id));
+        const haNovas = await existemNotificacoesNaoLidas(pacienteInfo.uid);
         setTemNotificacao(haNovas);
     } catch (error) {
         console.log("Erro ao verificar notificações:", error);
@@ -111,6 +108,7 @@ export default function App() {
         return (
           <NotificacoesScreen 
             setScreen={setCurrentScreen}
+            pacienteInfo={pacienteInfo}
             onSelectCampanha={(item) => {
               setCampanhaSelecionada(item);
               setCurrentScreen('campanhaDetalhe');
