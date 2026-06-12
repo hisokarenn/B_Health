@@ -5,6 +5,14 @@ import { db, bucket, firebaseAuth } from './firebase.js';
 import multer from 'multer'; 
 import { criarCorsOptions } from './corsConfig.js';
 import { criarCampanhasCache, listarCampanhas } from './campanhasService.js';
+import {
+    textoLimpo,
+    validarDadosPaciente
+} from './pacienteValidation.js';
+import {
+    avaliarAcessoMesmoPaciente,
+    obterTokenBearer
+} from './authRules.js';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -26,31 +34,14 @@ app.get('/', (req, res) => {
     res.send('API B Health (Node.js + Firebase Firestore) rodando!');
 });
 
-const somenteDigitos = (value) => String(value || '').replace(/\D/g, '');
-const textoLimpo = (value) => String(value || '').trim();
-const emailGmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/i;
-const formatarCpf = (value) => value.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-const formatarCns = (value) => value.replace(/(\d{3})(\d{4})(\d{4})(\d{4})/, '$1 $2 $3 $4');
-
 const criarErroHttp = (status, message) => {
     const error = new Error(message);
     error.status = status;
     return error;
 };
 
-const obterTokenBearer = (req) => {
-    const authorization = req.headers.authorization || '';
-    const [tipo, token] = authorization.split(' ');
-
-    if (tipo?.toLowerCase() !== 'bearer' || !token) {
-        return null;
-    }
-
-    return token;
-};
-
 const autenticarRequisicao = async (req, res, next) => {
-    const token = obterTokenBearer(req);
+    const token = obterTokenBearer(req.headers.authorization);
 
     if (!token) {
         return res.status(401).json({
@@ -70,18 +61,14 @@ const autenticarRequisicao = async (req, res, next) => {
 };
 
 const autorizarMesmoPaciente = (parametroUid) => (req, res, next) => {
-    const uidSolicitado = textoLimpo(req.params[parametroUid]);
-    const uidAutenticado = textoLimpo(req.usuarioAutenticado?.uid);
+    const avaliacao = avaliarAcessoMesmoPaciente({
+        uidSolicitado: req.params[parametroUid],
+        uidAutenticado: req.usuarioAutenticado?.uid,
+    });
 
-    if (!uidAutenticado) {
-        return res.status(401).json({
-            error: 'Autenticação necessária para acessar este recurso.'
-        });
-    }
-
-    if (uidSolicitado !== uidAutenticado) {
-        return res.status(403).json({
-            error: 'Você não tem permissão para acessar dados de outro paciente.'
+    if (!avaliacao.permitido) {
+        return res.status(avaliacao.status).json({
+            error: avaliacao.error
         });
     }
 
@@ -106,33 +93,23 @@ const existePacienteComValor = async (campo, valores, uidAtual) => {
 };
 
 app.post('/pacientes', async (req, res) => {
-    const { uid, nome, cpf, cns, email } = req.body;
-    const uidLimpo = textoLimpo(uid);
-    const nomeLimpo = textoLimpo(nome);
-    const cpfLimpo = textoLimpo(cpf);
-    const cnsLimpo = textoLimpo(cns);
-    const emailLimpo = textoLimpo(email).toLowerCase();
-    const cpfNumeros = somenteDigitos(cpfLimpo);
-    const cnsNumeros = somenteDigitos(cnsLimpo);
+    const validacao = validarDadosPaciente(req.body);
     
-    if (!uidLimpo || !nomeLimpo || !cpfNumeros || !cnsNumeros || !emailLimpo) {
-        return res.status(400).json({ error: 'Todos os campos são obrigatórios' });
+    if (!validacao.ok) {
+        return res.status(validacao.status).json({ error: validacao.error });
     }
 
-    if (!emailGmailRegex.test(emailLimpo)) {
-        return res.status(400).json({ error: 'Use um e-mail válido do domínio @gmail.com.' });
-    }
-
-    if (cpfNumeros.length !== 11) {
-        return res.status(400).json({ error: 'O CPF deve conter 11 dígitos.' });
-    }
-
-    if (cnsNumeros.length !== 15) {
-        return res.status(400).json({ error: 'O CNS deve conter 15 dígitos.' });
-    }
-
-    const cpfFormatado = formatarCpf(cpfNumeros);
-    const cnsFormatado = formatarCns(cnsNumeros);
+    const {
+        uidLimpo,
+        nomeLimpo,
+        cpfLimpo,
+        cnsLimpo,
+        emailLimpo,
+        cpfNumeros,
+        cnsNumeros,
+        cpfFormatado,
+        cnsFormatado,
+    } = validacao.dados;
 
     try {
         const cpfDuplicado = await existePacienteComValor(

@@ -109,9 +109,9 @@ Requisito obrigatório global: ao desenvolver qualquer seção deste checklist, 
 
 ## 10. Validacao final
 
-- [ ] Requisito obrigatório: desenvolver esta seção seguindo todas as premissas de Nielsen.
-- [ ] Criar casos de teste manuais para cada item deste checklist.
-- [ ] Automatizar testes de validacao de cadastro, login, rotas protegidas e campanhas quando possivel.
-- [ ] Registrar evidencias dos testes com cenario, resultado esperado e resultado obtido.
-- [ ] Reexecutar os fluxos principais apos cada correcao: cadastro, login, perfil, historico, campanhas e notificacoes.
-- [ ] Confirmar que nenhuma melhoria aplicada depende de sugestoes fora da secao `1. Cenarios Sem Categorias`.
+- [x] Requisito obrigatório: desenvolver esta seção seguindo todas as premissas de Nielsen.
+- [x] Criar casos de teste manuais para cada item deste checklist. Evidencia: `docs/validacao-final-cenarios-sem-categorias.md`.
+- [x] Automatizar testes de validacao de cadastro, login, rotas protegidas e campanhas quando possivel.
+- [x] Registrar evidencias dos testes com cenario, resultado esperado e resultado obtido. Evidencia: `docs/validacao-final-cenarios-sem-categorias.md`.
+- [x] Reexecutar os fluxos principais apos cada correcao: cadastro, login, perfil, historico, campanhas e notificacoes.
+- [x] Confirmar que nenhuma melhoria aplicada depende de sugestoes fora da secao `1. Cenarios Sem Categorias`.

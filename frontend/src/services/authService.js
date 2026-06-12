@@ -12,9 +12,9 @@ import {
     obterMensagemAcessoNegado
 } from '../utilitarios/Seguranca';
 import {
-    ehErroSemConexao,
     obterMensagemFalhaTemporaria
 } from '../utilitarios/Erros';
+import { obterMensagemErroAutenticacao } from '../utilitarios/AuthMensagens';
 
 // Se estiver testando localemnte, rode o backend localmente, use o IP da sua máquina (ex: 'http://192.168.1.15:3000')
 const API_BASE_URL = 'https://b-health-app-api.onrender.com'; 
@@ -44,34 +44,6 @@ const executarRequisicaoPrivada = async (requisicao, fallback) => {
 const normalizarEmail = (email) => String(email || '').trim().toLowerCase();
 
 const validarEmail = (email) => emailRegex.test(normalizarEmail(email));
-
-const erroSemInternet = (error) => {
-    return ehErroSemConexao(error);
-};
-
-const mensagemErroAutenticacao = (error, fallback) => {
-    if (erroSemInternet(error)) {
-        return 'Sem conexão com a internet. Verifique sua conexão e tente novamente.';
-    }
-
-    if (
-        error.code === 'auth/invalid-credential'
-        || error.code === 'auth/user-not-found'
-        || error.code === 'auth/wrong-password'
-    ) {
-        return 'E-mail ou senha incorretos.';
-    }
-
-    if (error.code === 'auth/invalid-email') {
-        return 'E-mail inválido. Verifique o endereço informado.';
-    }
-
-    if (error.code === 'auth/too-many-requests') {
-        return 'Muitas tentativas em sequência. Aguarde alguns minutos e tente novamente.';
-    }
-
-    return obterMensagemFalhaTemporaria(error, fallback);
-};
 
 const desfazerUsuarioFirebase = async (user) => {
     try {
@@ -104,7 +76,7 @@ export const solicitarRecuperacaoSenha = async (email) => {
         }
 
         throw new Error(
-            mensagemErroAutenticacao(
+            obterMensagemErroAutenticacao(
                 error,
                 'Não foi possível enviar o e-mail de recuperação. Tente novamente.'
             )
@@ -182,7 +154,7 @@ export const realizarLogin = async (email, senha) => {
         return user; 
     } catch (error) {
         throw new Error(
-            mensagemErroAutenticacao(
+            obterMensagemErroAutenticacao(
                 error,
                 'Não foi possível fazer login. Tente novamente.'
             )
