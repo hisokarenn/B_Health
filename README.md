@@ -122,11 +122,18 @@ Escaneie o QR Code que aparece no terminal com o aplicativo Expo Go no seu celul
 Para gerar um export Android local usado em validações de bundle:
 
 ```bash
-cd frontend
-npm exec expo -- export --platform android --output-dir dist/android
+npm --prefix frontend run export:android
 ```
 
-O comando empacota o JavaScript e os assets Android em `frontend/dist/android`. Esse export valida que o app compila para Android, mas não gera um arquivo APK/AAB instalável.
+Execute o comando a partir da raiz do repositório. Ele usa o Expo instalado em `frontend/node_modules` e empacota o JavaScript e os assets Android em `frontend/dist/android`.
+
+Se estiver dentro da pasta `frontend`, use:
+
+```bash
+npm run export:android
+```
+
+Esse export valida que o app compila para Android, mas não gera um arquivo APK/AAB instalável.
 <br>
 <br>
 

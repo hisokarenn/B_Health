@@ -9,6 +9,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { cadastrarPaciente } from '../../services/authService';
 import { Dimensions } from 'react-native';
 
+import { fonte } from '../../utilitarios/responsivo';
+
 const CadastroScreen = ({ setScreen }) => {
   const [nome, setNome] = useState('');
   const [cpf, setCpf] = useState('');
@@ -340,14 +342,14 @@ const styles = StyleSheet.create({
   },
 
   titulo: {
-    fontSize: Math.min(width * 0.07, 35),
+    fontSize: fonte(26, { max: 35 }),
     fontWeight: 'bold',
     color: '#fff',
   },
 
   loginTitulo: {
     marginTop: height * 0.02,
-    fontSize: Math.min(width * 0.055, 28),
+    fontSize: fonte(21, { max: 28 }),
     fontWeight: 'bold',
     color: '#192f3fff',
     textAlign: 'center',
@@ -361,7 +363,7 @@ const styles = StyleSheet.create({
   },
 
   label: {
-    fontSize: Math.min(width * 0.035, 18),
+    fontSize: fonte(13, { max: 18 }),
     color: '#333',
     marginBottom: 5,
     fontWeight: 'bold',
@@ -378,7 +380,7 @@ const styles = StyleSheet.create({
 
   errorText: {
     color: '#c53939',
-    fontSize: Math.min(width * 0.032, 15),
+    fontSize: fonte(12, { max: 15 }),
     fontWeight: '600',
     marginTop: -8,
     marginBottom: 12,
@@ -386,7 +388,7 @@ const styles = StyleSheet.create({
 
   formErrorText: {
     color: '#c53939',
-    fontSize: Math.min(width * 0.034, 16),
+    fontSize: fonte(13, { max: 16 }),
     fontWeight: '700',
     marginBottom: 12,
   },
@@ -411,7 +413,7 @@ const styles = StyleSheet.create({
 
   btnTexto: {
     color: '#ffffff',
-    fontSize: Math.min(width * 0.04, 20),
+    fontSize: fonte(15, { max: 20 }),
     fontWeight: 'bold',
     marginTop: height * 0.004
   },
@@ -426,7 +428,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     textDecorationLine: 'underline',
     fontWeight: 'bold',
-    fontSize: Math.min(width * 0.035, 18),
+    fontSize: fonte(13, { max: 18 }),
   },
 });
 

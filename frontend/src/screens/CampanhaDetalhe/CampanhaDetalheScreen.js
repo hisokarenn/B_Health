@@ -1,4 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import { fonte } from '../../utilitarios/responsivo';
+
 import { 
     View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, 
     Linking, Platform, Dimensions 
@@ -340,39 +342,37 @@ const styles = StyleSheet.create({
         zIndex: 20,
     },
 
-    headerTexto: { 
-        position: 'absolute', 
-        bottom: height * 0.06,
+    headerTexto: {
+        position: 'absolute',
+        bottom: height * 0.105,
         left: width * 0.05,
         right: width * 0.05,
-        zIndex: 10 
+        zIndex: 10
     },
 
-    tipoBadge: { 
-        backgroundColor: "#699ed0ff", 
-        alignSelf: 'flex-start', 
-        paddingHorizontal: width * 0.03, 
-        paddingVertical: height * 0.007, 
+    tipoBadge: {
+        backgroundColor: "#699ed0ff",
+        alignSelf: 'flex-start',
+        paddingHorizontal: width * 0.03,
+        paddingVertical: height * 0.007,
         borderRadius: width * 0.03,
         marginBottom: height * 0.012,
-        top: -height * 0.045,
     },
 
     tipoBadgeTexto: { 
         color: 'white', 
         fontWeight: 'bold', 
-        fontSize: width * 0.03,
+        fontSize: fonte(11),
         textTransform: 'uppercase' 
     },
 
     detalheTitulo: { 
-        fontSize: width * 0.07, 
+        fontSize: fonte(26), 
         fontWeight: '800', 
         color: 'white', 
-        lineHeight: width * 0.085,
-        textShadowColor: 'rgba(0,0,0,0.5)', 
+        lineHeight: fonte(32),
+        textShadowColor: 'rgba(0,0,0,0.5)',
         textShadowRadius: 10,
-        top: -height * 0.045,
     },
     
     detalhes: {
@@ -386,16 +386,16 @@ const styles = StyleSheet.create({
     },
 
     secaoDetalhe: { 
-        fontSize: width * 0.05,
+        fontSize: fonte(19),
         fontWeight: '700', 
         color: "#152545ff", 
         marginBottom: height * 0.02 
     },
 
     descricaoDet: { 
-        fontSize: width * 0.04,
+        fontSize: fonte(15),
         color: '#4A5568', 
-        lineHeight: width * 0.055,
+        lineHeight: fonte(21),
         textAlign: 'justify',
     },
 
@@ -426,16 +426,16 @@ const styles = StyleSheet.create({
     },
 
     infoLabel: { 
-        fontSize: width * 0.035, 
+        fontSize: fonte(13), 
         color: "#455061ff", 
         marginBottom: 2,
         fontWeight: 'bold' 
     },
 
     infoValor: { 
-        fontSize: width * 0.033, 
+        fontSize: fonte(12), 
         color: '#5f6b80ff', 
-        lineHeight: width * 0.05
+        lineHeight: fonte(19)
     },
 
     locCard: { 
@@ -450,17 +450,17 @@ const styles = StyleSheet.create({
     },
 
     nome: { 
-        fontSize: width * 0.05,
+        fontSize: fonte(19),
         fontWeight: '700', 
         color: "#022e6aff", 
         marginBottom: height * 0.01 
     },
 
     locTexto: { 
-        fontSize: width * 0.04,
+        fontSize: fonte(15),
         color: '#4A5568', 
         marginBottom: height * 0.02, 
-        lineHeight: width * 0.053
+        lineHeight: fonte(20)
     },
 
     avisoLocalizacao: {
@@ -478,8 +478,8 @@ const styles = StyleSheet.create({
         flex: 1,
         color: '#8A4B0F',
         marginLeft: 8,
-        fontSize: width * 0.033,
-        lineHeight: width * 0.047,
+        fontSize: fonte(12),
+        lineHeight: fonte(18),
         fontWeight: '600',
     },
 
@@ -508,7 +508,7 @@ const styles = StyleSheet.create({
     mapaFallbackTexto: {
         marginTop: 8,
         color: '#41669aff',
-        fontSize: width * 0.036,
+        fontSize: fonte(13),
         textAlign: 'center',
         fontWeight: '700',
     },
@@ -533,8 +533,8 @@ const styles = StyleSheet.create({
         flex: 1,
         marginLeft: 8,
         color: '#B42318',
-        fontSize: width * 0.033,
-        lineHeight: width * 0.047,
+        fontSize: fonte(12),
+        lineHeight: fonte(18),
         fontWeight: '600',
     },
 
@@ -554,7 +554,7 @@ const styles = StyleSheet.create({
 
     gpsBtnTexto: { 
         color: "#fff", 
-        fontSize: width * 0.045,
+        fontSize: fonte(17),
         fontWeight: 'bold' 
     },
 });

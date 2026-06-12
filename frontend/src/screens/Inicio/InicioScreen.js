@@ -1,5 +1,7 @@
 import React from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions } from "react-native";
+import { fonte } from '../../utilitarios/responsivo';
+
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -85,7 +87,7 @@ const styles = StyleSheet.create({
 
   btnTexto:{
     color:"#fff",
-    fontSize: width * 0.05,
+    fontSize: fonte(19),
     fontWeight:"600"
   },
 });

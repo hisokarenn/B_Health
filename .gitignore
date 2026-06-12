@@ -39,6 +39,7 @@ local_dump.dump
 
 # Arquivos de build (APK/AAB)
 /build/
+/frontend/dist/
 
 # Cache e logs
 npm-debug.log*

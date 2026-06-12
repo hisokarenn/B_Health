@@ -1,5 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from "react-native";
+import { fonte } from '../utilitarios/responsivo';
+
 import { Ionicons } from "@expo/vector-icons";
 
 const { width, height } = Dimensions.get("window");
@@ -105,7 +107,7 @@ const styles = StyleSheet.create({
     },
 
     navTexto: {
-        fontSize: width * 0.035,
+        fontSize: fonte(13),
         marginTop: 4,
         color: "rgba(255,255,255,0.65)",
         fontWeight: "600",

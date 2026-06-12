@@ -1,4 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { fonte } from '../../utilitarios/responsivo';
+
 import { 
     View, Text, StyleSheet, TouchableOpacity, ScrollView, 
     Dimensions, Alert, StatusBar, ActivityIndicator 
@@ -94,7 +96,7 @@ const PerfilScreen = ({ setScreen, pacienteInfo }) => {
     const InfoItem = ({ icon, label, value, isCopyable = false }) => (
         <View style={styles.infoItem}>
             <View style={styles.iconContainer}>
-                <Ionicons name={icon} size={width * 0.055} color={"#1d4886ff"} />
+                <Ionicons name={icon} size={fonte(21)} color={"#1d4886ff"} />
             </View>
             <View style={styles.infoContent}>
                 <Text style={styles.infoLabel}>{label}</Text>
@@ -102,7 +104,7 @@ const PerfilScreen = ({ setScreen, pacienteInfo }) => {
             </View>
             {isCopyable && (
                 <TouchableOpacity>
-                    <Ionicons name="copy-outline" size={width * 0.045} color={"#718096"} />
+                    <Ionicons name="copy-outline" size={fonte(17)} color={"#718096"} />
                 </TouchableOpacity>
             )}
         </View>
@@ -125,15 +127,15 @@ const PerfilScreen = ({ setScreen, pacienteInfo }) => {
                 >
                     <SafeAreaView edges={['top']}>
                         <View style={styles.cabecalhoContent}>
-                            <Text style={[styles.cabecalhoTitulo, { fontSize: width * 0.05 } ]}>Meu Perfil</Text>
+                            <Text style={[styles.cabecalhoTitulo, { fontSize: fonte(19) } ]}>Meu Perfil</Text>
                             
                             <View style={[styles.avatarContainer, { width: width * 0.26, height: width * 0.26, borderRadius: width * 0.13 }]}>
-                                <Text style={[styles.avatarTexto, { fontSize: width * 0.12 }]}>{getInitials(user.nome)}</Text>
+                                <Text style={[styles.avatarTexto, { fontSize: fonte(45) }]}>{getInitials(user.nome)}</Text>
                             </View>
                             
-                            <Text style={[styles.userNome, { fontSize: width * 0.065 }]}>{user.nome}</Text>
-                            <Text style={[styles.userEmail, { fontSize: width * 0.04 }]}>{user.email}</Text>
-                            <Text style={[styles.tempoDeUso, { fontSize: width * 0.032 }]}>Membro desde {user.createdAt ? formatDate(user.createdAt) : "-"}</Text>
+                            <Text style={[styles.userNome, { fontSize: fonte(24) }]}>{user.nome}</Text>
+                            <Text style={[styles.userEmail, { fontSize: fonte(15) }]}>{user.email}</Text>
+                            <Text style={[styles.tempoDeUso, { fontSize: fonte(12) }]}>Membro desde {user.createdAt ? formatDate(user.createdAt) : "-"}</Text>
                         </View>
                     </SafeAreaView>
                 </LinearGradient>
@@ -142,7 +144,7 @@ const PerfilScreen = ({ setScreen, pacienteInfo }) => {
                 <View style={styles.body}>
                     {erroPerfil ? (
                         <View style={styles.erroCard}>
-                            <Ionicons name="alert-circle-outline" size={width * 0.055} color="#B42318" />
+                            <Ionicons name="alert-circle-outline" size={fonte(21)} color="#B42318" />
                             <View style={styles.erroConteudo}>
                                 <Text style={styles.erroTexto}>{erroPerfil}</Text>
                                 <TouchableOpacity
@@ -157,7 +159,7 @@ const PerfilScreen = ({ setScreen, pacienteInfo }) => {
                         </View>
                     ) : null}
                     
-                    <Text style={[styles.secaoTitulo, { fontSize: width * 0.045 }]}>Documentação Pessoal</Text>
+                    <Text style={[styles.secaoTitulo, { fontSize: fonte(17) }]}>Documentação Pessoal</Text>
                     <View style={styles.divisor} />
                     <View style={[styles.card, { padding: width * 0.02 }]}>
                         <InfoItem 
@@ -173,7 +175,7 @@ const PerfilScreen = ({ setScreen, pacienteInfo }) => {
                         />
                     </View>
 
-                    <Text style={[styles.secaoTitulo, { fontSize: width * 0.045 }]}>Dados da Conta</Text>
+                    <Text style={[styles.secaoTitulo, { fontSize: fonte(17) }]}>Dados da Conta</Text>
                     <View style={styles.divisor} />
                     <View style={[styles.card, { padding: width * 0.02 }]}>
                         <InfoItem 
@@ -197,11 +199,11 @@ const PerfilScreen = ({ setScreen, pacienteInfo }) => {
                         ]} 
                         onPress={handleLogout}
                     >
-                        <Ionicons name="log-out-outline" size={width * 0.06} color={"#E53E3E"} />
-                        <Text style={[styles.sairTexto, { fontSize: width * 0.045 }]}>Sair da Conta</Text>
+                        <Ionicons name="log-out-outline" size={fonte(23)} color={"#E53E3E"} />
+                        <Text style={[styles.sairTexto, { fontSize: fonte(17) }]}>Sair da Conta</Text>
                     </TouchableOpacity>
 
-                    <Text style={[styles.versaoTexto, { fontSize: width * 0.032 }]}>B Health App v1.0.2</Text>
+                    <Text style={[styles.versaoTexto, { fontSize: fonte(12) }]}>B Health App v1.0.2</Text>
                 </View>
             </ScrollView>
 

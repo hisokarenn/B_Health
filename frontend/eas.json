@@ -1,0 +1,22 @@
+{
+  "cli": {
+    "version": ">= 16.0.0"
+  },
+  "build": {
+    "preview": {
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyCPhSD6RW4ah7riCmsK1xxHeJEdWc9O6oA",
+        "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "b-health-app.firebaseapp.com",
+        "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "b-health-app",
+        "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "b-health-app.firebasestorage.app",
+        "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "920367679286",
+        "EXPO_PUBLIC_FIREBASE_APP_ID": "1:920367679286:web:704f40a29c6a23c5971597",
+        "EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID": "G-8HGLV0WDEF"
+      },
+      "android": {
+        "buildType": "apk"
+      }
+    }
+  }
+}

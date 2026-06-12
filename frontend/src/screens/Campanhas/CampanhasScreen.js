@@ -1,4 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { fonte } from '../../utilitarios/responsivo';
+
 import { 
     View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, Image, StatusBar, Platform, Dimensions
 } from 'react-native';
@@ -56,7 +58,7 @@ const CampanhaItem = ({ item, onPress }) => {
                         <View style={[styles.tag, { backgroundColor: '#E3F2FD' }]}>
                             <Ionicons 
                                 name="time-outline" 
-                                size={width * 0.035}
+                                size={fonte(13)}
                                 color="#23569dff" 
                                 style={styles.iconeTag}
                             />
@@ -73,12 +75,12 @@ const CampanhaItem = ({ item, onPress }) => {
 
                 <View style={styles.rodapeCartao}>
                     <Text style={styles.textoLocalizacao} numberOfLines={1}>
-                        <Ionicons name="location-sharp" size={width * 0.04} color="#d55656ff" />
+                        <Ionicons name="location-sharp" size={fonte(15)} color="#d55656ff" />
                         {' '}{item.unidade_saude_nome || item.locais_aplicacao || "Unidade de Saúde"}
                     </Text>
                     <Ionicons 
                         name="arrow-forward-circle" 
-                        size={width * 0.1}
+                        size={fonte(38)}
                         color="#41669aff" 
                     />
                 </View>
@@ -243,7 +245,7 @@ const CampanhasScreen = ({ onSelectCampanha, setScreen }) => {
                         onPress={() => setScreen('menu')}
                         style={styles.headerIcone}
                     >
-                        <Ionicons name="arrow-back" size={width * 0.07} color="#FFFFFF" />
+                        <Ionicons name="arrow-back" size={fonte(26)} color="#FFFFFF" />
                     </TouchableOpacity>
             
                     <Text style={styles.tituloHeader}>B Health</Text>
@@ -261,7 +263,7 @@ const CampanhasScreen = ({ onSelectCampanha, setScreen }) => {
                         <View style={styles.containerCentralizado}>
                             <Ionicons
                                 name={erroCarregamento ? 'alert-circle-outline' : 'folder-open-outline'}
-                                size={width * 0.15}
+                                size={fonte(56)}
                                 color={erroCarregamento ? '#B42318' : '#CBD5E0'}
                             />
                             <Text style={styles.textoMensagem}>{message}</Text>
@@ -270,7 +272,7 @@ const CampanhasScreen = ({ onSelectCampanha, setScreen }) => {
                                     style={styles.botaoTentarNovamente}
                                     onPress={() => fetchCampanhas()}
                                 >
-                                    <Ionicons name="refresh-outline" size={width * 0.05} color="#FFFFFF" />
+                                    <Ionicons name="refresh-outline" size={fonte(19)} color="#FFFFFF" />
                                     <Text style={styles.textoBotaoTentarNovamente}>Tentar novamente</Text>
                                 </TouchableOpacity>
                             )}
@@ -339,7 +341,7 @@ const styles = StyleSheet.create({
 
     tituloHeader: {
         color: "#fff",
-        fontSize: width * 0.055,
+        fontSize: fonte(21),
         fontWeight: "bold",
         marginLeft: width * 0.07,
     },
@@ -352,14 +354,14 @@ const styles = StyleSheet.create({
     },
 
     tituloCabecalhoSecao: { 
-        fontSize: width * 0.06, 
+        fontSize: fonte(23), 
         fontWeight: '800', 
         color: "#1A202C", 
         letterSpacing: -0.5,
     },
 
     subtituloCabecalhoSecao: { 
-        fontSize: width * 0.04, 
+        fontSize: fonte(15), 
         color: "#718096", 
         marginTop: 4,
     },
@@ -375,13 +377,13 @@ const styles = StyleSheet.create({
     textoCarregamento: { 
         marginTop: 15, 
         color: "#718096", 
-        fontSize: width * 0.045,
+        fontSize: fonte(17),
     },
 
     textoMensagem: { 
         marginTop: 15, 
         color: "#718096", 
-        fontSize: width * 0.045, 
+        fontSize: fonte(17), 
         textAlign: 'center',
     },
 
@@ -399,7 +401,7 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
         fontWeight: '700',
         marginLeft: 8,
-        fontSize: width * 0.04,
+        fontSize: fonte(15),
     },
 
     statusLista: {
@@ -416,7 +418,7 @@ const styles = StyleSheet.create({
     statusListaTexto: {
         flex: 1,
         color: '#B42318',
-        fontSize: width * 0.035,
+        fontSize: fonte(13),
         fontWeight: '600',
         marginLeft: 8,
     },
@@ -431,7 +433,7 @@ const styles = StyleSheet.create({
 
     statusListaBotaoTexto: {
         color: '#FFFFFF',
-        fontSize: width * 0.032,
+        fontSize: fonte(12),
         fontWeight: '700',
     },
 
@@ -442,7 +444,7 @@ const styles = StyleSheet.create({
 
     listaFooterTexto: {
         color: '#718096',
-        fontSize: width * 0.035,
+        fontSize: fonte(13),
         marginTop: 8,
     },
 
@@ -498,12 +500,12 @@ const styles = StyleSheet.create({
 
     textoDataSelo: {
         fontWeight: '900', 
-        fontSize: width * 0.03, 
+        fontSize: fonte(11), 
         color: "#244994ff",
     },
 
     subTextoDataSelo: {
-        fontSize: width * 0.025, 
+        fontSize: fonte(9), 
         color: "#718096", 
         fontWeight: '700',
     },
@@ -531,7 +533,7 @@ const styles = StyleSheet.create({
     },
 
     textoTag: { 
-        fontSize: width * 0.025, 
+        fontSize: fonte(9), 
         fontWeight: '600', 
         textTransform: 'uppercase', 
 
@@ -539,10 +541,10 @@ const styles = StyleSheet.create({
     },
 
     tituloCampanha: { 
-        fontSize: width * 0.05, 
+        fontSize: fonte(19), 
         fontWeight: '600', 
         color: "#1A202C", 
-        lineHeight: width * 0.065, 
+        lineHeight: fonte(24), 
         marginBottom: 2,
     },
 
@@ -555,7 +557,7 @@ const styles = StyleSheet.create({
 
     textoLocalizacao: { 
         color: "#718096", 
-        fontSize: width * 0.038, 
+        fontSize: fonte(14), 
         flex: 1, 
         marginRight: 10,
     },

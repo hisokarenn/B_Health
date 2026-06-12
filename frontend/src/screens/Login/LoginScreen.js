@@ -8,6 +8,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { realizarLogin, solicitarRecuperacaoSenha } from '../../services/authService'; 
 import { Dimensions } from 'react-native';
+import { fonte } from '../../utilitarios/responsivo';
+
 import { salvarCredenciais, obterCredenciais, limparCredenciais } from "../../utilitarios/Seguranca";
 
 const LoginScreen = ({ setScreen, onLoginSuccess }) => {
@@ -299,7 +301,7 @@ const styles = StyleSheet.create({
   },
 
   titulo: {
-    fontSize: Math.min(width * 0.08, 40),
+    fontSize: fonte(30, { max: 40 }),
     fontWeight: 'bold',
     color: '#ffffff',
     marginTop: 15,
@@ -307,7 +309,7 @@ const styles = StyleSheet.create({
 
   loginTitulo: {
     marginTop: 20,
-    fontSize: Math.min(width * 0.06, 30),
+    fontSize: fonte(23, { max: 30 }),
     fontWeight: 'bold',
     color: '#192f3fff',
     textAlign: 'center',
@@ -321,7 +323,7 @@ const styles = StyleSheet.create({
   },
 
   emaileSenha: {
-    fontSize: Math.min(width * 0.035, 18),
+    fontSize: fonte(13, { max: 18 }),
     color: '#181818ff',
     marginBottom: 5,
     fontWeight: 'bold',
@@ -357,7 +359,7 @@ const styles = StyleSheet.create({
 
   esqueciSenhaTexto: {
     color: '#c53939', 
-    fontSize: Math.min(width * 0.035, 18),
+    fontSize: fonte(13, { max: 18 }),
     fontWeight: 'bold',
     textDecorationLine: 'underline',
     textAlign: 'center',
@@ -365,7 +367,7 @@ const styles = StyleSheet.create({
 
   feedbackErro: {
     color: '#c53939',
-    fontSize: Math.min(width * 0.033, 16),
+    fontSize: fonte(12, { max: 16 }),
     fontWeight: '600',
     marginBottom: 12,
     textAlign: 'center',
@@ -373,7 +375,7 @@ const styles = StyleSheet.create({
 
   feedbackInfo: {
     color: '#245e35',
-    fontSize: Math.min(width * 0.032, 15),
+    fontSize: fonte(12, { max: 15 }),
     fontWeight: '600',
     marginBottom: 10,
     textAlign: 'center',
@@ -390,7 +392,7 @@ const styles = StyleSheet.create({
 
   btnTexto: {
     color: '#ffffff',
-    fontSize: Math.min(width * 0.04, 20),
+    fontSize: fonte(15, { max: 20 }),
     fontWeight: 'bold',
   },
 
@@ -404,7 +406,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     textDecorationLine: 'underline',
     fontWeight: 'bold',
-    fontSize: Math.min(width * 0.035, 18),
+    fontSize: fonte(13, { max: 18 }),
   },
 
   checkboxContainer: {

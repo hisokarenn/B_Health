@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "frontend",
+    "name": "B Health",
     "slug": "frontend",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/bhealth-app-icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
@@ -16,9 +16,10 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.bhealth.app",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/bhealth-adaptive-icon.png",
+        "backgroundColor": "#000000"
       },
       "edgeToEdgeEnabled": true
     },
@@ -27,6 +28,11 @@
     },
     "plugins": [
       "expo-secure-store"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "fb858535-fd48-4f95-9c29-dbf33df14fd9"
+      }
+    }
   }
 }
