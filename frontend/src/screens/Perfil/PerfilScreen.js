@@ -14,14 +14,17 @@ const PerfilScreen = ({ setScreen, pacienteInfo }) => {
 
     const [perfilCompleto, setPerfilCompleto] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [erroPerfil, setErroPerfil] = useState('');
 
     useEffect(() => {
         const carregarDadosDoServidor = async () => {
             if (pacienteInfo?.uid) {
                 try {
+                    setErroPerfil('');
                     const response = await getPerfil(pacienteInfo.uid);
                     setPerfilCompleto(response.data);
                 } catch (error) {
+                    setErroPerfil(error.message || 'Não foi possível carregar seu perfil.');
                     console.error("Erro ao atualizar perfil:", error);
                 } finally {
                     setLoading(false);
@@ -129,6 +132,12 @@ const PerfilScreen = ({ setScreen, pacienteInfo }) => {
 
                 {/*informações*/}
                 <View style={styles.body}>
+                    {erroPerfil ? (
+                        <View style={styles.erroCard}>
+                            <Ionicons name="alert-circle-outline" size={width * 0.055} color="#B42318" />
+                            <Text style={styles.erroTexto}>{erroPerfil}</Text>
+                        </View>
+                    ) : null}
                     
                     <Text style={[styles.secaoTitulo, { fontSize: width * 0.045 }]}>Documentação Pessoal</Text>
                     <View style={styles.divisor} />
@@ -270,6 +279,25 @@ const styles = StyleSheet.create({
 
     card: {
         backgroundColor: "#FFFFFF",
+    },
+
+    erroCard: {
+        marginTop: 20,
+        padding: 14,
+        borderRadius: 12,
+        backgroundColor: '#FFF4ED',
+        borderWidth: 1,
+        borderColor: '#FECDCA',
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+
+    erroTexto: {
+        flex: 1,
+        marginLeft: 10,
+        color: '#B42318',
+        fontSize: 14,
+        fontWeight: '600',
     },
 
     divisor: { 

@@ -33,13 +33,13 @@ Requisito obrigatório global: ao desenvolver qualquer seção deste checklist, 
 
 ## 3. Autenticacao e autorizacao de rotas
 
-- [ ] Requisito obrigatório: desenvolver esta seção seguindo todas as premissas de Nielsen.
-- [ ] Proteger `GET /pacientes/:id` com autenticacao.
-- [ ] Impedir que um paciente acesse dados de outro UID em `GET /pacientes/:id`.
-- [ ] Proteger `GET /historico/:pacienteId` com autenticacao.
-- [ ] Impedir acesso ao historico vacinal sem usuario autenticado.
-- [ ] Retornar respostas adequadas para falhas de autenticacao e autorizacao, como `401` ou `403`.
-- [ ] Garantir que o frontend mostre mensagem amigavel quando o acesso for negado.
+- [x] Requisito obrigatório: desenvolver esta seção seguindo todas as premissas de Nielsen.
+- [x] Proteger `GET /pacientes/:id` com autenticacao.
+- [x] Impedir que um paciente acesse dados de outro UID em `GET /pacientes/:id`.
+- [x] Proteger `GET /historico/:pacienteId` com autenticacao.
+- [x] Impedir acesso ao historico vacinal sem usuario autenticado.
+- [x] Retornar respostas adequadas para falhas de autenticacao e autorizacao, como `401` ou `403`.
+- [x] Garantir que o frontend mostre mensagem amigavel quando o acesso for negado.
 
 ## 4. Historico vacinal
 

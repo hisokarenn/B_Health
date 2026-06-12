@@ -1,7 +1,7 @@
 import "./config.js";
 import express from 'express';
 import cors from 'cors';
-import { db, bucket } from './firebase.js'; 
+import { db, bucket, firebaseAuth } from './firebase.js'; 
 import multer from 'multer'; 
 
 const app = express();
@@ -24,6 +24,56 @@ const criarErroHttp = (status, message) => {
     const error = new Error(message);
     error.status = status;
     return error;
+};
+
+const obterTokenBearer = (req) => {
+    const authorization = req.headers.authorization || '';
+    const [tipo, token] = authorization.split(' ');
+
+    if (tipo?.toLowerCase() !== 'bearer' || !token) {
+        return null;
+    }
+
+    return token;
+};
+
+const autenticarRequisicao = async (req, res, next) => {
+    const token = obterTokenBearer(req);
+
+    if (!token) {
+        return res.status(401).json({
+            error: 'Autenticação necessária para acessar este recurso.'
+        });
+    }
+
+    try {
+        req.usuarioAutenticado = await firebaseAuth.verifyIdToken(token);
+        return next();
+    } catch (error) {
+        console.error('Falha ao validar token Firebase:', error);
+        return res.status(401).json({
+            error: 'Sessão inválida ou expirada. Faça login novamente.'
+        });
+    }
+};
+
+const autorizarMesmoPaciente = (parametroUid) => (req, res, next) => {
+    const uidSolicitado = textoLimpo(req.params[parametroUid]);
+    const uidAutenticado = textoLimpo(req.usuarioAutenticado?.uid);
+
+    if (!uidAutenticado) {
+        return res.status(401).json({
+            error: 'Autenticação necessária para acessar este recurso.'
+        });
+    }
+
+    if (uidSolicitado !== uidAutenticado) {
+        return res.status(403).json({
+            error: 'Você não tem permissão para acessar dados de outro paciente.'
+        });
+    }
+
+    return next();
 };
 
 const existePacienteComValor = async (campo, valores, uidAtual) => {
@@ -165,8 +215,8 @@ app.post('/pacientes', async (req, res) => {
     }
 });
 
-app.get('/pacientes/:id', async (req, res) => {
-    const { id } = req.params;
+app.get('/pacientes/:id', autenticarRequisicao, autorizarMesmoPaciente('id'), async (req, res) => {
+    const id = textoLimpo(req.params.id);
 
     try {
         const doc = await db.collection('pacientes').doc(id).get();
@@ -187,8 +237,8 @@ app.get('/pacientes/:id', async (req, res) => {
     }
 });
 
-app.get('/historico/:pacienteId', async (req, res) => {
-    const { pacienteId } = req.params;
+app.get('/historico/:pacienteId', autenticarRequisicao, autorizarMesmoPaciente('pacienteId'), async (req, res) => {
+    const pacienteId = textoLimpo(req.params.pacienteId);
 
     try {
         const snapshot = await db.collection('historico')

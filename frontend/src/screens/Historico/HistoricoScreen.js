@@ -72,7 +72,8 @@ const HistoricoScreen = ({ pacienteId, setScreen }) => {
                 setMessage('Não há registros de vacina disponíveis.');
             }
         } catch (error) {
-            setMessage('Erro ao carregar o histórico.');
+            setHistorico([]);
+            setMessage(error.message || 'Erro ao carregar o histórico.');
         } finally {
             setLoading(false);
             setRefreshing(false);

@@ -7,6 +7,10 @@ import {
     signInWithEmailAndPassword,
     updateProfile
 } from "firebase/auth";
+import {
+    obterCabecalhoAutenticacao,
+    obterMensagemAcessoNegado
+} from '../utilitarios/Seguranca';
 
 // Se estiver testando localemnte, rode o backend localmente, use o IP da sua máquina (ex: 'http://192.168.1.15:3000')
 const API_BASE_URL = 'https://b-health-app-api.onrender.com'; 
@@ -15,6 +19,15 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const obterMensagemErroApi = (error) => {
     return error.response?.data?.error || error.response?.data?.message;
+};
+
+const executarRequisicaoPrivada = async (requisicao, fallback) => {
+    try {
+        const headers = await obterCabecalhoAutenticacao();
+        return await requisicao(headers);
+    } catch (error) {
+        throw new Error(obterMensagemAcessoNegado(error, fallback));
+    }
 };
 
 const normalizarEmail = (email) => String(email || '').trim().toLowerCase();
@@ -165,12 +178,18 @@ export const realizarLogin = async (email, senha) => {
 
 // Busca o perfil usando o UID do usuário logado
 export const getPerfil = (uid) => {
-    return axios.get(`${API_BASE_URL}/pacientes/${uid}`);
+    return executarRequisicaoPrivada(
+        (headers) => axios.get(`${API_BASE_URL}/pacientes/${uid}`, { headers }),
+        'Não foi possível carregar seu perfil. Tente novamente.'
+    );
 };
 
 // Busca o histórico de vacinas
 export const getHistorico = (uid) => {
-    return axios.get(`${API_BASE_URL}/historico/${uid}`);
+    return executarRequisicaoPrivada(
+        (headers) => axios.get(`${API_BASE_URL}/historico/${uid}`, { headers }),
+        'Não foi possível carregar seu histórico vacinal. Tente novamente.'
+    );
 };
 
 // Busca as campanhas (público)

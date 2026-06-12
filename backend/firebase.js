@@ -11,5 +11,6 @@ admin.initializeApp({
 
 const db = admin.firestore();
 const bucket = admin.storage().bucket();
+const firebaseAuth = admin.auth();
 
-export { db, bucket };
+export { db, bucket, firebaseAuth };
