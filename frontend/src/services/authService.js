@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { auth } from './firebaseConfig';
+import { garantirFirebaseConfigurado } from './firebaseConfig';
 import { 
     deleteUser,
     sendPasswordResetEmail, 
@@ -16,6 +16,8 @@ import {
 const API_BASE_URL = 'https://b-health-app-api.onrender.com'; 
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const obterAuth = () => garantirFirebaseConfigurado().auth;
 
 const obterMensagemErroApi = (error) => {
     return error.response?.data?.error || error.response?.data?.message;
@@ -88,7 +90,7 @@ export const solicitarRecuperacaoSenha = async (email) => {
     }
 
     try {
-        await sendPasswordResetEmail(auth, emailLimpo);
+        await sendPasswordResetEmail(obterAuth(), emailLimpo);
         return true;
     } catch (error) {
         if (error.code === 'auth/user-not-found') {
@@ -109,7 +111,7 @@ export const cadastrarPaciente = async (dados) => {
     let user = null;
 
     try {
-        const userCredential = await createUserWithEmailAndPassword(auth, dados.email, dados.senha);
+        const userCredential = await createUserWithEmailAndPassword(obterAuth(), dados.email, dados.senha);
         user = userCredential.user;
         await updateProfile(user, { displayName: dados.nome });
         await axios.post(`${API_BASE_URL}/pacientes`, {
@@ -161,7 +163,7 @@ export const realizarLogin = async (email, senha) => {
     }
 
     try {
-        const userCredential = await signInWithEmailAndPassword(auth, emailLimpo, senha);
+        const userCredential = await signInWithEmailAndPassword(obterAuth(), emailLimpo, senha);
         const user = userCredential.user;
         return user; 
     } catch (error) {

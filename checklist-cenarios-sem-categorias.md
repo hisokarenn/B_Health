@@ -86,14 +86,14 @@ Requisito obrigatório global: ao desenvolver qualquer seção deste checklist, 
 
 ## 8. Configuracao e inicializacao
 
-- [ ] Requisito obrigatório: desenvolver esta seção seguindo todas as premissas de Nielsen.
-- [ ] Tratar ausencia de `frontend/src/services/firebaseConfig.js` com erro claro de configuracao.
-- [ ] Documentar como criar ou fornecer `firebaseConfig.js` no ambiente local.
-- [ ] Tratar ausencia de `backend/serviceAccountKey.json` com erro claro na inicializacao do backend.
-- [ ] Documentar como fornecer credenciais do Firebase Admin no ambiente local e em producao.
-- [ ] Revisar CORS aberto.
-- [ ] Restringir origens permitidas no CORS conforme ambiente.
-- [ ] Validar tentativa de acesso ao backend a partir de origem externa nao autorizada.
+- [x] Requisito obrigatório: desenvolver esta seção seguindo todas as premissas de Nielsen.
+- [x] Tratar ausencia de `frontend/src/services/firebaseConfig.js` com erro claro de configuracao.
+- [x] Documentar como criar ou fornecer `firebaseConfig.js` no ambiente local.
+- [x] Tratar ausencia de `backend/serviceAccountKey.json` com erro claro na inicializacao do backend.
+- [x] Documentar como fornecer credenciais do Firebase Admin no ambiente local e em producao.
+- [x] Revisar CORS aberto.
+- [x] Restringir origens permitidas no CORS conforme ambiente.
+- [x] Validar tentativa de acesso ao backend a partir de origem externa nao autorizada.
 
 ## 9. Carga, concorrencia e resiliencia
 

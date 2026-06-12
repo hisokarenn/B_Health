@@ -6,8 +6,6 @@
 /backend/node_modules
 /frontend/node_modules
 
-/frontend/src/services/firebaseConfig.js
-
 # Arquivos de lock do NPM/Yarn
 /backend/package-lock.json
 /frontend/package-lock.json
@@ -21,6 +19,8 @@ yarn.lock
 # O arquivo que contém senhas do Supabase/PostgreSQL.
 .env
 .env.*
+!/backend/.env.example
+!/frontend/.env.example
 serviceAccountKey.json
 
 # Arquivos de dump, backup ou dados locais

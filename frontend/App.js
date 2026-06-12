@@ -13,6 +13,7 @@ import InicioScreen from './src/screens/Inicio/InicioScreen';
 import ScreenTransition from "./src/components/ScreenTransition";
 import BottomNav from './src/components/BarraNavegacao';
 import { existemNotificacoesNaoLidas } from './src/utilitarios/Notificacoes';
+import { firebaseConfigError } from './src/services/firebaseConfig';
 
 export default function App() {
   const [pacienteInfo, setPacienteInfo] = useState(null); 
@@ -138,6 +139,18 @@ export default function App() {
   const showBottomNav = pacienteInfo && 
     ['menu', 'historico', 'campanhas', 'perfil', 'notificacoes', 'campanhaDetalhe'].includes(currentScreen);
 
+  if (firebaseConfigError) {
+    return (
+      <View style={styles.configContainer}>
+        <Text style={styles.configTitle}>Configuração indisponível</Text>
+        <Text style={styles.configMessage}>{firebaseConfigError}</Text>
+        <Text style={styles.configHint}>
+          Consulte o README e reinicie o Expo após preencher o arquivo de ambiente.
+        </Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.rootContainer}>
       <ScreenTransition screenKey={currentScreen}>
@@ -168,6 +181,33 @@ const styles = StyleSheet.create({
 
   navBar: {
     marginBottom: 20
+  },
+
+  configContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+    backgroundColor: '#F7FAFC',
+  },
+
+  configTitle: {
+    color: '#102A43',
+    fontSize: 24,
+    fontWeight: '700',
+    marginBottom: 12,
+  },
+
+  configMessage: {
+    color: '#334E68',
+    fontSize: 16,
+    lineHeight: 24,
+  },
+
+  configHint: {
+    color: '#486581',
+    fontSize: 14,
+    lineHeight: 20,
+    marginTop: 12,
   }
 
 });

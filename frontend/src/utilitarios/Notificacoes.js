@@ -8,7 +8,7 @@ import {
   serverTimestamp,
   setDoc,
 } from 'firebase/firestore';
-import { auth, db } from '../services/firebaseConfig';
+import { garantirFirebaseConfigurado } from '../services/firebaseConfig';
 
 const CHAVE_LOCAL_BASE = '@notificacoes_lidas';
 const COLECAO_LEITURAS = 'usuarios_notificacoes_lidas';
@@ -19,7 +19,9 @@ const normalizarIds = (ids) => (
     .map((id) => String(id)))]
 );
 
-const obterUid = (uid) => uid || auth.currentUser?.uid || null;
+const obterFirebase = () => garantirFirebaseConfigurado();
+
+const obterUid = (uid) => uid || obterFirebase().auth.currentUser?.uid || null;
 
 const obterChaveLocal = (uid) => `${CHAVE_LOCAL_BASE}:${uid || 'anonimo'}`;
 
@@ -58,7 +60,7 @@ export const obterIdsNotificacoesLidas = async (uid) => {
   }
 
   try {
-    const leituraDoc = await getDoc(doc(db, COLECAO_LEITURAS, uidUsuario));
+    const leituraDoc = await getDoc(doc(obterFirebase().db, COLECAO_LEITURAS, uidUsuario));
     const dados = leituraDoc.exists() ? leituraDoc.data() : {};
     const idsRemotos = normalizarIds(dados.campanhaIds || dados.idsLidas);
     const idsMesclados = normalizarIds([...idsLocais, ...idsRemotos]);
@@ -92,7 +94,7 @@ export const marcarNotificacaoComoLida = async (campanhaId, uid) => {
 
   try {
     await setDoc(
-      doc(db, COLECAO_LEITURAS, uidUsuario),
+      doc(obterFirebase().db, COLECAO_LEITURAS, uidUsuario),
       {
         campanhaIds: arrayUnion(id),
         updatedAt: serverTimestamp(),
@@ -112,7 +114,7 @@ export const marcarNotificacaoComoLida = async (campanhaId, uid) => {
 
 export const buscarCampanhasNaoLidas = async (uid) => {
   const [snapshot, idsLidas] = await Promise.all([
-    getDocs(collection(db, 'campanhas')),
+    getDocs(collection(obterFirebase().db, 'campanhas')),
     obterIdsNotificacoesLidas(uid),
   ]);
 

@@ -1,5 +1,5 @@
 import * as SecureStore from 'expo-secure-store';
-import { auth } from '../services/firebaseConfig';
+import { garantirFirebaseConfigurado } from '../services/firebaseConfig';
 
 export async function salvarCredenciais(email, senha) {
   try {
@@ -38,7 +38,7 @@ export async function limparCredenciais() {
 }
 
 export async function obterTokenAutenticacao() {
-  const usuario = auth.currentUser;
+  const usuario = garantirFirebaseConfigurado().auth.currentUser;
 
   if (!usuario) {
     throw new Error('Faça login para acessar esta informação.');

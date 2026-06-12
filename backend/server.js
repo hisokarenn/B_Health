@@ -3,11 +3,21 @@ import express from 'express';
 import cors from 'cors';
 import { db, bucket, firebaseAuth } from './firebase.js'; 
 import multer from 'multer'; 
+import { criarCorsOptions } from './corsConfig.js';
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(cors()); 
+app.use(cors(criarCorsOptions()));
+app.use((error, req, res, next) => {
+    if (error.message === 'Origem não autorizada pelo CORS.') {
+        return res.status(403).json({
+            error: 'Origem não autorizada para acessar esta API.'
+        });
+    }
+
+    return next(error);
+});
 app.use(express.json()); 
 
 app.get('/', (req, res) => {
