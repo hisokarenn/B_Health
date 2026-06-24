@@ -152,7 +152,7 @@ const CampanhaDetalheScreen = ({ campanhaDados, setScreen }) => {
     `, [coordenadas.lat, coordenadas.lng]);
 
     const InfoRow = ({ icon, label, value, isBold = false, testID }) => (
-        <View testID={testID} style={styles.infoRow}>
+        <View testID={testID} accessibilityLabel={testID} style={styles.infoRow}>
             <View style={styles.iconeDetalhes}>
                 <Ionicons name={icon} size={20} color={"#0d2a53ff"} />
             </View>
@@ -168,7 +168,7 @@ const CampanhaDetalheScreen = ({ campanhaDados, setScreen }) => {
     return (
         <SafeAreaView style={styles.safe} testID="tela-campanha-detalhe" accessibilityLabel="tela-campanha-detalhe">
         <View style={styles.container}>
-            <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
+            <ScrollView testID="campanha-detalhe-scroll" accessibilityLabel="campanha-detalhe-scroll" showsVerticalScrollIndicator={false} bounces={false}>
                 
                 <View style={styles.detalhesCabecalho}>
                     <Image 

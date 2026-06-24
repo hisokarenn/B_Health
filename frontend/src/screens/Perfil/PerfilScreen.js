@@ -49,7 +49,7 @@ const PerfilScreen = ({ setScreen, pacienteInfo }) => {
 
     if (loading) {
         return (
-            <View style={styles.loadingContainer}>
+            <View testID="perfil-loading" accessibilityLabel="perfil-loading" style={styles.loadingContainer}>
                 <StatusBar barStyle="dark-content" backgroundColor="#fff" />
                 <ActivityIndicator size="large" color="#1d4886ff" />
                 <Text style={styles.loadingText}>Carregando perfil...</Text>
@@ -111,11 +111,13 @@ const PerfilScreen = ({ setScreen, pacienteInfo }) => {
     );
 
     return (
-        <SafeAreaView style={styles.safe}>
+        <SafeAreaView style={styles.safe} testID="tela-perfil" accessibilityLabel="tela-perfil">
         <View style={styles.container}>
             <StatusBar barStyle="light-content" backgroundColor={"#052858ff"} />
             
-            <ScrollView 
+            <ScrollView
+                testID="perfil-scroll"
+                accessibilityLabel="perfil-scroll" 
                 contentContainerStyle={{ paddingBottom: height * 0.12 }} 
                 showsVerticalScrollIndicator={false}
                 bounces={false}
@@ -127,14 +129,14 @@ const PerfilScreen = ({ setScreen, pacienteInfo }) => {
                 >
                     <SafeAreaView edges={['top']}>
                         <View style={styles.cabecalhoContent}>
-                            <Text style={[styles.cabecalhoTitulo, { fontSize: fonte(19) } ]}>Meu Perfil</Text>
+                            <Text testID="perfil-titulo" accessibilityLabel="perfil-titulo" style={[styles.cabecalhoTitulo, { fontSize: fonte(19) } ]}>Meu Perfil</Text>
                             
                             <View style={[styles.avatarContainer, { width: width * 0.26, height: width * 0.26, borderRadius: width * 0.13 }]}>
                                 <Text style={[styles.avatarTexto, { fontSize: fonte(45) }]}>{getInitials(user.nome)}</Text>
                             </View>
                             
-                            <Text style={[styles.userNome, { fontSize: fonte(24) }]}>{user.nome}</Text>
-                            <Text style={[styles.userEmail, { fontSize: fonte(15) }]}>{user.email}</Text>
+                            <Text testID="perfil-nome" accessibilityLabel="perfil-nome" style={[styles.userNome, { fontSize: fonte(24) }]}>{user.nome}</Text>
+                            <Text testID="perfil-email" accessibilityLabel="perfil-email"style={[styles.userEmail, { fontSize: fonte(15) }]}>{user.email}</Text>
                             <Text style={[styles.tempoDeUso, { fontSize: fonte(12) }]}>Membro desde {user.createdAt ? formatDate(user.createdAt) : "-"}</Text>
                         </View>
                     </SafeAreaView>
@@ -143,11 +145,13 @@ const PerfilScreen = ({ setScreen, pacienteInfo }) => {
                 {/*informações*/}
                 <View style={styles.body}>
                     {erroPerfil ? (
-                        <View style={styles.erroCard}>
+                        <View testID="perfil-erro" accessibilityLabel="perfil-erro" style={styles.erroCard}>
                             <Ionicons name="alert-circle-outline" size={fonte(21)} color="#B42318" />
                             <View style={styles.erroConteudo}>
                                 <Text style={styles.erroTexto}>{erroPerfil}</Text>
                                 <TouchableOpacity
+                                    testID="perfil-botao-recarregar"
+                                    accessibilityLabel="perfil-botao-recarregar"
                                     style={styles.erroBotao}
                                     onPress={carregarDadosDoServidor}
                                     disabled={loading}
@@ -192,7 +196,9 @@ const PerfilScreen = ({ setScreen, pacienteInfo }) => {
                     </View>
 
                     {/*sair*/}
-                    <TouchableOpacity 
+                    <TouchableOpacity
+                        testID="perfil-botao-sair"
+                        accessibilityLabel="perfil-botao-sair" 
                         style={[
                             styles.sairBtn, 
                             { paddingVertical: height * 0.017, borderRadius: width * 0.07 }

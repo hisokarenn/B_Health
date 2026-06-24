@@ -19,13 +19,14 @@ const obterImagemCampanha = (item) => {
   return /^https?:\/\//i.test(uri) ? { uri } : IMAGEM_PLACEHOLDER;
 };
 
-const NotificacaoItem = ({ item, onPress, disabled }) => {
+const NotificacaoItem = ({ item, index, onPress, disabled }) => {
   const [imagemFalhou, setImagemFalhou] = useState(false);
   const imagemCampanha = imagemFalhou ? IMAGEM_PLACEHOLDER : obterImagemCampanha(item);
 
   return (
     <TouchableOpacity
-      testID={`notificacoes-item-${idNotificacao}`} // <--- ADICIONADO PARA O APPIUM (Ex: notificacoes-item-123)
+      testID={`notificacoes-item-${index}`} // <--- ADICIONADO PARA O APPIUM (Ex: notificacoes-item-123)
+      accessibilityLabel={`notificacoes-item-${index}`} 
       style={[styles.card, disabled && styles.cardDesabilitado]} 
       onPress={() => onPress(item)}
       activeOpacity={0.9}
@@ -138,12 +139,13 @@ const NotificacoesScreen = ({
   };
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={styles.safe} testID="tela-notificacoes" accessibilityLabel="tela-notificacoes">
       <View style={styles.container}>
         
         <View style={styles.header}>
           <TouchableOpacity 
           testID="notificacoes-botao-voltar" // <--- ADICIONADO PARA O APPIUM
+          accessibilityLabel="notificacoes-botao-voltar"
           onPress={() => setScreen('menu')}>
             <Ionicons name="arrow-back" size={26} color="#fff" />
           </TouchableOpacity>
@@ -152,13 +154,14 @@ const NotificacoesScreen = ({
         </View>
 
         {loading ? (
-            <View style={styles.center}>
+            <View testID="notificacoes-loading" accessibilityLabel="notificacoes-loading" style={styles.center}>
                 <ActivityIndicator size="large" color="#143582ff" />
             </View>
         ) : notificacoes.length === 0 ? (
 
             <View 
               testID="notificacoes-vazio" // <--- ADICIONADO PARA O APPIUM
+              accessibilityLabel="notificacoes-vazio"
               style={styles.emptyContainer}
             >
                 <Ionicons
@@ -170,7 +173,7 @@ const NotificacoesScreen = ({
                   {erro || mensagem || 'Nenhuma campanha nova'}
                 </Text>
                 {erro ? (
-                  <TouchableOpacity style={styles.retryButton} onPress={carregarNotificacoes}>
+                  <TouchableOpacity testID="notificacoes-botao-recarregar" accessibilityLabel="notificacoes-botao-recarregar" style={styles.retryButton} onPress={carregarNotificacoes}>
                     <Ionicons name="refresh-outline" size={fonte(19)} color="#FFFFFF" />
                     <Text style={styles.retryButtonText}>Tentar novamente</Text>
                   </TouchableOpacity>
@@ -186,12 +189,15 @@ const NotificacoesScreen = ({
             ) : null}
 
             <FlatList
+                testID="notificacoes-lista"
+                accessibilityLabel="notificacoes-lista"
                 data={notificacoes}
                 keyExtractor={(item) => obterCampanhaId(item)}
                 contentContainerStyle={styles.listContent}
-                renderItem={({ item }) => (
+                renderItem={({ item, index }) => (
                     <NotificacaoItem
                       item={item}
+                      index={index}
                       onPress={handleAbrirCampanha}
                       disabled={processandoId === obterCampanhaId(item)}
                     />

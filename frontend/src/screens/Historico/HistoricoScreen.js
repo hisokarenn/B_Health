@@ -106,8 +106,8 @@ const ordenarHistorico = (registros) => (
         .sort((a, b) => b._timestampAplicacao - a._timestampAplicacao)
 );
 
-const HistoricoItem = ({ item }) => (
-    <View style={styles.itemContainer}>
+const HistoricoItem = ({ item, index }) => (
+    <View testID={`historico-item-${index}`} accessibilityLabel={`historico-item-${index}`} style={styles.itemContainer}>
         <View style={styles.headerItem}>
             <Text style={styles.vacinaNome}>{item.nome_vacina}</Text>
             <Text style={styles.doseBadge}>{item.dose}</Text>
@@ -149,8 +149,8 @@ const HistoricoScreen = ({ pacienteId, setScreen }) => {
     </View>
     );
 
-    const renderHistoricoItem = useCallback(({ item }) => (
-        <HistoricoItem item={item} />
+    const renderHistoricoItem = useCallback(({ item, index }) => (
+        <HistoricoItem item={item} index={index} />
     ), []);
 
     const keyExtractor = useCallback((item) => item._key, []);
@@ -196,6 +196,7 @@ const HistoricoScreen = ({ pacienteId, setScreen }) => {
     const renderEmptyState = () => (
         <View
             testID="historico-lista-vazia" // <--- ADICIONADO PARA O APPIUM
+            accessibilityLabel="historico-lista-vazia"
             style={styles.emptyContainer}
         >
             <Ionicons
@@ -233,7 +234,7 @@ const HistoricoScreen = ({ pacienteId, setScreen }) => {
     }
 
     return (
-        <SafeAreaView style={styles.safe}>
+        <SafeAreaView style={styles.safe} testID="tela-historico" accessibilityLabel="tela-historico">
             <View style={{ flex: 1, backgroundColor: "#fff" }}>
                 
                 {/*cabeçalho*/}
@@ -243,6 +244,7 @@ const HistoricoScreen = ({ pacienteId, setScreen }) => {
 
                     <TouchableOpacity
                         testID="historico-botao-voltar" // <--- ADICIONADO PARA O APPIUM
+                        accessibilityLabel="historico-botao-voltar"
                         onPress={() => setScreen('menu')}
                         style={styles.headerIcone}
                     >
@@ -258,6 +260,8 @@ const HistoricoScreen = ({ pacienteId, setScreen }) => {
                     <Text style={styles.historicoTitle}>Minhas Vacinas</Text>
                     
                     <FlatList
+                        testID="historico-lista"
+                        accessibilityLabel="historico-lista"
                         data={historico}
                         keyExtractor={keyExtractor}
                         renderItem={renderHistoricoItem}

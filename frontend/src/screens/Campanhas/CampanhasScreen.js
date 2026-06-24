@@ -22,7 +22,7 @@ const obterImagemCampanha = (item) => {
 
 const obterIdCampanha = (item) => String(item?.id || item?.id_campanha || item?.uid || '');
 
-const CampanhaItem = ({ item, onPress }) => {
+const CampanhaItem = ({ item, index, onPress }) => {
     const [imagemFalhou, setImagemFalhou] = useState(false);
     const imagemCampanha = imagemFalhou ? IMAGEM_PLACEHOLDER : obterImagemCampanha(item);
     
@@ -31,8 +31,8 @@ const CampanhaItem = ({ item, onPress }) => {
 
     return (
         <TouchableOpacity
-            testID={`campanhas-item-${idCampanha}`} // <--- ADICIONADO PARA O APPIUM (Ex: campanhas-item-123)
-            accessibilityLabel={`campanhas-item-${idCampanha}`}
+            testID={`campanhas-item-${index}`} // <--- ADICIONADO PARA O APPIUM (Ex: campanhas-item-123)
+            accessibilityLabel={`campanhas-item-${index}`}
             style={styles.cartao}
             onPress={() => onPress(item)}
             activeOpacity={0.8}
@@ -223,7 +223,7 @@ const CampanhasScreen = ({ onSelectCampanha, setScreen }) => {
         
     if (loading) {
         return (
-            <SafeAreaView style={styles.containerCentralizado}>
+            <SafeAreaView style={styles.containerCentralizado} testID="campanhas-loading" accessibilityLabel="campanhas-loading">
                 <ActivityIndicator size="large" color="#0c2c5aff" />
                 <Text style={styles.textoCarregamento}>
                     {loadingProlongado ? message : 'Buscando informações...'}
@@ -290,11 +290,14 @@ const CampanhasScreen = ({ onSelectCampanha, setScreen }) => {
                     ) : (
 
                         <FlatList
+                            testID="campanhas-lista"
+                            accessibilityLabel="campanhas-lista"
                             data={campanhas}
                             keyExtractor={(item, index) => obterIdCampanha(item) || index.toString()}
-                            renderItem={({ item }) => (
+                            renderItem={({ item, index }) => (
                                 <CampanhaItem 
-                                    item={item} 
+                                    item={item}
+                                    index={index} 
                                     onPress={onSelectCampanha} 
                                 />
                             )}

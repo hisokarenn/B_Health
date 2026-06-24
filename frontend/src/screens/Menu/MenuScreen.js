@@ -56,7 +56,7 @@ const MenuScreen = ({ setScreen, pacienteInfo }) => {
                     
                     </View>
 
-                    <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+                    <TouchableOpacity testID="menu-botao-sair" accessibilityLabel="menu-botao-sair" accessible={true} style={styles.logoutBtn} onPress={handleLogout}>
                         <Ionicons name="log-out-outline" size={fonte(24)} color="white" />
                     </TouchableOpacity>
                 </LinearGradient>
@@ -120,7 +120,7 @@ const MenuScreen = ({ setScreen, pacienteInfo }) => {
                 <Modal visible={modalVisibleImp} transparent animationType="fade">
                     <View style={styles.ModalImportancia}>
                         <View style={styles.ImpModal}>
-                            <Text style={styles.ImpModalTitulo}>Importância</Text>
+                            <Text testID="menu-modal-importancia-titulo" accessibilityLabel="menu-modal-importancia-titulo"style={styles.ImpModalTitulo}>Importância</Text>
 
                             <Text style={styles.ImpModalTexto}>
                                 Conforme a Sociedade Brasileira de Imunizações (SBIm),
@@ -130,6 +130,7 @@ const MenuScreen = ({ setScreen, pacienteInfo }) => {
 
                             <TouchableOpacity
                                 testID="menu-modal-importante-fechar" // <--- ADICIONADO PARA O APPIUM
+                                accessibilityLabel="menu-modal-importante-fechar"
                                 style={styles.FecharModal}
                                 onPress={() => setModalVisibleImp(false)}
                             >
@@ -143,9 +144,9 @@ const MenuScreen = ({ setScreen, pacienteInfo }) => {
                 <Modal visible={modalVisibleFale} transparent animationType="fade">
                     <View style={styles.ModalFale}>
                         <View style={styles.FaleModal}>
-                            <Text style={styles.FaleModalTitulo}>Fale Conosco</Text>
+                            <Text testID="menu-modal-fale-conosco-titulo" accessibilityLabel="menu-modal-fale-conosco-titulo" style={styles.FaleModalTitulo}>Fale Conosco</Text>
 
-                            <Text style={styles.FaleModalTexto}>
+                            <Text  testID="menu-modal-fale-conosco-texto" accessibilityLabel="menu-modal-fale-conosco-texto" style={styles.FaleModalTexto}>
                                 Contato: (92) 99121-9076{"\n"}
                                 Email: bhealth@org.com.br{"\n"}
                                 2089, R. Nossa Sra. do Rosário,{"\n"}
@@ -155,6 +156,7 @@ const MenuScreen = ({ setScreen, pacienteInfo }) => {
 
                             <TouchableOpacity
                                 testID="menu-modal-fale-conosco-fechar" // <--- ADICIONADO PARA O APPIUM
+                                accessibilityLabel="menu-modal-fale-conosco-fechar"
                                 style={styles.FecharModal}
                                 onPress={() => setModalVisibleFale(false)}
                             >
@@ -168,9 +170,9 @@ const MenuScreen = ({ setScreen, pacienteInfo }) => {
                 <Modal visible={modalVisibleNos} transparent animationType="fade">
                     <View style={styles.ModalSobreNos}>
                         <View style={styles.SobreNosModal}>
-                            <Text style={styles.NosModalTitulo}>Sobre Nós</Text>
+                            <Text  testID="menu-modal-sobre-nos-titulo" accessibilityLabel="menu-modal-sobre-nos-titulo" style={styles.NosModalTitulo}>Sobre Nós</Text>
 
-                            <Text style={styles.NosModalTexto}>
+                            <Text testID="menu-modal-sobre-nos-texto" accessibilityLabel="menu-modal-sobre-nos-texto" style={styles.NosModalTexto}>
                                 Nós somos uma equipe de estudantes
                                 de Engenharia de Software da Universidade
                                 Federal do Amazonas (UFAM).
@@ -178,6 +180,7 @@ const MenuScreen = ({ setScreen, pacienteInfo }) => {
 
                             <TouchableOpacity
                                 testID="menu-modal-sobre-nos-fechar" // <--- ADICIONADO PARA O APPIUM
+                                accessibilityLabel="menu-modal-sobre-nos-fechar"
                                 style={styles.FecharModal}
                                 onPress={() => setModalVisibleNos(false)}
                             >

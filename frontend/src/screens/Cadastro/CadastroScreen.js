@@ -143,13 +143,13 @@ const CadastroScreen = ({ setScreen }) => {
 
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} testID="tela-cadastro" accessibilityLabel="tela-cadastro">
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'android' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'android' ? 0 : -50}
       >
-        <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
+        <ScrollView testID="cadastro-scroll" accessibilityLabel="cadastro-scroll" contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
           <View style={styles.container}>
             <LinearGradient
               colors={['#0b4786ff', '#001c42ff']}
@@ -176,6 +176,7 @@ const CadastroScreen = ({ setScreen }) => {
               <Text style={styles.label}>Nome completo*</Text>
               <TextInput
                 testID="cadastro-input-nome" // <--- ADICIONADO PARA O APPIUM
+                accessibilityLabel="cadastro-input-nome"
                 placeholder="Digite seu nome"
                 placeholderTextColor="#999"
                 style={styles.input}
@@ -189,6 +190,7 @@ const CadastroScreen = ({ setScreen }) => {
               <Text style={styles.label}>CPF*</Text>
               <TextInput
                 testID="cadastro-input-cpf" // <--- ADICIONADO PARA O APPIUM
+                accessibilityLabel="cadastro-input-cpf"
                 placeholder="Digite seu CPF"
                 placeholderTextColor= "#999"
                 keyboardType="numeric"
@@ -215,6 +217,7 @@ const CadastroScreen = ({ setScreen }) => {
               <Text style={styles.label}>CNS*</Text>
               <TextInput
                 testID="cadastro-input-cns" // <--- ADICIONADO PARA O APPIUM
+                accessibilityLabel="cadastro-input-cns"
                 placeholder="Digite seu CNS"
                 placeholderTextColor="#999"
                 keyboardType="numeric"
@@ -241,6 +244,7 @@ const CadastroScreen = ({ setScreen }) => {
               <Text style={styles.label}>E-mail*</Text>
               <TextInput
                 testID="cadastro-input-email" // <--- ADICIONADO PARA O APPIUM
+                accessibilityLabel="cadastro-input-email"
                 placeholder="Digite seu e-mail"
                 placeholderTextColor="#999"
                 keyboardType="email-address"
@@ -260,6 +264,7 @@ const CadastroScreen = ({ setScreen }) => {
               <View style={styles.senhaContainer}>
                 <TextInput
                   testID="cadastro-input-senha" // <--- ADICIONADO PARA O APPIUM
+                  accessibilityLabel="cadastro-input-senha"
                   placeholder="Crie uma senha"
                   placeholderTextColor="#999"
                   secureTextEntry={!showPassword}
@@ -271,6 +276,8 @@ const CadastroScreen = ({ setScreen }) => {
                   }}
                 />
                 <TouchableOpacity
+                  testID="cadastro-botao-mostrar-senha"
+                  accessibilityLabel="cadastro-botao-mostrar-senha"
                   onPress={() => setShowPassword(!showPassword)}
                   style={{ marginHorizontal: 8 }}
                 >
@@ -284,6 +291,7 @@ const CadastroScreen = ({ setScreen }) => {
 
               <TouchableOpacity
                 testID="cadastro-botao-submeter" // <--- ADICIONADO PARA O APPIUM
+                accessibilityLabel="cadastro-botao-submeter"
                 style={[styles.botao, loading && styles.btnDesativado]}
                 onPress={handleCadastro}
                 disabled={loading}
@@ -297,6 +305,7 @@ const CadastroScreen = ({ setScreen }) => {
 
               <TouchableOpacity 
                 testID="cadastro-botao-voltar-login" // <--- ADICIONADO PARA O APPIUM
+                accessibilityLabel="cadastro-botao-voltar-login"
                 onPress={() => setScreen('login')}
               >
                 <Text style={styles.voltarLogin}>Já tem conta? Faça login</Text>

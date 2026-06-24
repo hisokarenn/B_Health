@@ -217,7 +217,7 @@ const LoginScreen = ({ setScreen, onLoginSuccess }) => {
               </View>
 
               {erroLogin ? (
-                <Text style={styles.feedbackErro}>{erroLogin}</Text>
+                <Text testID="login-mensagem-erro" accessibilityLabel="login-mensagem-erro" style={styles.feedbackErro}>{erroLogin}</Text>
               ) : null}
 
               {mensagemLembrarMe ? (
@@ -269,7 +269,7 @@ const LoginScreen = ({ setScreen, onLoginSuccess }) => {
               </TouchableOpacity>
 
               {erroRecuperacao ? (
-                <Text style={styles.feedbackErro}>{erroRecuperacao}</Text>
+                <Text testID="login-mensagem-recuperacao-erro" accessibilityLabel="login-mensagem-recuperacao-erro" style={styles.feedbackErro}>{erroRecuperacao}</Text>
               ) : null}
 
               <TouchableOpacity 
