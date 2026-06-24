@@ -157,11 +157,6 @@ export default function App() {
         <ScreenTransition screenKey={currentScreen}>
           {renderScreen()}
         </ScreenTransition>
-<<<<<<< HEAD
-      
-=======
-
->>>>>>> f69a71d7649bf98ba3e5a1be0597dccda8b04616
         {showBottomNav && (
           <BottomNav
             active={currentScreen} 
@@ -183,8 +178,6 @@ const styles = StyleSheet.create({
   fullScreen: {
     flex: 1,
   },
-<<<<<<< HEAD
-=======
 
   configContainer: {
     flex: 1,
@@ -213,5 +206,4 @@ const styles = StyleSheet.create({
     marginTop: 12,
   }
 
->>>>>>> f69a71d7649bf98ba3e5a1be0597dccda8b04616
 });

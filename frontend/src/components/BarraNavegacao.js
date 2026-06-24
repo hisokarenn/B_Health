@@ -3,7 +3,6 @@ import { View, Text, TouchableOpacity, StyleSheet, Dimensions, Platform } from "
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-<<<<<<< HEAD
 const { width, height } = Dimensions.get("window");
 
 // Escala base de 375px de referência
@@ -26,39 +25,19 @@ export default function BottomNav({ active, setScreen, temNotificacao }) {
         { key: "notificacoes", active: "notificacoes",  icon: "notifications-outline", label: "Notificações" },
         { key: "perfil",       active: "perfil",        icon: "person-outline",         label: "Perfil"       },
     ];
-=======
-const { width } = Dimensions.get("window");
-const scale = width / 375;
-const rs = (size) => Math.round(size * scale);
-const font = (size) => Math.min(Math.round(size * scale), Math.round(size * 1.35));
-
-const tabs = [
-    { key: "menu", icon: "home-outline", label: "Principal" },
-    { key: "notificacoes", icon: "notifications-outline", label: "Notificações" },
-    { key: "perfil", icon: "person-outline", label: "Perfil" },
-];
-
-export default function BottomNav({ active, setScreen, temNotificacao }) {
-    const insets = useSafeAreaInsets();
-    const bottomInset = Math.max(insets.bottom, Platform.OS === "android" ? rs(8) : rs(4));
-    const iconSize = Math.min(rs(22), 28);
->>>>>>> f69a71d7649bf98ba3e5a1be0597dccda8b04616
 
     return (
         <View style={[styles.wrapper, { bottom: bottomInset }]}>
             <View style={styles.navContainer}>
                 {tabs.map((tab) => {
-<<<<<<< HEAD
                     const isActive = active === tab.active;
                     const isNotif = tab.key === "notificacoes";
-=======
-                    const isActive = active === tab.key || (active === "home" && tab.key === "menu");
-                    const isNotificationTab = tab.key === "notificacoes";
->>>>>>> f69a71d7649bf98ba3e5a1be0597dccda8b04616
 
                     return (
                         <TouchableOpacity
                             key={tab.key}
+                            testID={`nav-${tab.key}`}
+                            accessibilityLabel={`nav-${tab.key}`}
                             style={styles.navItem}
                             onPress={() => setScreen(tab.key)}
                             activeOpacity={0.7}
@@ -66,18 +45,11 @@ export default function BottomNav({ active, setScreen, temNotificacao }) {
                             <View>
                                 <Ionicons
                                     name={tab.icon}
-<<<<<<< HEAD
                                     size={ICONE_TAM}
                                     color={isActive ? "#ffffff" : "rgba(255,255,255,0.5)"}
                                 />
                                 {isNotif && temNotificacao && (
-=======
-                                    size={iconSize}
-                                    color={isActive ? "#ffffff" : "rgba(255,255,255,0.5)"}
-                                />
-                                {isNotificationTab && temNotificacao && (
->>>>>>> f69a71d7649bf98ba3e5a1be0597dccda8b04616
-                                    <View style={styles.badge} />
+                                    <View testID="nav-notificacoes-badge" accessibilityLabel="nav-notificacoes-badge" style={styles.badge} />
                                 )}
                             </View>
                             <Text style={[styles.navTexto, isActive && styles.textoAtivo]}>
@@ -100,15 +72,9 @@ const styles = StyleSheet.create({
     },
 
     navContainer: {
-<<<<<<< HEAD
         backgroundColor: "rgba(15, 34, 86, 0.97)", // corrigido: sem aspas extras
         width: Math.min(width * 0.92, 420),         // limita em tablets
         height: Math.max(rs(62), 56),               // altura mínima tocável
-=======
-        backgroundColor: "rgba(15, 34, 86, 0.97)", 
-        width: Math.min(width * 0.92, 420),
-        height: Math.max(rs(62), 56),
->>>>>>> f69a71d7649bf98ba3e5a1be0597dccda8b04616
         borderRadius: rs(32),
         flexDirection: "row",
         justifyContent: "space-around",
@@ -128,11 +94,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         paddingHorizontal: rs(12),
         paddingVertical: rs(6),
-<<<<<<< HEAD
         minWidth: rs(60), // área de toque mínima
-=======
-        minWidth: rs(60),
->>>>>>> f69a71d7649bf98ba3e5a1be0597dccda8b04616
     },
 
     navTexto: {
