@@ -192,7 +192,10 @@ const HistoricoScreen = ({ pacienteId, setScreen }) => {
     };
 
     const renderEmptyState = () => (
-        <View style={styles.emptyContainer}>
+        <View
+            testID="historico-lista-vazia" // <--- ADICIONADO PARA O APPIUM
+            style={styles.emptyContainer}
+        >
             <Ionicons
                 name={estadoLista === 'erro' ? 'alert-circle-outline' : 'file-tray-outline'}
                 size={42}
@@ -204,6 +207,7 @@ const HistoricoScreen = ({ pacienteId, setScreen }) => {
             <Text style={styles.messageText}>{message}</Text>
             {estadoLista === 'erro' ? (
                 <TouchableOpacity
+                    testID="historico-botao-recarregar" // <--- ADICIONADO PARA O APPIUM
                     style={styles.botaoTentarNovamente}
                     onPress={() => {
                         setLoading(true);
@@ -235,7 +239,11 @@ const HistoricoScreen = ({ pacienteId, setScreen }) => {
                     colors={["#0b4786ff", "#001c42ff"]}
                     style={styles.header}>
 
-                    <TouchableOpacity onPress={() => setScreen('menu')}>
+                    <TouchableOpacity
+                        testID="historico-botao-voltar" // <--- ADICIONADO PARA O APPIUM
+                        onPress={() => setScreen('menu')}
+                        style={styles.headerIcone}
+                    >
                         <Ionicons name="arrow-back" size={26} color="#fff" />
                     </TouchableOpacity>
 
