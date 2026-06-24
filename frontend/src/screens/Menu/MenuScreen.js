@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { fonte } from '../../utilitarios/responsivo';
+
 import {
     View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView, Alert, Platform, Image, Dimensions
 } from "react-native";
@@ -55,7 +57,7 @@ const MenuScreen = ({ setScreen, pacienteInfo }) => {
                     </View>
 
                     <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-                        <Ionicons name="log-out-outline" size={width * 0.065} color="white" />
+                        <Ionicons name="log-out-outline" size={fonte(24)} color="white" />
                     </TouchableOpacity>
                 </LinearGradient>
 
@@ -68,7 +70,7 @@ const MenuScreen = ({ setScreen, pacienteInfo }) => {
                         onPress={() => setScreen("historico")}
                     >
                         <Text style={styles.bigBtnTexto}>Carteira de {"\n"}Vacina</Text>
-                        <Ionicons style={styles.iconeBigBtn} name="document-text-outline" size={width * 0.14} color="white"/>
+                        <Ionicons style={styles.iconeBigBtn} name="document-text-outline" size={fonte(53)} color="white"/>
                     </TouchableOpacity>
 
                     <Text style={styles.secaoTitulo}>Ações de Vacinação</Text>
@@ -80,7 +82,7 @@ const MenuScreen = ({ setScreen, pacienteInfo }) => {
                             onPress={() => setScreen("campanhas")}
                         >
                             <Text style={styles.miniBtnTexto}>Campanhas</Text>
-                            <Ionicons style={styles.miniIcones} name="megaphone-outline" size={width * 0.07} color="white" />
+                            <Ionicons style={styles.miniIcones} name="megaphone-outline" size={fonte(26)} color="white" />
                         </TouchableOpacity>
 
                     {/*ajuda e informações*/}
@@ -91,6 +93,7 @@ const MenuScreen = ({ setScreen, pacienteInfo }) => {
                         accessibilityLabel="menu-botao-importancia"
                         style={styles.infoBtn} onPress={() => setModalVisibleImp(true)}>
                         <Ionicons name="alert-circle-outline" size={width * 0.07} color="#313B8D" />
+                        <Ionicons name="alert-circle-outline" size={fonte(26)} color="#313B8D" />
                         <Text style={styles.infoBtnText}>Importância da Vacina</Text>
                     </TouchableOpacity>
 
@@ -99,6 +102,7 @@ const MenuScreen = ({ setScreen, pacienteInfo }) => {
                         accessibilityLabel="menu-botao-fale-conosco"
                         style={styles.infoBtn} onPress={() => setModalVisibleFale(true)}>
                         <Ionicons name="call-outline" size={width * 0.07} color="#313B8D" />
+                        <Ionicons name="call-outline" size={fonte(26)} color="#313B8D" />
                         <Text style={styles.infoBtnText}>Fale conosco</Text>
                     </TouchableOpacity>
 
@@ -107,6 +111,7 @@ const MenuScreen = ({ setScreen, pacienteInfo }) => {
                         accessibilityLabel="menu-botao-sobre-nos"
                         style={styles.infoBtn} onPress={() => setModalVisibleNos(true)}>
                         <Ionicons name="people-circle-outline" size={width * 0.07} color="#313B8D" />
+                        <Ionicons name="people-circle-outline" size={fonte(26)} color="#313B8D" />
                         <Text style={styles.infoBtnText}>Sobre nós</Text>
                     </TouchableOpacity>
                 </ScrollView>
@@ -219,9 +224,9 @@ const styles = StyleSheet.create({
 
     cabecalhoTitulo: {
         color: "white",
-        fontSize: width * 0.04,
+        fontSize: fonte(15),
         fontWeight: "bold",
-        lineHeight: width * 0.065,
+        lineHeight: fonte(24),
         marginTop: height * -0.075,
         marginLeft: width * 0.25,
     },
@@ -229,7 +234,7 @@ const styles = StyleSheet.create({
     cabSubtitulo: {
         color: "rgba(255,255,255,0.9)",
         marginTop: height * 0.005,
-        fontSize: width * 0.035,
+        fontSize: fonte(13),
         marginLeft: width * 0.25,
     },
 
@@ -242,7 +247,7 @@ const styles = StyleSheet.create({
     secaoTitulo: {
         marginTop: height * 0.02,
         marginLeft: width * 0.05,
-        fontSize: width * 0.045,
+        fontSize: fonte(17),
         color: "#444",
         fontWeight: "bold",
     },
@@ -264,7 +269,7 @@ const styles = StyleSheet.create({
 
     bigBtnTexto: {
         color: "white",
-        fontSize: width * 0.065,
+        fontSize: fonte(24),
         fontWeight: "bold",
         width: "60%",
     },
@@ -290,7 +295,7 @@ const styles = StyleSheet.create({
     miniBtnTexto: {
         color: "white",
         fontWeight: "bold",
-        fontSize: width * 0.045,
+        fontSize: fonte(17),
         marginLeft: width * 0.03,
         color: "#ffffffff"
     },
@@ -317,7 +322,7 @@ const styles = StyleSheet.create({
     },
 
     infoBtnText: {
-        fontSize: width * 0.043,
+        fontSize: fonte(16),
         color: "#333",
     },
 
@@ -337,14 +342,14 @@ const styles = StyleSheet.create({
     },
 
     ImpModalTitulo: {
-        fontSize: width * 0.055,
+        fontSize: fonte(21),
         fontWeight: "bold",
         marginBottom: 15,
     },
 
     ImpModalTexto: {
-        fontSize: width * 0.04,
-        lineHeight: width * 0.055,
+        fontSize: fonte(15),
+        lineHeight: fonte(21),
         color: "#555",
     },
 
@@ -364,14 +369,14 @@ const styles = StyleSheet.create({
     },
 
     FaleModalTitulo: {
-        fontSize: width * 0.055,
+        fontSize: fonte(21),
         fontWeight: "bold",
         marginBottom: 15,
     },
 
     FaleModalTexto: {
-        fontSize: width * 0.04,
-        lineHeight: width * 0.055,
+        fontSize: fonte(15),
+        lineHeight: fonte(21),
         color: "#555",
     },
 
@@ -391,14 +396,14 @@ const styles = StyleSheet.create({
     },
 
     NosModalTitulo: {
-        fontSize: width * 0.055,
+        fontSize: fonte(21),
         fontWeight: "bold",
         marginBottom: 15,
     },
 
     NosModalTexto: {
-        fontSize: width * 0.04,
-        lineHeight: width * 0.055,
+        fontSize: fonte(15),
+        lineHeight: fonte(21),
         color: "#555",
     },
 

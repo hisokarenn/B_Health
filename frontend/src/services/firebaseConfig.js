@@ -19,6 +19,7 @@ const variaveisObrigatorias = {
   EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET: firebaseConfig.storageBucket,
   EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: firebaseConfig.messagingSenderId,
   EXPO_PUBLIC_FIREBASE_APP_ID: firebaseConfig.appId,
+  EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID: firebaseConfig.measurementId,
 };
 
 const variaveisAusentes = Object.entries(variaveisObrigatorias)

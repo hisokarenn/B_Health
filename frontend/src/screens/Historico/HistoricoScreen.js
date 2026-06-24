@@ -1,4 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { fonte } from '../../utilitarios/responsivo';
+
 import {
     View, Text, StyleSheet, FlatList, ActivityIndicator,
     RefreshControl, TouchableOpacity, Platform, Dimensions
@@ -297,7 +299,7 @@ const styles = StyleSheet.create({
 
     headerTitle: {
         color: "#fff",
-        fontSize: width * 0.055,
+        fontSize: fonte(21),
         fontWeight: "bold",
         marginLeft: width * 0.07,
     },
@@ -309,7 +311,7 @@ const styles = StyleSheet.create({
     },
 
     historicoTitle: {
-        fontSize: width * 0.06,
+        fontSize: fonte(23),
         fontWeight: 'bold',
         color: '#333',
         marginBottom: height * 0.02,
@@ -329,13 +331,13 @@ const styles = StyleSheet.create({
 
     avisoTitulo: {
         fontWeight: 'bold',
-        fontSize: width * 0.04,
+        fontSize: fonte(15),
         marginBottom: height * 0.003,
         color: "#333",
     },
 
     avisoTexto: {
-        fontSize: width * 0.035,
+        fontSize: fonte(13),
         color: "#555",
     },
 
@@ -357,7 +359,7 @@ const styles = StyleSheet.create({
 
     vacinaNome: {
         flex: 1,
-        fontSize: width * 0.045,
+        fontSize: fonte(17),
         fontWeight: 'bold',
         color: '#333',
         marginLeft: width * 0.03,
@@ -371,13 +373,13 @@ const styles = StyleSheet.create({
         paddingHorizontal: width * 0.02,
         paddingVertical: height * 0.004,
         borderRadius: width * 0.03,
-        fontSize: width * 0.03,
+        fontSize: fonte(11),
         fontWeight: 'bold',
         textAlign: 'center',
     },
 
     dataText: {
-        fontSize: width * 0.035,
+        fontSize: fonte(13),
         marginTop: height * 0.008,
         color: '#555',
         marginLeft: width * 0.03,
@@ -391,7 +393,7 @@ const styles = StyleSheet.create({
     },
 
     detalheText: {
-        fontSize: width * 0.032,
+        fontSize: fonte(12),
         color: '#777',
         marginLeft: width * 0.03,
         marginBottom: height * 0.004,
@@ -413,14 +415,14 @@ const styles = StyleSheet.create({
     emptyTitle: {
         marginTop: 12,
         color: '#2D3748',
-        fontSize: width * 0.045,
+        fontSize: fonte(17),
         fontWeight: '700',
     },
 
     messageText: {
         marginTop: 8, 
         color: "#718096", 
-        fontSize: width * 0.045,
+        fontSize: fonte(17),
         textAlign: 'center',
     },
 
@@ -438,7 +440,7 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
         fontWeight: '700',
         marginLeft: 8,
-        fontSize: width * 0.04,
+        fontSize: fonte(15),
     },
 
     listaConteudo: {

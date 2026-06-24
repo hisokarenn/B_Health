@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, ActivityIndicator, Dimensions, Alert } from 'react-native';
+import { fonte } from '../../utilitarios/responsivo';
+
 import { SafeAreaView } from "react-native-safe-area-context"; 
 import { Ionicons } from "@expo/vector-icons";
 import {
@@ -169,7 +171,7 @@ const NotificacoesScreen = ({
                 </Text>
                 {erro ? (
                   <TouchableOpacity style={styles.retryButton} onPress={carregarNotificacoes}>
-                    <Ionicons name="refresh-outline" size={width * 0.05} color="#FFFFFF" />
+                    <Ionicons name="refresh-outline" size={fonte(19)} color="#FFFFFF" />
                     <Text style={styles.retryButtonText}>Tentar novamente</Text>
                   </TouchableOpacity>
                 ) : null}
@@ -224,7 +226,7 @@ const styles = StyleSheet.create({
   },
 
   headerTitle: {
-    fontSize: width * 0.055,
+    fontSize: fonte(21),
     fontWeight: "bold",
     color: "#f0f0f0ff",
     marginLeft: width * 0.04,
@@ -245,7 +247,7 @@ const styles = StyleSheet.create({
 
   emptyText: { 
     marginTop: 15,
-    fontSize: width * 0.04, 
+    fontSize: fonte(15), 
     color: '#888', 
     fontWeight: '500',
     textAlign: 'center',
@@ -270,7 +272,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: '700',
     marginLeft: 8,
-    fontSize: width * 0.04,
+    fontSize: fonte(15),
   },
 
   statusCard: {
@@ -289,8 +291,8 @@ const styles = StyleSheet.create({
     flex: 1,
     color: '#0f3a72ff',
     marginLeft: 8,
-    fontSize: width * 0.035,
-    lineHeight: width * 0.048,
+    fontSize: fonte(13),
+    lineHeight: fonte(18),
     fontWeight: '600',
   },
 
@@ -326,7 +328,7 @@ const styles = StyleSheet.create({
   badgeText: {
     color: '#219b6eff',
     fontWeight: 'bold',
-    fontSize: width * 0.03,
+    fontSize: fonte(11),
   },
 
   cardImage: {
@@ -339,7 +341,7 @@ const styles = StyleSheet.create({
   },
 
   cardTitle: {
-    fontSize: width * 0.045,
+    fontSize: fonte(17),
     fontWeight: 'bold',
     color: '#333',
     marginBottom: height * 0.01,
@@ -356,7 +358,7 @@ const styles = StyleSheet.create({
   },
   
   clickHint: {
-    fontSize: width * 0.038,
+    fontSize: fonte(14),
     color: '#0f3a72ff',
     fontWeight: '600',
   },

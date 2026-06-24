@@ -157,7 +157,11 @@ export default function App() {
         <ScreenTransition screenKey={currentScreen}>
           {renderScreen()}
         </ScreenTransition>
+<<<<<<< HEAD
       
+=======
+
+>>>>>>> f69a71d7649bf98ba3e5a1be0597dccda8b04616
         {showBottomNav && (
           <BottomNav
             active={currentScreen} 
@@ -179,4 +183,35 @@ const styles = StyleSheet.create({
   fullScreen: {
     flex: 1,
   },
+<<<<<<< HEAD
+=======
+
+  configContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+    backgroundColor: '#F7FAFC',
+  },
+
+  configTitle: {
+    color: '#102A43',
+    fontSize: 24,
+    fontWeight: '700',
+    marginBottom: 12,
+  },
+
+  configMessage: {
+    color: '#334E68',
+    fontSize: 16,
+    lineHeight: 24,
+  },
+
+  configHint: {
+    color: '#486581',
+    fontSize: 14,
+    lineHeight: 20,
+    marginTop: 12,
+  }
+
+>>>>>>> f69a71d7649bf98ba3e5a1be0597dccda8b04616
 });
