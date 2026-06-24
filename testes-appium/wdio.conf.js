@@ -33,7 +33,12 @@ exports.config = {
         'appium:adbExecTimeout': 180000,
         'appium:androidInstallTimeout': 180000,
         'appium:uiautomator2ServerInstallTimeout': 180000,
-        'appium:uiautomator2ServerLaunchTimeout': 180000
+        'appium:uiautomator2ServerLaunchTimeout': 180000,
+
+        'appium:disableWindowAnimation': true,
+        'appium:skipDeviceInitialization': false,
+        'appium:skipServerInstallation': false,
+        'appium:ignoreHiddenApiPolicyError': true,
     }],
 
     connectionRetryTimeout: 180000,

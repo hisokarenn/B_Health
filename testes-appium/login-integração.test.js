@@ -3,14 +3,16 @@ describe('Tela Login', () => {
     beforeEach(async () => {
         const botaoEntrarInicio = await $('~inicio-botao-entrar');
 
-        if (await botaoEntrarInicio.isDisplayed()) {
-            await botaoEntrarInicio.click();
-        }
+        await botaoEntrarInicio.waitForDisplayed({
+            timeout: 10000
+        });
+
+        await botaoEntrarInicio.click();
 
         const telaLogin = await $('~tela-login');
 
         await telaLogin.waitForDisplayed({
-            timeout: 10000
+            timeout: 15000
         });
     });
 
@@ -38,10 +40,10 @@ describe('Tela Login', () => {
         const email = await $('~login-input-email');
         const senha = await $('~login-input-senha');
 
-        await email.setValue('teste@email.com');
+        await email.setValue('teste@gmail.com');
         await senha.setValue('123456');
 
-        await expect(email).toHaveText('teste@email.com');
+        await expect(email).toHaveText('teste@gmail.com');
     });
 
     it('deve mostrar e ocultar a senha', async () => {
