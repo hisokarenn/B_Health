@@ -175,6 +175,7 @@ const CadastroScreen = ({ setScreen }) => {
 
               <Text style={styles.label}>Nome completo*</Text>
               <TextInput
+                testID="cadastro-input-nome" // <--- ADICIONADO PARA O APPIUM
                 placeholder="Digite seu nome"
                 placeholderTextColor="#999"
                 style={styles.input}
@@ -187,6 +188,7 @@ const CadastroScreen = ({ setScreen }) => {
 
               <Text style={styles.label}>CPF*</Text>
               <TextInput
+                testID="cadastro-input-cpf" // <--- ADICIONADO PARA O APPIUM
                 placeholder="Digite seu CPF"
                 placeholderTextColor= "#999"
                 keyboardType="numeric"
@@ -197,7 +199,6 @@ const CadastroScreen = ({ setScreen }) => {
                   setCpf(formatarCPF(text));
                   limparErro('cpf');
                 }}
-
                 onBlur={() => {
                   if (cpf && !validarCPF(cpf)) {
                     setErrors((prevErrors) => ({
@@ -213,17 +214,17 @@ const CadastroScreen = ({ setScreen }) => {
 
               <Text style={styles.label}>CNS*</Text>
               <TextInput
+                testID="cadastro-input-cns" // <--- ADICIONADO PARA O APPIUM
                 placeholder="Digite seu CNS"
                 placeholderTextColor="#999"
                 keyboardType="numeric"
-                maxLength={19} //isso dos espaços
+                maxLength={19}
                 style={styles.input}
                 value={cns}
                 onChangeText={(text) => {
                   setCns(formatarCNS(text));
                   limparErro('cns');
                 }}
-
                 onBlur={() => {
                   if (cns && !validarCNS(cns)) {
                     setErrors((prevErrors) => ({
@@ -239,6 +240,7 @@ const CadastroScreen = ({ setScreen }) => {
 
               <Text style={styles.label}>E-mail*</Text>
               <TextInput
+                testID="cadastro-input-email" // <--- ADICIONADO PARA O APPIUM
                 placeholder="Digite seu e-mail"
                 placeholderTextColor="#999"
                 keyboardType="email-address"
@@ -257,6 +259,7 @@ const CadastroScreen = ({ setScreen }) => {
               <Text style={styles.label}>Senha*</Text>
               <View style={styles.senhaContainer}>
                 <TextInput
+                  testID="cadastro-input-senha" // <--- ADICIONADO PARA O APPIUM
                   placeholder="Crie uma senha"
                   placeholderTextColor="#999"
                   secureTextEntry={!showPassword}
@@ -280,6 +283,7 @@ const CadastroScreen = ({ setScreen }) => {
               </View>
 
               <TouchableOpacity
+                testID="cadastro-botao-submeter" // <--- ADICIONADO PARA O APPIUM
                 style={[styles.botao, loading && styles.btnDesativado]}
                 onPress={handleCadastro}
                 disabled={loading}
@@ -291,7 +295,10 @@ const CadastroScreen = ({ setScreen }) => {
                 )}
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={() => setScreen('login')}>
+              <TouchableOpacity 
+                testID="cadastro-botao-voltar-login" // <--- ADICIONADO PARA O APPIUM
+                onPress={() => setScreen('login')}
+              >
                 <Text style={styles.voltarLogin}>Já tem conta? Faça login</Text>
               </TouchableOpacity>
             </View>
@@ -433,3 +440,4 @@ const styles = StyleSheet.create({
 });
 
 export default CadastroScreen;
+

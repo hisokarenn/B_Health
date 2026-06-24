@@ -5,6 +5,7 @@
 # Pastas de dependências (Backend e Frontend)
 /backend/node_modules
 /frontend/node_modules
+/testes-appium/node_modules
 
 # Arquivos de lock do NPM/Yarn
 /backend/package-lock.json

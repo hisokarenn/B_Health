@@ -24,7 +24,8 @@ const NotificacaoItem = ({ item, onPress, disabled }) => {
   const imagemCampanha = imagemFalhou ? IMAGEM_PLACEHOLDER : obterImagemCampanha(item);
 
   return (
-    <TouchableOpacity 
+    <TouchableOpacity
+      testID={`notificacoes-item-${idNotificacao}`} // <--- ADICIONADO PARA O APPIUM (Ex: notificacoes-item-123)
       style={[styles.card, disabled && styles.cardDesabilitado]} 
       onPress={() => onPress(item)}
       activeOpacity={0.9}
@@ -141,7 +142,9 @@ const NotificacoesScreen = ({
       <View style={styles.container}>
         
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => setScreen('menu')}>
+          <TouchableOpacity 
+          testID="notificacoes-botao-voltar" // <--- ADICIONADO PARA O APPIUM
+          onPress={() => setScreen('menu')}>
             <Ionicons name="arrow-back" size={26} color="#fff" />
           </TouchableOpacity>
 
@@ -154,7 +157,10 @@ const NotificacoesScreen = ({
             </View>
         ) : notificacoes.length === 0 ? (
 
-            <View style={styles.emptyContainer}>
+            <View 
+              testID="notificacoes-vazio" // <--- ADICIONADO PARA O APPIUM
+              style={styles.emptyContainer}
+            >
                 <Ionicons
                   name={erro ? 'alert-circle-outline' : 'notifications-off-outline'}
                   size={60}

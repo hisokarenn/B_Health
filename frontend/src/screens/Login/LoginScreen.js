@@ -141,13 +141,15 @@ const LoginScreen = ({ setScreen, onLoginSuccess }) => {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} testID="tela-login" accessibilityLabel="tela-login">
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'android' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'android' ? 0 : -50}
       >
         <ScrollView
+          testID="login-scroll"
+          accessibilityLabel="login-scroll"
           contentContainerStyle={{ flexGrow: 1 }}
           showsVerticalScrollIndicator={false}
         >
@@ -163,7 +165,7 @@ const LoginScreen = ({ setScreen, onLoginSuccess }) => {
                 source={require('../../../assets/bhealth.png')}
                 style={styles.logo}
               />
-              <Text style={styles.titulo}>B Health</Text>
+              <Text testID="login-logo-texto" accessibilityLabel="login-logo-texto" style={styles.titulo}>B Health</Text>
             </LinearGradient>
 
             <Text style={styles.loginTitulo}>Login</Text>
@@ -171,6 +173,8 @@ const LoginScreen = ({ setScreen, onLoginSuccess }) => {
             <View style={styles.containerLogin}>
               <Text style={styles.emaileSenha}>E-mail*</Text>
               <TextInput
+                testID="login-input-email" // <--- ADICIONADO PARA O APPIUM
+                accessibilityLabel="login-input-email"
                 placeholder="Digite o seu usuário"
                 placeholderTextColor="#999"
                 style={styles.input}
@@ -186,6 +190,8 @@ const LoginScreen = ({ setScreen, onLoginSuccess }) => {
               <Text style={styles.emaileSenha}>Senha*</Text>
               <View style={styles.senhaContainer}>
                 <TextInput
+                  testID="login-input-senha" // <--- ADICIONADO PARA O APPIUM
+                  accessibilityLabel="login-input-senha"
                   placeholder="Digite a sua senha"
                   placeholderTextColor="#999"
                   secureTextEntry={!showPassword}
@@ -197,6 +203,8 @@ const LoginScreen = ({ setScreen, onLoginSuccess }) => {
                   style={[styles.input, { flex: 1, marginBottom: 0 }]}
                 />
                 <TouchableOpacity
+                  testID="login-botao-mostrar-senha"
+                  accessibilityLabel="login-botao-mostrar-senha"
                   onPress={() => setShowPassword(!showPassword)}
                   style={{ marginHorizontal: 8 }}
                 >
@@ -217,6 +225,8 @@ const LoginScreen = ({ setScreen, onLoginSuccess }) => {
               ) : null}
 
               <TouchableOpacity
+                testID="login-checkbox-lembrarme" // <--- ADICIONADO PARA O APPIUM
+                accessibilityLabel="login-checkbox-lembrarme"
                 style={styles.checkboxContainer}
                 onPress={() => {
                   setLembrarMe(!lembrarMe);
@@ -232,6 +242,8 @@ const LoginScreen = ({ setScreen, onLoginSuccess }) => {
               </TouchableOpacity>
 
               <TouchableOpacity
+                testID="login-botao-entrar" // <--- ADICIONADO PARA O APPIUM
+                accessibilityLabel="login-botao-entrar"
                 style={[styles.botao, loading && styles.btnDesativado]}
                 onPress={handleLogin}
                 disabled={loading}
@@ -245,6 +257,8 @@ const LoginScreen = ({ setScreen, onLoginSuccess }) => {
 
               {/* 3. Botão de Esqueci Minha Senha adicionado aqui */}
               <TouchableOpacity
+                testID="login-botao-esqueci-senha" // <--- ADICIONADO PARA O APPIUM
+                accessibilityLabel="login-botao-esqueci-senha"
                 style={[styles.esqueciSenhaButton, loadingRecuperacao && styles.linkDesativado]}
                 onPress={handleEsqueciSenha}
                 disabled={loadingRecuperacao}
@@ -258,7 +272,11 @@ const LoginScreen = ({ setScreen, onLoginSuccess }) => {
                 <Text style={styles.feedbackErro}>{erroRecuperacao}</Text>
               ) : null}
 
-              <TouchableOpacity onPress={() => setScreen('cadastro')}>
+              <TouchableOpacity 
+                testID="login-botao-cadastro" // <--- ADICIONADO PARA O APPIUM
+                accessibilityLabel="login-botao-cadastro"
+                onPress={() => setScreen('cadastro')}
+              >
                 <Text style={styles.cadastroDois}>É novo aqui? Cadastre-se</Text>
               </TouchableOpacity>
             </View>

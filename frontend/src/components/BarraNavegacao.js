@@ -1,68 +1,54 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from "react-native";
-import { fonte } from '../utilitarios/responsivo';
-
+import { View, Text, TouchableOpacity, StyleSheet, Dimensions, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const { width, height } = Dimensions.get("window");
-const ICONE_TAM = width * 0.05;
+const { width } = Dimensions.get("window");
+const scale = width / 375;
+const rs = (size) => Math.round(size * scale);
+const font = (size) => Math.min(Math.round(size * scale), Math.round(size * 1.35));
 
-export default function BottomNav({ active, setScreen, temNotificacao }) { 
-    const activeItem = active === "home" ? "menu" : active;
-    const isActive = (screen) => activeItem === screen;
+const tabs = [
+    { key: "menu", icon: "home-outline", label: "Principal" },
+    { key: "notificacoes", icon: "notifications-outline", label: "Notificações" },
+    { key: "perfil", icon: "person-outline", label: "Perfil" },
+];
+
+export default function BottomNav({ active, setScreen, temNotificacao }) {
+    const insets = useSafeAreaInsets();
+    const bottomInset = Math.max(insets.bottom, Platform.OS === "android" ? rs(8) : rs(4));
+    const iconSize = Math.min(rs(22), 28);
 
     return (
-        <View style={styles.wrapper}>
+        <View style={[styles.wrapper, { bottom: bottomInset }]}>
             <View style={styles.navContainer}>
-                
-                {/*menu */}
-                <TouchableOpacity
-                    style={[styles.navItem, isActive("menu") && styles.navItemAtivo]}
-                    onPress={() => setScreen("menu")}
-                >
-                    <Ionicons
-                        name="home-outline"
-                        size={ICONE_TAM}
-                        color={isActive("menu") ? "#ffffff" : "rgba(255,255,255,0.55)"}
-                    />
-                    <Text style={[styles.navTexto, isActive("menu") && styles.textoAtivo]}>
-                        Principal
-                    </Text>
-                </TouchableOpacity>
+                {tabs.map((tab) => {
+                    const isActive = active === tab.key || (active === "home" && tab.key === "menu");
+                    const isNotificationTab = tab.key === "notificacoes";
 
-                {/*notificações*/}
-                <TouchableOpacity
-                    style={[styles.navItem, isActive("notificacoes") && styles.navItemAtivo]}
-                    onPress={() => setScreen("notificacoes")}
-                > 
-                    <View>
-                        <Ionicons
-                            name="notifications-outline"
-                            size={ICONE_TAM}
-                            color={isActive("notificacoes") ? "#ffffff" : "rgba(255,255,255,0.55)"}
-                        />
-                        {/* Exibe a bolinha se temNotificacao for true */}
-                        {temNotificacao && <View style={styles.badge} />} 
-                    </View>
-                    <Text style={[styles.navTexto, isActive("notificacoes") && styles.textoAtivo]}>
-                        Notificações
-                    </Text>
-                </TouchableOpacity>
-
-                {/*perfil*/}
-                <TouchableOpacity
-                    style={[styles.navItem, isActive("perfil") && styles.navItemAtivo]}
-                    onPress={() => setScreen("perfil")}
-                >
-                    <Ionicons
-                        name="person-outline"
-                        size={ICONE_TAM}
-                        color={isActive("perfil") ? "#ffffff" : "rgba(255,255,255,0.55)"}
-                    />
-                    <Text style={[styles.navTexto, isActive("perfil") && styles.textoAtivo]}>
-                        Perfil
-                    </Text>
-                </TouchableOpacity>
+                    return (
+                        <TouchableOpacity
+                            key={tab.key}
+                            style={styles.navItem}
+                            onPress={() => setScreen(tab.key)}
+                            activeOpacity={0.7}
+                        >
+                            <View>
+                                <Ionicons
+                                    name={tab.icon}
+                                    size={iconSize}
+                                    color={isActive ? "#ffffff" : "rgba(255,255,255,0.5)"}
+                                />
+                                {isNotificationTab && temNotificacao && (
+                                    <View style={styles.badge} />
+                                )}
+                            </View>
+                            <Text style={[styles.navTexto, isActive && styles.textoAtivo]}>
+                                {tab.label}
+                            </Text>
+                        </TouchableOpacity>
+                    );
+                })}
             </View>
         </View>
     );
@@ -71,62 +57,58 @@ export default function BottomNav({ active, setScreen, temNotificacao }) {
 const styles = StyleSheet.create({
     wrapper: {
         position: "absolute",
-        bottom: width * 0.03,
         width: "100%",
         alignItems: "center",
     },
 
     navContainer: {
         backgroundColor: "rgba(15, 34, 86, 0.97)", 
-        width: width * 0.95,
-        height: width * 0.20,
-        borderRadius: 32,
+        width: Math.min(width * 0.92, 420),
+        height: Math.max(rs(62), 56),
+        borderRadius: rs(32),
         flexDirection: "row",
         justifyContent: "space-around",
         alignItems: "center",
-        paddingHorizontal: width * 0.05,
+        paddingHorizontal: rs(20),
 
         shadowColor: "#000",
-        shadowOpacity: 0.2,
+        shadowOpacity: 0.25,
         shadowOffset: { width: 0, height: 4 },
-        shadowRadius: 8,
-        elevation: 8,
-        marginBottom: height * 0.015,
+        shadowRadius: 10,
+        elevation: 10,
+        marginBottom: 3,
     },
 
     navItem: {
         alignItems: "center",
         justifyContent: "center",
-        minWidth: width * 0.23,
-        minHeight: width * 0.14,
-        borderRadius: 20,
-    },
-
-    navItemAtivo: {
-        backgroundColor: "rgba(255,255,255,0.14)",
+        paddingHorizontal: rs(12),
+        paddingVertical: rs(6),
+        minWidth: rs(60),
     },
 
     navTexto: {
-        fontSize: fonte(13),
-        marginTop: 4,
-        color: "rgba(255,255,255,0.65)",
+        fontSize: Math.min(font(11), 14),
+        marginTop: rs(3),
+        color: "rgba(255,255,255,0.55)",
         fontWeight: "600",
     },
 
     textoAtivo: {
-        color: "#fff",
+        color: "#ffffff",
         fontWeight: "700",
     },
 
     badge: {
-        position: 'absolute',
-        right: -2,
-        top: -2,
-        width: 10,
-        height: 10,
-        borderRadius: 5,
-        backgroundColor: '#28a745',
-        borderColor: '#143582ff',
+        position: "absolute",
+        right: -rs(3),
+        top: -rs(3),
+        width: rs(10),
+        height: rs(10),
+        borderRadius: rs(5),
+        backgroundColor: "#28a745",
+        borderWidth: 1.5,
+        borderColor: "rgba(15, 34, 86, 0.97)",
         zIndex: 10,
-    }
+    },
 });

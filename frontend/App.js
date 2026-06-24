@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import LoginScreen from './src/screens/Login/LoginScreen';
 import CadastroScreen from './src/screens/Cadastro/CadastroScreen';
@@ -152,20 +153,21 @@ export default function App() {
   }
 
   return (
-    <View style={styles.rootContainer}>
-      <ScreenTransition screenKey={currentScreen}>
-        {renderScreen()}
-      </ScreenTransition>
-    
-      {showBottomNav && (
+    <SafeAreaProvider>
+      <View style={styles.rootContainer}>
+        <ScreenTransition screenKey={currentScreen}>
+          {renderScreen()}
+        </ScreenTransition>
+
+        {showBottomNav && (
           <BottomNav
-            style={styles.navBar}
             active={currentScreen} 
             setScreen={setCurrentScreen} 
             temNotificacao={temNotificacao} 
           />
-      )}
-    </View>
+        )}
+      </View>
+    </SafeAreaProvider>
   );
 }
 
@@ -177,10 +179,6 @@ const styles = StyleSheet.create({
 
   fullScreen: {
     flex: 1,
-  },
-
-  navBar: {
-    marginBottom: 20
   },
 
   configContainer: {

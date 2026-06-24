@@ -13,7 +13,7 @@ function InicioScreen({ setScreen }) {
       colors={["#0b2139ff", "#105eb1ff", "#b6d4ffff"]}
       style={styles.gradient}
     >
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} testID="tela-inicio" accessibilityLabel="tela-inicio">
         
         <View style={styles.logoArea}>
           <View style={styles.logoIcone}/>
@@ -24,11 +24,24 @@ function InicioScreen({ setScreen }) {
           style={styles.img}
         />
 
-        <Text style={styles.logoTexto}>B HEALTH</Text>
+        <Text 
+          testID="inicio-logo-texto" // <--- ADICIONADO PARA O APPIUM
+          accessibilityLabel="inicio-logo-texto"
+          style={styles.logoTexto}
+        >
+          B HEALTH
+        </Text>
 
-        <TouchableOpacity style={styles.btn} onPress={() => setScreen("login")}>
+        <TouchableOpacity 
+          testID="inicio-botao-entrar" // <--- ADICIONADO PARA O APPIUM
+          accessibilityLabel="inicio-botao-entrar"
+          accessibilityRole="button"
+          accessible={true}
+          style={styles.btn} 
+          onPress={() => setScreen("login")}
+        >
             <Text style={styles.btnTexto}>Entrar</Text>
-          </TouchableOpacity>
+        </TouchableOpacity>
 
       </SafeAreaView>
     </LinearGradient>

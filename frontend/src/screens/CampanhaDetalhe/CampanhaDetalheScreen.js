@@ -151,8 +151,8 @@ const CampanhaDetalheScreen = ({ campanhaDados, setScreen }) => {
       </html>
     `, [coordenadas.lat, coordenadas.lng]);
 
-    const InfoRow = ({ icon, label, value, isBold = false }) => (
-        <View style={styles.infoRow}>
+    const InfoRow = ({ icon, label, value, isBold = false, testID }) => (
+        <View testID={testID} style={styles.infoRow}>
             <View style={styles.iconeDetalhes}>
                 <Ionicons name={icon} size={20} color={"#0d2a53ff"} />
             </View>
@@ -166,7 +166,7 @@ const CampanhaDetalheScreen = ({ campanhaDados, setScreen }) => {
     );
 
     return (
-        <SafeAreaView style={styles.safe}>
+        <SafeAreaView style={styles.safe} testID="tela-campanha-detalhe" accessibilityLabel="tela-campanha-detalhe">
         <View style={styles.container}>
             <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
                 
@@ -180,7 +180,12 @@ const CampanhaDetalheScreen = ({ campanhaDados, setScreen }) => {
                         colors={['rgba(0,0,0,0.6)', 'transparent', 'rgba(0,0,0,0.8)']}
                         style={styles.detailOverlay}
                     />
-                    <TouchableOpacity style={styles.btnVoltar} onPress={() => setScreen('campanhas')}>
+                    <TouchableOpacity 
+                        testID="campanha-detalhe-botao-voltar" // <--- ADICIONADO PARA O APPIUM
+                        accessibilityLabel="campanha-detalhe-botao-voltar"
+                        style={styles.btnVoltar} 
+                        onPress={() => setScreen('campanhas')}
+                    >
                         <Ionicons name="arrow-back" size={24} color="#FFF" />
                     </TouchableOpacity>
                     
@@ -188,14 +193,20 @@ const CampanhaDetalheScreen = ({ campanhaDados, setScreen }) => {
                         <View style={styles.tipoBadge}>
                             <Text style={styles.tipoBadgeTexto}>{textoSeguro(item.tipo_vacina, 'Campanha')}</Text>
                         </View>
-                        <Text style={styles.detalheTitulo}>{textoSeguro(item.titulo, 'Campanha de vacinação')}</Text>
+                        <Text 
+                            testID="campanha-detalhe-titulo" // <--- ADICIONADO PARA O APPIUM
+                            accessibilityLabel="campanha-detalhe-titulo"
+                            style={styles.detalheTitulo}
+                        >
+                            {textoSeguro(item.titulo, 'Campanha de vacinação')}
+                        </Text>
                     </View>
                 </View>
 
                 <View style={styles.detalhes}>
                     
                     <Text style={styles.secaoDetalhe}>Sobre a Campanha</Text>
-                    <Text style={styles.descricaoDet}>
+                    <Text testID="campanha-descricao" accessibilityLabel="campanha-descricao" style={styles.descricaoDet}>
                         {item.descricao || 'Confira os detalhes desta campanha de vacinação e compareça à unidade mais próxima.'}
                     </Text>
 
@@ -205,7 +216,8 @@ const CampanhaDetalheScreen = ({ campanhaDados, setScreen }) => {
                     
                     <View style={styles.infoContainer}>
                         {/*horario*/}
-                        <InfoRow 
+                        <InfoRow
+                            testID="campanha-horario" 
                             icon="time-outline" 
                             label="Horário da Campanha" 
                             value={item.hora_inicio || item.hora_fim
@@ -215,7 +227,8 @@ const CampanhaDetalheScreen = ({ campanhaDados, setScreen }) => {
                             isBold={true}
                         />
 
-                        <InfoRow 
+                        <InfoRow
+                            testID="campanha-periodo" 
                             icon="calendar-outline" 
                             label="Período da Campanha" 
                             value={item.data_inicio || item.data_fim
@@ -225,6 +238,7 @@ const CampanhaDetalheScreen = ({ campanhaDados, setScreen }) => {
                         />
                         
                         <InfoRow 
+                            testID="campanha-publico-alvo"
                             icon="people-outline" 
                             label="Público Alvo" 
                             value={item.publico_alvo} 
@@ -237,11 +251,11 @@ const CampanhaDetalheScreen = ({ campanhaDados, setScreen }) => {
                     <Text style={styles.secaoDetalhe}>Localização</Text>
                     
                     <View style={styles.locCard}>
-                        <Text style={styles.nome}>
+                        <Text testID="campanha-unidade-saude" accessibilityLabel="campanha-unidade-saude" style={styles.nome}>
                             {item.unidade_saude_nome || item.locais_aplicacao || "Unidade de Saúde"}
                         </Text>
                         
-                        <Text style={styles.locTexto}>
+                        <Text testID="campanha-endereco" accessibilityLabel="campanha-endereco" style={styles.locTexto}>
                             {item.unidade_endereco 
                                 ? `${item.unidade_endereco}, ${item.unidade_cidade || ''}`
                                 : item.endereco || "Endereço não cadastrado"
@@ -290,7 +304,13 @@ const CampanhaDetalheScreen = ({ campanhaDados, setScreen }) => {
                             </View>
                         ) : null}
 
-                        <TouchableOpacity style={styles.gpsBtn} onPress={openGPS} activeOpacity={0.8}>
+                        <TouchableOpacity 
+                            testID="campanha-detalhe-botao-gps" // <--- ADICIONADO PARA O APPIUM
+                            accessibilityLabel="campanha-detalhe-botao-gps"
+                            style={styles.gpsBtn} 
+                            onPress={openGPS} 
+                            activeOpacity={0.8}
+                        >
                             <Ionicons name="navigate-circle" size={24} color="#FFF" style={{marginRight: 8}} />
                             <Text style={styles.gpsBtnTexto}>Traçar Rota no GPS</Text>
                         </TouchableOpacity>

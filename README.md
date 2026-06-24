@@ -134,6 +134,64 @@ npm run export:android
 ```
 
 Esse export valida que o app compila para Android, mas não gera um arquivo APK/AAB instalável.
+
+### Build APK Android local
+
+Para gerar um APK instalável localmente com o perfil `preview` do EAS:
+
+```bash
+cd frontend
+npm install
+
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+export PATH="$JAVA_HOME/bin:$PATH"
+
+java -version
+javac -version
+
+npx eas-cli build --platform android --profile preview --local
+```
+
+Se aparecer o erro abaixo durante a etapa `RUN_GRADLEW`, o Java configurado no ambiente é apenas o runtime e não possui o compilador `javac`:
+
+```text
+Toolchain installation '/usr/lib/jvm/java-21-openjdk-amd64' does not provide the required capabilities: [JAVA_COMPILER]
+```
+
+Corrija apontando o build local para o JDK 17 já instalado:
+
+```bash
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+export PATH="$JAVA_HOME/bin:$PATH"
+
+java -version
+javac -version
+
+npx eas-cli build --platform android --profile preview --local
+```
+
+Se outra máquina não tiver o JDK 17 instalado, instale antes de repetir o comando:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y openjdk-17-jdk
+
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+export PATH="$JAVA_HOME/bin:$PATH"
+
+java -version
+javac -version
+
+npx eas-cli build --platform android --profile preview --local
+```
+
+Para deixar o `JAVA_HOME` persistente no terminal bash:
+
+```bash
+echo 'export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64' >> ~/.bashrc
+echo 'export PATH="$JAVA_HOME/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
+```
 <br>
 <br>
 

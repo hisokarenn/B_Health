@@ -25,9 +25,14 @@ const obterIdCampanha = (item) => String(item?.id || item?.id_campanha || item?.
 const CampanhaItem = ({ item, onPress }) => {
     const [imagemFalhou, setImagemFalhou] = useState(false);
     const imagemCampanha = imagemFalhou ? IMAGEM_PLACEHOLDER : obterImagemCampanha(item);
+    
+    // Obtém um ID limpo para usar na etiqueta do Appium
+    const idCampanha = obterIdCampanha(item) || 'item';
 
     return (
         <TouchableOpacity
+            testID={`campanhas-item-${idCampanha}`} // <--- ADICIONADO PARA O APPIUM (Ex: campanhas-item-123)
+            accessibilityLabel={`campanhas-item-${idCampanha}`}
             style={styles.cartao}
             onPress={() => onPress(item)}
             activeOpacity={0.8}
@@ -228,7 +233,7 @@ const CampanhasScreen = ({ onSelectCampanha, setScreen }) => {
     }
 
     return (
-         <SafeAreaView style={styles.safe}>
+         <SafeAreaView style={styles.safe} testID="tela-campanhas" accessibilityLabel="tela-campanhas">
             <View style={styles.telaCheia}>
                 
                 <StatusBar 
@@ -242,6 +247,8 @@ const CampanhasScreen = ({ onSelectCampanha, setScreen }) => {
                     style={styles.header}>
             
                     <TouchableOpacity 
+                        testID="campanhas-botao-voltar" // <--- ADICIONADO PARA O APPIUM
+                        accessibilityLabel="campanhas-botao-voltar"
                         onPress={() => setScreen('menu')}
                         style={styles.headerIcone}
                     >
@@ -269,6 +276,8 @@ const CampanhasScreen = ({ onSelectCampanha, setScreen }) => {
                             <Text style={styles.textoMensagem}>{message}</Text>
                             {erroCarregamento && (
                                 <TouchableOpacity
+                                    testID="campanhas-botao-recarregar" // <--- ADICIONADO PARA O APPIUM
+                                    accessibilityLabel="campanhas-botao-recarregar"
                                     style={styles.botaoTentarNovamente}
                                     onPress={() => fetchCampanhas()}
                                 >

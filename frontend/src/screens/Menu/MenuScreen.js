@@ -28,7 +28,7 @@ const MenuScreen = ({ setScreen, pacienteInfo }) => {
     };
 
     return (
-        <SafeAreaView style={styles.safe}>
+        <SafeAreaView style={styles.safe} testID="tela-menu" accessibilityLabel="tela-menu">
             <View style={styles.container}>
                 {/*scroll bar*/}
                 <ScrollView
@@ -64,6 +64,8 @@ const MenuScreen = ({ setScreen, pacienteInfo }) => {
                     <Text style={styles.secaoTitulo}>Minha Carteira</Text>
 
                     <TouchableOpacity
+                        testID="menu-botao-historico" // <--- ADICIONADO PARA O APPIUM
+                        accessibilityLabel="menu-botao-historico"
                         style={styles.bigBtn}
                         onPress={() => setScreen("historico")}
                     >
@@ -73,7 +75,12 @@ const MenuScreen = ({ setScreen, pacienteInfo }) => {
 
                     <Text style={styles.secaoTitulo}>Ações de Vacinação</Text>
 
-                        <TouchableOpacity style={styles.miniBtn} onPress={() => setScreen("campanhas")}>
+                        <TouchableOpacity
+                            testID="menu-botao-campanhas" // <--- ADICIONADO PARA O APPIUM
+                            accessibilityLabel="menu-botao-campanhas"
+                            style={styles.miniBtn} 
+                            onPress={() => setScreen("campanhas")}
+                        >
                             <Text style={styles.miniBtnTexto}>Campanhas</Text>
                             <Ionicons style={styles.miniIcones} name="megaphone-outline" size={fonte(26)} color="white" />
                         </TouchableOpacity>
@@ -81,17 +88,26 @@ const MenuScreen = ({ setScreen, pacienteInfo }) => {
                     {/*ajuda e informações*/}
                     <Text style={styles.secaoTitulo}>Ajuda e Informações</Text>
 
-                    <TouchableOpacity style={styles.infoBtn} onPress={() => setModalVisibleImp(true)}>
+                    <TouchableOpacity
+                        testID="menu-botao-importancia" // <--- ADICIONADO PARA O APPIUM
+                        accessibilityLabel="menu-botao-importancia"
+                        style={styles.infoBtn} onPress={() => setModalVisibleImp(true)}>
                         <Ionicons name="alert-circle-outline" size={fonte(26)} color="#313B8D" />
                         <Text style={styles.infoBtnText}>Importância da Vacina</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.infoBtn} onPress={() => setModalVisibleFale(true)}>
+                    <TouchableOpacity
+                        testID="menu-botao-fale-conosco" // <--- ADICIONADO PARA O APPIUM
+                        accessibilityLabel="menu-botao-fale-conosco"
+                        style={styles.infoBtn} onPress={() => setModalVisibleFale(true)}>
                         <Ionicons name="call-outline" size={fonte(26)} color="#313B8D" />
                         <Text style={styles.infoBtnText}>Fale conosco</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.infoBtn} onPress={() => setModalVisibleNos(true)}>
+                    <TouchableOpacity
+                        testID="menu-botao-sobre-nos" // <--- ADICIONADO PARA O APPIUM
+                        accessibilityLabel="menu-botao-sobre-nos"
+                        style={styles.infoBtn} onPress={() => setModalVisibleNos(true)}>
                         <Ionicons name="people-circle-outline" size={fonte(26)} color="#313B8D" />
                         <Text style={styles.infoBtnText}>Sobre nós</Text>
                     </TouchableOpacity>
@@ -110,6 +126,7 @@ const MenuScreen = ({ setScreen, pacienteInfo }) => {
                             </Text>
 
                             <TouchableOpacity
+                                testID="menu-modal-importante-fechar" // <--- ADICIONADO PARA O APPIUM
                                 style={styles.FecharModal}
                                 onPress={() => setModalVisibleImp(false)}
                             >
@@ -134,6 +151,7 @@ const MenuScreen = ({ setScreen, pacienteInfo }) => {
                             </Text>
 
                             <TouchableOpacity
+                                testID="menu-modal-fale-conosco-fechar" // <--- ADICIONADO PARA O APPIUM
                                 style={styles.FecharModal}
                                 onPress={() => setModalVisibleFale(false)}
                             >
@@ -156,6 +174,7 @@ const MenuScreen = ({ setScreen, pacienteInfo }) => {
                             </Text>
 
                             <TouchableOpacity
+                                testID="menu-modal-sobre-nos-fechar" // <--- ADICIONADO PARA O APPIUM
                                 style={styles.FecharModal}
                                 onPress={() => setModalVisibleNos(false)}
                             >
