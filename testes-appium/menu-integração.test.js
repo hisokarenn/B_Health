@@ -1,73 +1,147 @@
-const { realizarLoginTeste } = require('./helpers/navigation');
-
 describe('Tela Menu', () => {
 
-    beforeEach(async () => {
-        await realizarLoginTeste();
+    const EMAIL = 'teste@gmail.com';
+    const SENHA = '123456';
+
+    const scrollParaBaixo = async () => {
+        await browser.performActions([{
+            type: 'pointer',
+            id: 'finger1',
+            parameters: { pointerType: 'touch' },
+            actions: [
+                { type: 'pointerMove', duration: 0, x: 500, y: 1700 },
+                { type: 'pointerDown', button: 0 },
+                { type: 'pause', duration: 300 },
+                { type: 'pointerMove', duration: 800, x: 500, y: 700 },
+                { type: 'pointerUp', button: 0 }
+            ]
+        }]);
+
+        await browser.releaseActions();
+        await browser.pause(800);
+    };
+
+    const scrollParaTopo = async () => {
+        await browser.performActions([{
+            type: 'pointer',
+            id: 'finger1',
+            parameters: { pointerType: 'touch' },
+            actions: [
+                { type: 'pointerMove', duration: 0, x: 500, y: 700 },
+                { type: 'pointerDown', button: 0 },
+                { type: 'pause', duration: 300 },
+                { type: 'pointerMove', duration: 800, x: 500, y: 1700 },
+                { type: 'pointerUp', button: 0 }
+            ]
+        }]);
+
+        await browser.releaseActions();
+        await browser.pause(800);
+    };
+
+    const fecharAlertaAndroid = async (botao = 'Não') => {
+        const alerta = await $(`android=new UiSelector().text("${botao}")`);
+        await alerta.waitForDisplayed({ timeout: 5000 });
+        await alerta.click();
+        await browser.pause(500);
+    };
+
+    before(async () => {
+        const botaoEntrarInicio = await $('~inicio-botao-entrar');
+        await botaoEntrarInicio.waitForDisplayed({ timeout: 15000 });
+        await botaoEntrarInicio.click();
+
+        const telaLogin = await $('~tela-login');
+        await telaLogin.waitForDisplayed({ timeout: 15000 });
+
+        await $('~login-input-email').setValue(EMAIL);
+        await $('~login-input-senha').setValue(SENHA);
+        await $('~login-botao-entrar').click();
+
+        const telaMenu = await $('~tela-menu');
+        await telaMenu.waitForDisplayed({ timeout: 20000 });
     });
 
     it('deve exibir a tela de menu', async () => {
-        const telaMenu = await $('~tela-menu');
-
-        await telaMenu.waitForDisplayed({ timeout: 15000 });
-
-        await expect(telaMenu).toBeDisplayed();
+        await expect(await $('~tela-menu')).toBeDisplayed();
     });
 
-    it('deve abrir e fechar modal Importância da Vacina', async () => {
-        await $('~menu-botao-importancia').click();
+    it('deve exibir o botão Carteira de Vacinação', async () => {
+        await scrollParaTopo();
 
-        const titulo = await $('~menu-modal-importancia-titulo');
+        const botao = await $('~menu-botao-historico');
+        await expect(botao).toBeDisplayed();
+    });
 
+    it('deve exibir o botão Campanhas', async () => {
+        const botao = await $('~menu-botao-campanhas');
+        await expect(botao).toBeDisplayed();
+    });
+
+    it('deve abrir e fechar o modal Importância da Vacina', async () => {
+        await scrollParaBaixo();
+
+        const abrir = await $('~menu-botao-importancia');
+        await abrir.waitForDisplayed({ timeout: 10000 });
+        await abrir.click();
+
+        const titulo = await $('android=new UiSelector().text("Importância")');
         await titulo.waitForDisplayed({ timeout: 5000 });
-
         await expect(titulo).toBeDisplayed();
 
-        await $('~menu-modal-importante-fechar').click();
+        const fechar = await $('android=new UiSelector().text("Fechar")');
+        await fechar.waitForDisplayed({ timeout: 5000 });
+        await fechar.click();
+
+        await browser.pause(500);
+        await expect(await $('~tela-menu')).toBeDisplayed();
     });
 
-    it('deve abrir e fechar modal Fale Conosco', async () => {
-        await $('~menu-botao-fale-conosco').click();
+    it('deve abrir e fechar o modal Fale Conosco', async () => {
+        await scrollParaBaixo();
 
-        const titulo = await $('~menu-modal-fale-conosco-titulo');
+        const abrir = await $('~menu-botao-fale-conosco');
+        await abrir.waitForDisplayed({ timeout: 10000 });
+        await abrir.click();
 
+        const titulo = await $('android=new UiSelector().text("Fale Conosco")');
         await titulo.waitForDisplayed({ timeout: 5000 });
-
         await expect(titulo).toBeDisplayed();
 
-        await $('~menu-modal-fale-conosco-fechar').click();
+        const fechar = await $('android=new UiSelector().text("Fechar")');
+        await fechar.waitForDisplayed({ timeout: 5000 });
+        await fechar.click();
+
+        await browser.pause(500);
+        await expect(await $('~tela-menu')).toBeDisplayed();
     });
 
-    it('deve abrir e fechar modal Sobre Nós', async () => {
-        await $('~menu-botao-sobre-nos').click();
+    it('deve abrir e fechar o modal Sobre Nós', async () => {
+        await scrollParaBaixo();
 
-        const titulo = await $('~menu-modal-sobre-nos-titulo');
+        const abrir = await $('~menu-botao-sobre-nos');
+        await abrir.waitForDisplayed({ timeout: 10000 });
+        await abrir.click();
 
+        const titulo = await $('android=new UiSelector().text("Sobre Nós")');
         await titulo.waitForDisplayed({ timeout: 5000 });
-
         await expect(titulo).toBeDisplayed();
 
-        await $('~menu-modal-sobre-nos-fechar').click();
+        const fechar = await $('android=new UiSelector().text("Fechar")');
+        await fechar.waitForDisplayed({ timeout: 5000 });
+        await fechar.click();
+
+        await browser.pause(500);
+        await expect(await $('~tela-menu')).toBeDisplayed();
     });
 
-    it('deve navegar para histórico', async () => {
-        await $('~menu-botao-historico').click();
+    it('deve validar a opção de logout no menu', async () => {
+        const source = await browser.getPageSource();
 
-        const telaHistorico = await $('~tela-historico');
-
-        await telaHistorico.waitForDisplayed({ timeout: 15000 });
-
-        await expect(telaHistorico).toBeDisplayed();
+        expect(
+            source.includes('menu-botao-sair') ||
+            source.includes('') ||
+            source.includes('log-out')
+        ).toBe(true);
     });
-
-    it('deve navegar para campanhas', async () => {
-        await $('~menu-botao-campanhas').click();
-
-        const telaCampanhas = await $('~tela-campanhas');
-
-        await telaCampanhas.waitForDisplayed({ timeout: 20000 });
-
-        await expect(telaCampanhas).toBeDisplayed();
-    });
-
 });

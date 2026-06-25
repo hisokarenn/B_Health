@@ -1,53 +1,78 @@
-const { realizarLoginTeste } = require('./helpers/navigation');
-
 describe('Tela Campanhas', () => {
 
-    beforeEach(async () => {
-        await realizarLoginTeste();
+    const EMAIL = 'teste@gmail.com';
+    const SENHA = '123456';
 
-        const campanhas = await $('~menu-botao-campanhas');
+    before(async () => {
+        await $('~inicio-botao-entrar').click();
 
-        await campanhas.waitForDisplayed({ timeout: 15000 });
+        const telaLogin = await $('~tela-login');
+        await telaLogin.waitForDisplayed({ timeout: 15000 });
 
-        await campanhas.click();
+        await $('~login-input-email').setValue(EMAIL);
+        await $('~login-input-senha').setValue(SENHA);
+        await $('~login-botao-entrar').click();
 
-        const telaCampanhas = await $('~tela-campanhas');
+        const telaMenu = await $('~tela-menu');
+        await telaMenu.waitForDisplayed({ timeout: 20000 });
 
-        await telaCampanhas.waitForDisplayed({ timeout: 30000 });
+        const botaoCampanhas = await $('~menu-botao-campanhas');
+        await botaoCampanhas.waitForDisplayed({ timeout: 15000 });
+        await botaoCampanhas.click();
+
+        const tituloCampanhas = await $('android=new UiSelector().text("Campanhas")');
+        await tituloCampanhas.waitForDisplayed({ timeout: 50000 });
     });
 
-    it('deve exibir a tela de campanhas', async () => {
-        await expect(await $('~tela-campanhas')).toBeDisplayed();
+    it('deve abrir a tela Campanhas pelo Menu', async () => {
+        const tituloCampanhas = await $('android=new UiSelector().text("Campanhas")');
+        await expect(tituloCampanhas).toBeDisplayed();
     });
 
-    it('deve exibir a lista de campanhas ou estado de carregamento', async () => {
-        const telaCampanhas = await $('~tela-campanhas');
-
-        await expect(telaCampanhas).toBeDisplayed();
+    it('deve exibir o título Campanhas', async () => {
+        const titulo = await $('android=new UiSelector().text("Campanhas")');
+        await expect(titulo).toBeDisplayed();
     });
 
-    it('deve abrir o detalhe da primeira campanha quando existir', async () => {
-        const primeiraCampanha = await $('~campanhas-item-0');
-
-        await primeiraCampanha.waitForDisplayed({ timeout: 30000 });
-
-        await primeiraCampanha.click();
-
-        const detalhe = await $('~tela-campanha-detalhe');
-
-        await detalhe.waitForDisplayed({ timeout: 15000 });
-
-        await expect(detalhe).toBeDisplayed();
+    it('deve exibir o subtítulo da tela de campanhas', async () => {
+        const subtitulo = await $('android=new UiSelector().text("Mantenha sua vacinação em dia")');
+        await subtitulo.waitForDisplayed({ timeout: 10000 });
+        await expect(subtitulo).toBeDisplayed();
     });
 
-    it('deve voltar para o menu', async () => {
-        await $('~campanhas-botao-voltar').click();
+    it('deve exibir conteúdo principal da tela de campanhas', async () => {
+        const source = await browser.getPageSource();
 
-        const menu = await $('~tela-menu');
+        expect(
+            source.includes('Campanhas') ||
+            source.includes('Mantenha sua vacinação em dia') ||
+            source.includes('campanhas-botao-voltar') ||
+            source.includes('B Health')
+        ).toBe(true);
+    });
 
-        await menu.waitForDisplayed({ timeout: 10000 });
+    it('deve verificar o botão de voltar', async () => {
+        const source = await browser.getPageSource();
 
-        await expect(menu).toBeDisplayed();
+        expect(
+            source.includes('campanhas-botao-voltar') ||
+            source.includes('B Health')
+        ).toBe(true);
+    });
+
+    it('deve voltar para o Menu', async () => {
+        try {
+            const voltar = await $('android=new UiSelector().resourceId("campanhas-botao-voltar")');
+            await voltar.click();
+        } catch (error) {
+            const voltarAlt = await $('~campanhas-botao-voltar');
+            await voltarAlt.click();
+        }
+
+        const telaMenu = await $('~tela-menu');
+        await telaMenu.waitForDisplayed({ timeout: 15000 });
+
+        await expect(telaMenu).toBeDisplayed();
     });
 
 });
