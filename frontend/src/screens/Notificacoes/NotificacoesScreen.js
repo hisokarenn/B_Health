@@ -7,6 +7,7 @@ import { Ionicons } from "@expo/vector-icons";
 import {
   buscarCampanhasNaoLidas,
   marcarNotificacaoComoLida,
+  marcarNotificacoesComoLidas,
   obterCampanhaId,
 } from '../../utilitarios/Notificacoes';
 import { obterMensagemFalhaTemporaria } from '../../utilitarios/Erros';
@@ -25,7 +26,7 @@ const NotificacaoItem = ({ item, onPress, disabled }) => {
 
   return (
     <TouchableOpacity
-      testID={`notificacoes-item-${idNotificacao}`} // <--- ADICIONADO PARA O APPIUM (Ex: notificacoes-item-123)
+      testID={`notificacoes-item-${obterCampanhaId(item)}`} // <--- ADICIONADO PARA O APPIUM (Ex: notificacoes-item-123)
       style={[styles.card, disabled && styles.cardDesabilitado]} 
       onPress={() => onPress(item)}
       activeOpacity={0.9}
@@ -82,6 +83,12 @@ const NotificacoesScreen = ({
 
       if (naoLidas.length === 0) {
         setMensagem('Nenhuma campanha nova');
+      } else {
+        // Acessar a tela marca as campanhas exibidas como lidas e limpa o badge.
+        await marcarNotificacoesComoLidas(naoLidas.map(obterCampanhaId));
+        if (onNotificationsAccessed) {
+          await onNotificationsAccessed();
+        }
       }
     } catch (error) {
       console.error("Erro ao carregar notificações", error);
@@ -93,6 +100,8 @@ const NotificacoesScreen = ({
     } finally {
       setLoading(false);
     }
+    // onNotificationsAccessed é intencionalmente omitido das deps: ele não é
+    // memoizado no App e recarregaria a lista (esvaziando-a) a cada atualização do badge.
   }, [uidUsuario]);
 
   useEffect(() => {
@@ -114,7 +123,7 @@ const NotificacoesScreen = ({
         Alert.alert('Sincronização pendente', resultado.mensagem);
       }
 
-      setNotificacoes(prev => prev.filter(item => obterCampanhaId(item) !== campanhaId));
+      // A campanha lida permanece na lista; só é removida 5 dias após a leitura.
 
       if (onNotificationsAccessed) {
         await onNotificationsAccessed();
